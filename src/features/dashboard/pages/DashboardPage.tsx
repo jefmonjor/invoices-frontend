@@ -51,3 +51,5 @@ export const DashboardPage = () => {
     </Box>
   );
 };
+
+export default DashboardPage;

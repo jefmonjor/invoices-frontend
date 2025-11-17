@@ -43,3 +43,5 @@ export const ClientCreatePage: React.FC = () => {
     </Box>
   );
 };
+
+export default ClientCreatePage;

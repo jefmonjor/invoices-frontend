@@ -125,3 +125,5 @@ export const CompaniesListPage: React.FC = () => {
     </Box>
   );
 };
+
+export default CompaniesListPage;

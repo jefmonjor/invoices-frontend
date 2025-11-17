@@ -198,3 +198,5 @@ export const InvoicesListPage: React.FC = () => {
     </Box>
   );
 };
+
+export default InvoicesListPage;

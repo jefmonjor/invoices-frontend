@@ -188,3 +188,5 @@ export const ProfilePage: React.FC = () => {
     </Box>
   );
 };
+
+export default ProfilePage;

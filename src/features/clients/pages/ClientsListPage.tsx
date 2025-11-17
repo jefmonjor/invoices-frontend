@@ -125,3 +125,5 @@ export const ClientsListPage: React.FC = () => {
     </Box>
   );
 };
+
+export default ClientsListPage;

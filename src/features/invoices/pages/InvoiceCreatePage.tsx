@@ -33,3 +33,5 @@ export const InvoiceCreatePage: React.FC = () => {
     </Box>
   );
 };
+
+export default InvoiceCreatePage;

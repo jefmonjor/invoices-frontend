@@ -74,3 +74,5 @@ export const ClientEditPage: React.FC = () => {
     </Box>
   );
 };
+
+export default ClientEditPage;

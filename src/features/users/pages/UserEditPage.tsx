@@ -80,3 +80,5 @@ export const UserEditPage: React.FC = () => {
     </Box>
   );
 };
+
+export default UserEditPage;

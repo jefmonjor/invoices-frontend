@@ -43,3 +43,5 @@ export const UserCreatePage: React.FC = () => {
     </Box>
   );
 };
+
+export default UserCreatePage;

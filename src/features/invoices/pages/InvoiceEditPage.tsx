@@ -93,3 +93,5 @@ export const InvoiceEditPage: React.FC = () => {
     </Box>
   );
 };
+
+export default InvoiceEditPage;

@@ -43,3 +43,5 @@ export const CompanyCreatePage: React.FC = () => {
     </Box>
   );
 };
+
+export default CompanyCreatePage;

@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 
 interface HeaderProps {
   onDrawerToggle: () => void;
@@ -78,6 +79,7 @@ export const Header: React.FC<HeaderProps> = ({ onDrawerToggle, drawerWidth }) =
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ThemeToggle />
           <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>
             {user?.firstName} {user?.lastName}
           </Typography>

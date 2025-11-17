@@ -292,3 +292,5 @@ export const InvoiceDetailPage: React.FC = () => {
     </Box>
   );
 };
+
+export default InvoiceDetailPage;
