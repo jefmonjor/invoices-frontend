@@ -5,23 +5,33 @@ import { Step2ClientSelect } from './Step2ClientSelect';
 import { Step3InvoiceData } from './Step3InvoiceData';
 import { Step4AddItems } from './Step4AddItems';
 import { Step5Review } from './Step5Review';
-import { useCreateInvoice } from '../../hooks/useInvoices';
+import { useCreateInvoice, useUpdateInvoice } from '../../hooks/useInvoices';
 import type { CreateInvoiceRequest, InvoiceItem } from '@/types/invoice.types';
 
 const steps = ['Empresa', 'Cliente', 'Datos', 'Items', 'Revisar'];
 
 interface InvoiceWizardProps {
+  mode?: 'create' | 'edit';
+  invoiceId?: number;
+  initialData?: Partial<CreateInvoiceRequest>;
   onSuccess: (invoiceId: number) => void;
   onCancel: () => void;
 }
 
-export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({ onSuccess, onCancel }) => {
+export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
+  mode = 'create',
+  invoiceId,
+  initialData,
+  onSuccess,
+  onCancel
+}) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState<Partial<CreateInvoiceRequest>>({
-    items: [],
-  });
+  const [formData, setFormData] = useState<Partial<CreateInvoiceRequest>>(
+    initialData || { items: [] }
+  );
 
   const createMutation = useCreateInvoice();
+  const updateMutation = useUpdateInvoice();
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -43,11 +53,19 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({ onSuccess, onCance
 
   const handleSubmit = async () => {
     try {
-      const invoice = await createMutation.mutateAsync(formData as CreateInvoiceRequest);
-      onSuccess(invoice.id);
+      if (mode === 'edit' && invoiceId) {
+        const invoice = await updateMutation.mutateAsync({
+          id: invoiceId,
+          data: formData as CreateInvoiceRequest,
+        });
+        onSuccess(invoice.id);
+      } else {
+        const invoice = await createMutation.mutateAsync(formData as CreateInvoiceRequest);
+        onSuccess(invoice.id);
+      }
     } catch (error) {
       // Error is handled by the mutation
-      console.error('Error creating invoice:', error);
+      console.error(`Error ${mode === 'edit' ? 'updating' : 'creating'} invoice:`, error);
     }
   };
 
@@ -95,7 +113,8 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({ onSuccess, onCance
             formData={formData as CreateInvoiceRequest}
             onSubmit={handleSubmit}
             onBack={handleBack}
-            isSubmitting={createMutation.isPending}
+            isSubmitting={createMutation.isPending || updateMutation.isPending}
+            mode={mode}
           />
         );
       default:

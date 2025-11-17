@@ -1,0 +1,59 @@
+import { apiClient } from './client';
+import type { User, CreateUserRequest, UpdateUserRequest, PagedUsers, UserListParams } from '@/types/user.types';
+
+export const usersApi = {
+  /**
+   * Obtiene lista paginada de usuarios
+   */
+  async list(params?: UserListParams): Promise<PagedUsers> {
+    const response = await apiClient.get<PagedUsers>('/users', { params });
+    return response.data;
+  },
+
+  /**
+   * Obtiene un usuario por ID
+   */
+  async getById(id: number): Promise<User> {
+    const response = await apiClient.get<User>(`/users/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Crea un nuevo usuario
+   */
+  async create(data: CreateUserRequest): Promise<User> {
+    const response = await apiClient.post<User>('/users', data);
+    return response.data;
+  },
+
+  /**
+   * Actualiza un usuario existente
+   */
+  async update(id: number, data: UpdateUserRequest): Promise<User> {
+    const response = await apiClient.put<User>(`/users/${id}`, data);
+    return response.data;
+  },
+
+  /**
+   * Elimina un usuario
+   */
+  async delete(id: number): Promise<void> {
+    await apiClient.delete(`/users/${id}`);
+  },
+
+  /**
+   * Obtiene el perfil del usuario actual
+   */
+  async getProfile(): Promise<User> {
+    const response = await apiClient.get<User>('/users/profile');
+    return response.data;
+  },
+
+  /**
+   * Actualiza el perfil del usuario actual
+   */
+  async updateProfile(data: Partial<UpdateUserRequest>): Promise<User> {
+    const response = await apiClient.put<User>('/users/profile', data);
+    return response.data;
+  },
+};
