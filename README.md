@@ -1,0 +1,147 @@
+# 🎨 Invoices Frontend - Sistema de Gestión de Facturas
+
+Frontend moderno construido con **React 18 + TypeScript + Vite**, diseñado para consumir el backend de gestión de facturas (Spring Boot 3 + Java 21).
+
+## 📦 Stack Tecnológico
+
+- **React 18** + **TypeScript 5** + **Vite 5**
+- **Material-UI** - Component library
+- **Zustand** - Estado global persistido
+- **React Query** - Server state management
+- **React Router v6** - Routing con protección
+- **Axios** - HTTP client con JWT interceptors
+- **React Hook Form** + **Zod** - Validaciones
+- **currency.js** - Manejo preciso de BigDecimal
+
+## 🚀 Inicio Rápido
+
+```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Iniciar servidor de desarrollo
+npm run dev
+
+# Abrir: http://localhost:3000
+```
+
+**Prerequisitos:** Backend corriendo en http://localhost:8080
+
+## 📁 Estructura
+
+```
+src/
+├── api/              # API Clients (Axios)
+├── features/         # Features por dominio
+│   ├── auth/         # Login/Register
+│   ├── invoices/     # Gestión de facturas
+│   └── dashboard/    # Dashboard
+├── store/            # Zustand stores
+├── utils/            # Utilidades Spring Boot 3
+│   ├── spring-errors.ts   # Bean Validation
+│   ├── formatters.ts      # BigDecimal, fechas
+│   ├── validators.ts      # Zod schemas
+│   └── constants.ts       # Enums de Java
+└── types/            # TypeScript types
+```
+
+## 🔐 Autenticación
+
+```typescript
+// Login automático con JWT
+const { setAuth } = useAuthStore();
+const response = await authApi.login({ username, password });
+setAuth(response.token, response.user);
+
+// Rutas protegidas
+<Route element={<PrivateRoute />}>
+  <Route path="/dashboard" element={<DashboardPage />} />
+</Route>
+```
+
+## 🔌 Integración Spring Boot 3
+
+### BigDecimal → number
+```typescript
+// ✅ Solo visualización
+formatCurrency(invoice.totalAmount); // "$1,500.00"
+
+// ❌ NO hacer cálculos complejos
+```
+
+### Fechas ISO-8601
+```typescript
+// Enviar
+toISODate(new Date(), true); // "2025-11-17"
+
+// Visualizar
+formatDate(invoice.createdAt); // "17/11/2025"
+```
+
+### Errores Bean Validation
+```typescript
+catch (error) {
+  setSpringErrors(error, setError); // Mapeo automático
+}
+```
+
+## 📡 API Usage
+
+```typescript
+// Listar facturas con paginación
+const { data } = await invoicesApi.list({
+  page: 0,
+  size: 20,
+  status: 'PENDING'
+});
+
+// Crear factura
+const invoice = await invoicesApi.create({
+  invoiceNumber: 'INV-001',
+  issueDate: toISODate(new Date(), true),
+  items: [...]
+});
+
+// Descargar PDF
+await invoicesApi.downloadPDF(invoice.id, invoice.invoiceNumber);
+```
+
+## 🛠️ Scripts
+
+```bash
+npm run dev       # Servidor desarrollo (puerto 3000)
+npm run build     # Build para producción
+npm run preview   # Preview del build
+npm run lint      # ESLint
+```
+
+## ✅ Features Implementadas
+
+- ✅ Autenticación JWT
+- ✅ Rutas protegidas
+- ✅ Dashboard básico
+- ✅ Integración Spring Boot 3
+- ✅ Manejo errores Bean Validation
+- ✅ Formateo BigDecimal/fechas
+- ✅ React Query cache
+- ✅ Material-UI tema personalizado
+
+## 🚀 Próximos Pasos
+
+- [ ] Lista de facturas con tabla
+- [ ] Crear/editar factura (wizard)
+- [ ] Generar PDF
+- [ ] Módulo de usuarios (Admin)
+- [ ] Dashboard con gráficas
+- [ ] Tests (Vitest)
+
+## 📚 Documentación
+
+- **Backend:** http://localhost:8080/swagger-ui.html
+- **Arquitectura:** Ver FRONTEND_ARCHITECTURE.md en repo backend
+- **MUI:** https://mui.com/
+- **React Query:** https://tanstack.com/query/latest
+
+---
+
+**¡100% compatible con Spring Boot 3 + Java 21!** 🚀
