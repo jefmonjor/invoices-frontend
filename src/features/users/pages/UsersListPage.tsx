@@ -142,3 +142,5 @@ export const UsersListPage: React.FC = () => {
     </Box>
   );
 };
+
+export default UsersListPage;

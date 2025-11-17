@@ -74,3 +74,5 @@ export const CompanyEditPage: React.FC = () => {
     </Box>
   );
 };
+
+export default CompanyEditPage;

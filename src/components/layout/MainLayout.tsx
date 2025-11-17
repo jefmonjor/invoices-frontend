@@ -3,6 +3,7 @@ import { Box, Toolbar, Container } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { Sidebar, DRAWER_WIDTH_EXPORT } from './Sidebar';
 import { Header } from './Header';
+import { Breadcrumbs } from '@/components/common/Breadcrumbs';
 
 export const MainLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -27,6 +28,7 @@ export const MainLayout: React.FC = () => {
       >
         <Toolbar /> {/* Spacer for fixed AppBar */}
         <Container maxWidth="xl" sx={{ mt: 2 }}>
+          <Breadcrumbs />
           <Outlet />
         </Container>
       </Box>
