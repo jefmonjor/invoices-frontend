@@ -1,9 +1,28 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { Invoice } from '@/types/invoice.types';
+import type { Invoice, InvoiceItem } from '@/types/invoice.types';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
-export const exportInvoiceToPDF = (invoice: Invoice) => {
+// Extended types for exports that include full company/client data
+export interface InvoiceWithDetails extends Invoice {
+  company?: {
+    name: string;
+    address: string;
+    taxId: string;
+  };
+  client?: {
+    name: string;
+    address: string;
+    taxId: string;
+  };
+}
+
+// Helper to calculate item total
+const calculateItemTotal = (item: InvoiceItem): number => {
+  return item.total ?? (item.quantity * item.unitPrice);
+};
+
+export const exportInvoiceToPDF = (invoice: InvoiceWithDetails) => {
   const doc = new jsPDF();
 
   // Header
@@ -17,21 +36,31 @@ export const exportInvoiceToPDF = (invoice: Invoice) => {
   doc.text(`Vencimiento: ${formatDate(invoice.dueDate)}`, 20, 52);
   doc.text(`Estado: ${invoice.status}`, 20, 58);
 
-  // Company info
-  doc.setFontSize(12);
-  doc.text('Empresa:', 20, 70);
-  doc.setFontSize(10);
-  doc.text(invoice.company.name, 20, 76);
-  doc.text(invoice.company.address, 20, 82);
-  doc.text(`CIF: ${invoice.company.taxId}`, 20, 88);
+  // Company info (if available)
+  if (invoice.company) {
+    doc.setFontSize(12);
+    doc.text('Empresa:', 20, 70);
+    doc.setFontSize(10);
+    doc.text(invoice.company.name, 20, 76);
+    doc.text(invoice.company.address, 20, 82);
+    doc.text(`CIF: ${invoice.company.taxId}`, 20, 88);
+  } else {
+    doc.setFontSize(10);
+    doc.text(`Empresa ID: ${invoice.companyId}`, 20, 70);
+  }
 
-  // Client info
-  doc.setFontSize(12);
-  doc.text('Cliente:', 120, 70);
-  doc.setFontSize(10);
-  doc.text(invoice.client.name, 120, 76);
-  doc.text(invoice.client.address, 120, 82);
-  doc.text(`CIF: ${invoice.client.taxId}`, 120, 88);
+  // Client info (if available)
+  if (invoice.client) {
+    doc.setFontSize(12);
+    doc.text('Cliente:', 120, 70);
+    doc.setFontSize(10);
+    doc.text(invoice.client.name, 120, 76);
+    doc.text(invoice.client.address, 120, 82);
+    doc.text(`CIF: ${invoice.client.taxId}`, 120, 88);
+  } else {
+    doc.setFontSize(10);
+    doc.text(`Cliente ID: ${invoice.clientId}`, 120, 70);
+  }
 
   // Items table
   const tableData = invoice.items.map(item => [
@@ -39,12 +68,12 @@ export const exportInvoiceToPDF = (invoice: Invoice) => {
     item.quantity,
     formatCurrency(item.unitPrice),
     `${item.taxRate}%`,
-    formatCurrency(item.subtotal),
+    formatCurrency(calculateItemTotal(item)),
   ]);
 
   autoTable(doc, {
     startY: 100,
-    head: [['Descripción', 'Cantidad', 'Precio Unit.', 'IVA', 'Subtotal']],
+    head: [['Descripción', 'Cantidad', 'Precio Unit.', 'IVA', 'Total']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [41, 128, 185] },
@@ -62,7 +91,7 @@ export const exportInvoiceToPDF = (invoice: Invoice) => {
   doc.save(`factura-${invoice.invoiceNumber}.pdf`);
 };
 
-export const exportInvoiceListToPDF = (invoices: Invoice[]) => {
+export const exportInvoiceListToPDF = (invoices: InvoiceWithDetails[]) => {
   const doc = new jsPDF();
 
   doc.setFontSize(18);
@@ -71,7 +100,7 @@ export const exportInvoiceListToPDF = (invoices: Invoice[]) => {
   const tableData = invoices.map(inv => [
     inv.invoiceNumber,
     formatDate(inv.issueDate),
-    inv.client.name,
+    inv.client?.name ?? `Cliente #${inv.clientId}`,
     formatCurrency(inv.totalAmount),
     inv.status,
   ]);

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
-import { ZodSchema, ZodError } from 'zod';
+import type { ZodSchema } from 'zod';
+import { ZodError } from 'zod';
 
 interface ValidationError {
   [key: string]: string;
@@ -20,7 +21,7 @@ export function useFormValidation<T extends Record<string, any>>(schema: ZodSche
       } catch (error) {
         if (error instanceof ZodError) {
           const validationErrors: ValidationError = {};
-          error.errors.forEach(err => {
+          error.issues.forEach((err) => {
             if (err.path) {
               validationErrors[err.path.join('.')] = err.message;
             }
@@ -38,23 +39,26 @@ export function useFormValidation<T extends Record<string, any>>(schema: ZodSche
     async (fieldName: keyof T, value: any): Promise<boolean> => {
       setIsValidating(true);
       try {
-        const fieldSchema = schema.shape[fieldName];
-        if (fieldSchema) {
-          await fieldSchema.parseAsync(value);
-          setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[fieldName as string];
-            return newErrors;
-          });
-        }
+        // Validate the entire object with just this field
+        // This is simpler and more reliable than trying to access schema.shape
+        const partialData = { [fieldName]: value } as Partial<T>;
+        await schema.parseAsync(partialData);
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[fieldName as string];
+          return newErrors;
+        });
         setIsValidating(false);
         return true;
       } catch (error) {
         if (error instanceof ZodError) {
-          setErrors(prev => ({
-            ...prev,
-            [fieldName]: error.errors[0]?.message || 'Error de validación',
-          }));
+          const fieldError = error.issues.find((err) => err.path[0] === fieldName);
+          if (fieldError) {
+            setErrors(prev => ({
+              ...prev,
+              [fieldName]: fieldError.message,
+            }));
+          }
         }
         setIsValidating(false);
         return false;

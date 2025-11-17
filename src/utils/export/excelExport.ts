@@ -2,15 +2,21 @@ import * as XLSX from 'xlsx';
 import type { Invoice } from '@/types/invoice.types';
 import type { Client } from '@/types/client.types';
 import type { Company } from '@/types/company.types';
-import { formatCurrency, formatDate } from '@/utils/formatters';
+import { formatDate } from '@/utils/formatters';
 
-export const exportInvoicesToExcel = (invoices: Invoice[]) => {
+// Extended type for invoices with company/client details
+export interface InvoiceWithDetails extends Invoice {
+  company?: { name: string };
+  client?: { name: string };
+}
+
+export const exportInvoicesToExcel = (invoices: InvoiceWithDetails[]) => {
   const data = invoices.map(inv => ({
     'N° Factura': inv.invoiceNumber,
     'Fecha Emisión': formatDate(inv.issueDate),
     'Fecha Vencimiento': formatDate(inv.dueDate),
-    'Empresa': inv.company.name,
-    'Cliente': inv.client.name,
+    'Empresa': inv.company?.name ?? `Empresa #${inv.companyId}`,
+    'Cliente': inv.client?.name ?? `Cliente #${inv.clientId}`,
     'Subtotal': inv.subtotal,
     'IVA': inv.taxAmount,
     'Total': inv.totalAmount,

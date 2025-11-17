@@ -106,3 +106,23 @@ export const sanitizeInput = (input: string): string => {
 export const isInRange = (value: number, min: number, max: number): boolean => {
   return value >= min && value <= max;
 };
+
+// Debounce utility function
+export const debounce = <T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): ((...args: Parameters<T>) => void) => {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return function executedFunction(...args: Parameters<T>) {
+    const later = () => {
+      timeout = null;
+      func(...args);
+    };
+
+    if (timeout !== null) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(later, wait);
+  };
+};
