@@ -4,7 +4,7 @@ import {
   DialogContent,
   TextField,
   List,
-  ListItem,
+  ListItemButton,
   ListItemText,
   ListItemIcon,
   Typography,
@@ -74,7 +74,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
   // Mock search function - replace with real API call
   const { data: results, isLoading } = useQuery<SearchResult[]>({
     queryKey: ['global-search', debouncedSearch],
-    queryFn: async () => {
+    queryFn: async (): Promise<SearchResult[]> => {
       if (!debouncedSearch || debouncedSearch.length < 2) {
         return [];
       }
@@ -83,22 +83,24 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
       await new Promise(resolve => setTimeout(resolve, 500));
 
       // Mock results
-      return [
+      const mockResults: SearchResult[] = [
         {
-          type: 'invoice',
+          type: 'invoice' as const,
           id: 1,
           title: 'INV-001',
           subtitle: 'Cliente: Acme Corp - €1,234.56',
           url: '/invoices/1',
         },
         {
-          type: 'company',
+          type: 'company' as const,
           id: 1,
           title: 'Mi Empresa S.L.',
           subtitle: 'CIF: B12345678',
           url: '/companies/1/edit',
         },
-      ].filter(
+      ];
+
+      return mockResults.filter(
         result =>
           result.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
           result.subtitle.toLowerCase().includes(debouncedSearch.toLowerCase())
@@ -142,9 +144,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
         {!isLoading && results && results.length > 0 && (
           <List>
             {results.map((result) => (
-              <ListItem
+              <ListItemButton
                 key={`${result.type}-${result.id}`}
-                button
                 onClick={() => handleResultClick(result.url)}
                 sx={{
                   borderRadius: 1,
@@ -164,7 +165,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
                   }
                   secondary={result.subtitle}
                 />
-              </ListItem>
+              </ListItemButton>
             ))}
           </List>
         )}
