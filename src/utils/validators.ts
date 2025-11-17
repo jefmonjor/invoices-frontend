@@ -65,3 +65,44 @@ export const validateDates = (issueDate: string, dueDate: string): boolean => {
   const due = new Date(dueDate);
   return due >= issue;
 };
+
+// Additional validators for edge cases
+export const errorMessages = {
+  required: 'Este campo es requerido',
+  invalidEmail: 'Email inválido',
+  minLength: (min: number) => `Debe tener al menos ${min} caracteres`,
+  maxLength: (max: number) => `Debe tener máximo ${max} caracteres`,
+  invalidTaxId: 'CIF/NIF inválido',
+  invalidPhone: 'Teléfono inválido',
+};
+
+// Spanish Tax ID validation
+export const validateSpanishTaxId = (value: string): boolean => {
+  if (!value) return false;
+  const cifRegex = /^[A-HJ-NP-SUVW]\d{7}[0-9A-J]$/;
+  const nifRegex = /^\d{8}[A-Z]$/;
+  const nieRegex = /^[XYZ]\d{7}[A-Z]$/;
+  return cifRegex.test(value) || nifRegex.test(value) || nieRegex.test(value);
+};
+
+// Phone validation (international format)
+export const validatePhone = (value: string): boolean => {
+  if (!value) return true; // Optional
+  const phoneRegex = /^\+?[\d\s\-()]{9,}$/;
+  return phoneRegex.test(value);
+};
+
+// Sanitize input to prevent XSS
+export const sanitizeInput = (input: string): string => {
+  return input
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
+
+// Validate number range
+export const isInRange = (value: number, min: number, max: number): boolean => {
+  return value >= min && value <= max;
+};
