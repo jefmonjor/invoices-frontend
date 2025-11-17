@@ -1,0 +1,88 @@
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import type { Invoice } from '@/types/invoice.types';
+import { formatCurrency, formatDate } from '@/utils/formatters';
+
+export const exportInvoiceToPDF = (invoice: Invoice) => {
+  const doc = new jsPDF();
+
+  // Header
+  doc.setFontSize(20);
+  doc.text('FACTURA', 105, 20, { align: 'center' });
+
+  // Invoice info
+  doc.setFontSize(10);
+  doc.text(`Número: ${invoice.invoiceNumber}`, 20, 40);
+  doc.text(`Fecha: ${formatDate(invoice.issueDate)}`, 20, 46);
+  doc.text(`Vencimiento: ${formatDate(invoice.dueDate)}`, 20, 52);
+  doc.text(`Estado: ${invoice.status}`, 20, 58);
+
+  // Company info
+  doc.setFontSize(12);
+  doc.text('Empresa:', 20, 70);
+  doc.setFontSize(10);
+  doc.text(invoice.company.name, 20, 76);
+  doc.text(invoice.company.address, 20, 82);
+  doc.text(`CIF: ${invoice.company.taxId}`, 20, 88);
+
+  // Client info
+  doc.setFontSize(12);
+  doc.text('Cliente:', 120, 70);
+  doc.setFontSize(10);
+  doc.text(invoice.client.name, 120, 76);
+  doc.text(invoice.client.address, 120, 82);
+  doc.text(`CIF: ${invoice.client.taxId}`, 120, 88);
+
+  // Items table
+  const tableData = invoice.items.map(item => [
+    item.description,
+    item.quantity,
+    formatCurrency(item.unitPrice),
+    `${item.taxRate}%`,
+    formatCurrency(item.subtotal),
+  ]);
+
+  autoTable(doc, {
+    startY: 100,
+    head: [['Descripción', 'Cantidad', 'Precio Unit.', 'IVA', 'Subtotal']],
+    body: tableData,
+    theme: 'grid',
+    headStyles: { fillColor: [41, 128, 185] },
+  });
+
+  // Totals
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(10);
+  doc.text(`Subtotal: ${formatCurrency(invoice.subtotal)}`, 140, finalY);
+  doc.text(`IVA: ${formatCurrency(invoice.taxAmount)}`, 140, finalY + 6);
+  doc.setFontSize(12);
+  doc.text(`TOTAL: ${formatCurrency(invoice.totalAmount)}`, 140, finalY + 14);
+
+  // Save
+  doc.save(`factura-${invoice.invoiceNumber}.pdf`);
+};
+
+export const exportInvoiceListToPDF = (invoices: Invoice[]) => {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text('Listado de Facturas', 105, 20, { align: 'center' });
+
+  const tableData = invoices.map(inv => [
+    inv.invoiceNumber,
+    formatDate(inv.issueDate),
+    inv.client.name,
+    formatCurrency(inv.totalAmount),
+    inv.status,
+  ]);
+
+  autoTable(doc, {
+    startY: 30,
+    head: [['N° Factura', 'Fecha', 'Cliente', 'Total', 'Estado']],
+    body: tableData,
+    theme: 'striped',
+    headStyles: { fillColor: [41, 128, 185] },
+  });
+
+  doc.save(`facturas-${new Date().toISOString().split('T')[0]}.pdf`);
+};

@@ -1,0 +1,36 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "invoices": "Invoices",
+    "companies": "Companies",
+    "clients": "Clients",
+    "users": "Users",
+    "profile": "Profile"
+  },
+  "invoices": {
+    "title": "Invoices",
+    "create": "New Invoice",
+    "number": "Invoice Number",
+    "date": "Date",
+    "dueDate": "Due Date",
+    "status": "Status",
+    "total": "Total",
+    "draft": "Draft",
+    "pending": "Pending",
+    "paid": "Paid",
+    "cancelled": "Cancelled"
+  }
+}

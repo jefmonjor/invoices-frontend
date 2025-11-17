@@ -1,0 +1,36 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "invoices": "Facturas",
+    "companies": "Empresas",
+    "clients": "Clientes",
+    "users": "Usuarios",
+    "profile": "Perfil"
+  },
+  "invoices": {
+    "title": "Facturas",
+    "create": "Nueva Factura",
+    "number": "Número de Factura",
+    "date": "Fecha",
+    "dueDate": "Fecha de Vencimiento",
+    "status": "Estado",
+    "total": "Total",
+    "draft": "Borrador",
+    "pending": "Pendiente",
+    "paid": "Pagada",
+    "cancelled": "Cancelada"
+  }
+}
