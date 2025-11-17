@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography, CircularProgress, Stack } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { companiesApi } from '@/api/companies.api';
