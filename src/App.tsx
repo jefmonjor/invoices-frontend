@@ -5,8 +5,12 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { PrivateRoute } from './routes/PrivateRoute';
+import { MainLayout } from './components/layout/MainLayout';
 import { LoginPage } from './features/auth/pages/LoginPage';
 import { DashboardPage } from './features/dashboard/pages/DashboardPage';
+import { InvoicesListPage } from './features/invoices/pages/InvoicesListPage';
+import { InvoiceDetailPage } from './features/invoices/pages/InvoiceDetailPage';
+import { InvoiceCreatePage } from './features/invoices/pages/InvoiceCreatePage';
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -42,9 +46,16 @@ function App() {
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
 
-            {/* Private routes */}
+            {/* Private routes with Layout */}
             <Route element={<PrivateRoute />}>
-              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route element={<MainLayout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+
+                {/* Invoices */}
+                <Route path="/invoices" element={<InvoicesListPage />} />
+                <Route path="/invoices/create" element={<InvoiceCreatePage />} />
+                <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+              </Route>
             </Route>
 
             {/* Default redirect */}
