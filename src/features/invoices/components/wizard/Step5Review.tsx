@@ -10,6 +10,7 @@ interface Step5ReviewProps {
   onSubmit: () => void;
   onBack: () => void;
   isSubmitting: boolean;
+  mode?: 'create' | 'edit';
 }
 
 export const Step5Review: React.FC<Step5ReviewProps> = ({
@@ -17,6 +18,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
   onSubmit,
   onBack,
   isSubmitting,
+  mode = 'create',
 }) => {
   const { data: companies } = useQuery({
     queryKey: ['companies'],
@@ -55,7 +57,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
         Paso 5: Revisar y Confirmar
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Revisa todos los datos antes de crear la factura
+        Revisa todos los datos antes de {mode === 'edit' ? 'actualizar' : 'crear'} la factura
       </Typography>
 
       <Grid container spacing={3}>
@@ -216,7 +218,10 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
           disabled={isSubmitting}
           startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
         >
-          {isSubmitting ? 'Creando...' : 'Crear Factura'}
+          {isSubmitting
+            ? (mode === 'edit' ? 'Actualizando...' : 'Creando...')
+            : (mode === 'edit' ? 'Actualizar Factura' : 'Crear Factura')
+          }
         </Button>
       </Stack>
     </Box>
