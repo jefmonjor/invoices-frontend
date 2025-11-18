@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { tracesApi } from '@/api/traces.api';
-import type { AuditLog, AuditLogListParams, EventType } from '@/types/trace.types';
+import type { AuditLogListParams, EventType } from '@/types/trace.types';
 
 /**
  * Query keys para React Query cache
