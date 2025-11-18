@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import { documentsApi } from '@/api/documents.api';
-import type { Document } from '@/types/document.types';
 
 /**
  * Query keys para React Query cache
