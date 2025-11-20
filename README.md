@@ -146,17 +146,24 @@ npm run test:coverage
 ### E2E Tests (Playwright)
 
 ```bash
-# Instalar navegadores
+# 1. Configurar credenciales (primera vez)
+cp .env.e2e.example .env.e2e.local
+# Editar .env.e2e.local con tus credenciales del backend
+
+# 2. Instalar navegadores
 npx playwright install --with-deps
 
-# Ejecutar E2E tests
+# 3. Ejecutar E2E tests
 npm run test:e2e
 
 # Con UI
 npm run test:e2e:ui
 ```
 
-**Nota**: Los tests E2E requieren el backend corriendo. Ver [E2E_TESTS.md](./E2E_TESTS.md) para más detalles.
+**⚠️ Importante**: Los tests E2E requieren:
+- Backend corriendo y accesible
+- Credenciales válidas con **email** (no username)
+- Ver [E2E_TESTS.md](./E2E_TESTS.md) para configuración detallada
 
 ## 🚀 Próximos Pasos
 
