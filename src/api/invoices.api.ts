@@ -3,13 +3,12 @@ import type {
   Invoice,
   CreateInvoiceRequest,
   InvoiceListParams,
-  PagedResponse,
 } from '@/types/invoice.types';
 
 export const invoicesApi = {
-  // Listar facturas
-  list: async (params?: InvoiceListParams): Promise<PagedResponse<Invoice>> => {
-    const response = await apiClient.get<PagedResponse<Invoice>>('/api/invoices', {
+  // Listar facturas (retorna array simple, no paginado según OpenAPI)
+  list: async (params?: InvoiceListParams): Promise<Invoice[]> => {
+    const response = await apiClient.get<Invoice[]>('/api/invoices', {
       params,
     });
     return response.data;
