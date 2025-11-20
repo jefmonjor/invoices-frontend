@@ -57,12 +57,18 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
         // Para UPDATE enviamos los campos actualizables según UpdateInvoiceRequest del backend
         // Campos actualizables: settlementNumber, notes, items
         // Campos inmutables (NO se pueden cambiar): companyId, clientId, invoiceNumber, irpfPercentage, rePercentage
+
+        // Remover campo 'id' de los items (el backend espera CreateInvoiceItemRequest que no tiene 'id')
+        // En modo EDIT, los items vienen del backend con 'id', pero CreateInvoiceItemRequest no lo tiene
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+        const itemsWithoutId = (formData.items || []).map(({ id: _id, ...item }: any) => item);
+
         const invoice = await updateMutation.mutateAsync({
           id: invoiceId,
           data: {
             settlementNumber: formData.settlementNumber,
             notes: formData.notes,
-            items: formData.items || [],
+            items: itemsWithoutId,
           },
         });
         onSuccess(invoice.id);
