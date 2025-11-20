@@ -15,7 +15,7 @@
  */
 export const formatCurrency = (
   amount: number | null | undefined,
-  currency: string = 'USD',
+  currency: string = 'EUR',
   locale: string = 'es-ES'
 ): string => {
   // Validación de entrada
