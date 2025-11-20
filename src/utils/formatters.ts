@@ -14,10 +14,20 @@
  * @param locale Locale para formateo
  */
 export const formatCurrency = (
-  amount: number,
+  amount: number | null | undefined,
   currency: string = 'USD',
   locale: string = 'es-ES'
 ): string => {
+  // Validación de entrada
+  if (amount === null || amount === undefined || isNaN(amount)) {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(0);
+  }
+
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
@@ -49,10 +59,21 @@ export const formatNumber = (value: number, decimals: number = 2): string => {
  * @param includeTime Incluir hora en el formato
  */
 export const formatDate = (
-  isoDate: string,
+  isoDate: string | null | undefined,
   includeTime: boolean = false
 ): string => {
+  // Validación de entrada
+  if (!isoDate) {
+    return 'N/A';
+  }
+
   const date = new Date(isoDate);
+
+  // Validar que la fecha es válida
+  if (isNaN(date.getTime())) {
+    console.error('Invalid date value:', isoDate);
+    return 'Fecha inválida';
+  }
 
   if (includeTime) {
     return new Intl.DateTimeFormat('es-ES', {
