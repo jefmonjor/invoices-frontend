@@ -63,16 +63,21 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
 
   const generateAndUploadPdf = async (invoice: Invoice) => {
     try {
-      // Find company and client details
+      // Find company and client details from cache
+      // These should be available from the wizard steps
       const company = companies?.find(c => c.id === invoice.companyId);
       const client = clients?.find(c => c.id === invoice.clientId);
 
       if (!company || !client) {
-        console.warn('Company or Client not found for PDF generation');
+        console.warn('Company or Client not found for PDF generation', {
+          companyId: invoice.companyId,
+          clientId: invoice.clientId
+        });
+        // Don't block invoice creation if PDF generation fails
         return;
       }
 
-      // Generate PDF blob
+      // Generate PDF blob using React-PDF
       const blob = await pdf(
         <InvoiceDocument
           invoice={invoice}
@@ -81,20 +86,24 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
         />
       ).toBlob();
 
-      // Create file from blob
+      // Create file from blob with invoice number as filename
       const filename = `${invoice.invoiceNumber}.pdf`;
       const file = new File([blob], filename, { type: 'application/pdf' });
 
-      // Upload file
+      // Upload file to backend (POST /api/documents)
+      // Backend will store in MinIO and save reference in DB
+      // Use silent mode to avoid double toast (invoice creation already shows success)
       await uploadDocumentMutation.mutateAsync({
         file,
-        invoiceId: invoice.id
+        invoiceId: invoice.id,
+        silent: true
       });
 
     } catch (error) {
       console.error('Error generating or uploading PDF:', error);
-      // Don't block success flow if PDF fails, but maybe notify user?
-      // Toast is handled in the mutation hook
+      // Don't block success flow if PDF generation fails
+      // User can regenerate PDF later if needed
+      // Toast notification is handled by the mutation hook
     }
   };
 

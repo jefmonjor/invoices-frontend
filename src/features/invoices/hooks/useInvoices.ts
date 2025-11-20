@@ -143,24 +143,39 @@ export const useGeneratePDF = () => {
 };
 
 /**
- * Hook para subir un documento
+ * Hook para subir un documento (PDF) al backend
+ * El backend almacena el archivo en MinIO y guarda la referencia en la DB
  */
 export const useUploadDocument = () => {
   return useMutation({
-    mutationFn: ({ file, invoiceId }: { file: File; invoiceId: number }) => {
+    mutationFn: ({
+      file,
+      invoiceId,
+      uploadedBy = 'system',
+      silent = false
+    }: {
+      file: File;
+      invoiceId: number;
+      uploadedBy?: string;
+      silent?: boolean;
+    }) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('invoiceId', invoiceId.toString());
-      formData.append('uploadedBy', 'system'); // Or get from auth context if available
+      formData.append('uploadedBy', uploadedBy);
 
+      // Attach silent flag to response for conditional toast
       return axios.post('/api/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      });
+      }).then(response => ({ ...response, silent }));
     },
-    onSuccess: () => {
-      toast.success('Documento subido exitosamente');
+    onSuccess: (response) => {
+      // Only show toast if not silent mode (automatic PDF generation is silent)
+      if (!response.silent) {
+        toast.success('Documento subido exitosamente');
+      }
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)

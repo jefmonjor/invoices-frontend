@@ -206,7 +206,18 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
         item => item.vehiclePlate || item.zone || item.orderNumber || item.itemDate
     );
 
+    /**
+     * IMPORTANTE: Priorizar valores calculados por el backend
+     * El backend usa BigDecimal (Java) para cálculos precisos
+     * Solo calculamos en frontend como fallback si los valores no existen
+     */
+
     const calculateSubtotal = () => {
+        // Usar baseAmount del backend si está disponible
+        if (invoice.baseAmount != null) {
+            return invoice.baseAmount;
+        }
+        // Fallback: calcular en frontend
         return invoice.items.reduce((acc, item) => {
             const itemTotal = item.units * item.price;
             const discount = itemTotal * ((item.discountPercentage || 0) / 100);
@@ -215,6 +226,7 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
     };
 
     const calculateVatAmount = () => {
+        // Calcular desde los items (el backend no almacena IVA total directamente)
         return invoice.items.reduce((acc, item) => {
             const itemTotal = item.units * item.price;
             const discount = itemTotal * ((item.discountPercentage || 0) / 100);
@@ -224,15 +236,36 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
     };
 
     const calculateIrpfAmount = () => {
+        // Usar irpfAmount del backend si está disponible
+        if (invoice.irpfAmount != null) {
+            return invoice.irpfAmount;
+        }
+        // Fallback: calcular en frontend
         const subtotal = calculateSubtotal();
         return subtotal * ((invoice.irpfPercentage || 0) / 100);
     };
 
+    const calculateReAmount = () => {
+        // Usar reAmount del backend si está disponible
+        if (invoice.reAmount != null) {
+            return invoice.reAmount;
+        }
+        // Fallback: calcular en frontend
+        const subtotal = calculateSubtotal();
+        return subtotal * ((invoice.rePercentage || 0) / 100);
+    };
+
     const calculateTotal = () => {
+        // Usar totalAmount del backend si está disponible (más preciso)
+        if (invoice.totalAmount != null) {
+            return invoice.totalAmount;
+        }
+        // Fallback: calcular en frontend
         const subtotal = calculateSubtotal();
         const vat = calculateVatAmount();
         const irpf = calculateIrpfAmount();
-        return subtotal + vat - irpf;
+        const re = calculateReAmount();
+        return subtotal + vat + re - irpf;
     };
 
     const formatAddress = (dto?: CompanyDTO | ClientDTO) => {
@@ -353,6 +386,12 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                             <Text style={styles.totalLabel}>IVA</Text>
                             <Text style={styles.totalValue}>{formatCurrency(calculateVatAmount())}</Text>
                         </View>
+                        {invoice.rePercentage > 0 && (
+                            <View style={styles.totalRow}>
+                                <Text style={styles.totalLabel}>Recargo Equiv. ({invoice.rePercentage}%)</Text>
+                                <Text style={styles.totalValue}>{formatCurrency(calculateReAmount())}</Text>
+                            </View>
+                        )}
                         {invoice.irpfPercentage > 0 && (
                             <View style={styles.totalRow}>
                                 <Text style={styles.totalLabel}>IRPF ({invoice.irpfPercentage}%)</Text>
