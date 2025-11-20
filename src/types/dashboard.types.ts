@@ -30,7 +30,7 @@ export interface RecentInvoice {
   id: number;
   invoiceNumber: string;
   clientName: string;
-  total: number;
+  totalAmount: number;
   status: string;
-  date: string;
+  issueDate: string;
 }

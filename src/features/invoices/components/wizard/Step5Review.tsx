@@ -39,7 +39,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
 
   const calculateItemDiscount = (item: typeof formData.items[0]) => {
     const subtotal = calculateItemSubtotal(item);
-    return subtotal * (item.discountPercentage / 100);
+    return subtotal * ((item.discountPercentage || 0) / 100);
   };
 
   const calculateItemVAT = (item: typeof formData.items[0]) => {
@@ -92,7 +92,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                     {formData.invoiceNumber}
                   </Typography>
                 </Grid>
-                {formData.irpfPercentage > 0 && (
+                {(formData.irpfPercentage || 0) > 0 && (
                   <Grid item xs={6}>
                     <Typography variant="caption" color="text.secondary">
                       IRPF:
@@ -100,7 +100,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                     <Typography variant="body2">{formData.irpfPercentage}%</Typography>
                   </Grid>
                 )}
-                {formData.rePercentage > 0 && (
+                {(formData.rePercentage || 0) > 0 && (
                   <Grid item xs={6}>
                     <Typography variant="caption" color="text.secondary">
                       RE:

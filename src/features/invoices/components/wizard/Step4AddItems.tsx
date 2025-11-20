@@ -60,7 +60,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
     if (item.vatPercentage < 0 || item.vatPercentage > 100) {
       newErrors.vatPercentage = 'El IVA debe estar entre 0% y 100%';
     }
-    if (item.discountPercentage < 0 || item.discountPercentage > 100) {
+    if ((item.discountPercentage || 0) < 0 || (item.discountPercentage || 0) > 100) {
       newErrors.discountPercentage = 'El descuento debe estar entre 0% y 100%';
     }
 
@@ -96,7 +96,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
 
   const calculateItemTotal = (item: InvoiceItem) => {
     const subtotal = item.units * item.price;
-    const discount = subtotal * (item.discountPercentage / 100);
+    const discount = subtotal * ((item.discountPercentage || 0) / 100);
     const subtotalAfterDiscount = subtotal - discount;
     const vat = subtotalAfterDiscount * (item.vatPercentage / 100);
     return subtotalAfterDiscount + vat;

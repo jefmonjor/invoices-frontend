@@ -1,28 +1,44 @@
 import * as XLSX from 'xlsx';
-import type { Invoice } from '@/types/invoice.types';
 import type { Client } from '@/types/client.types';
 import type { Company } from '@/types/company.types';
 import { formatDate } from '@/utils/formatters';
 
-// Extended type for invoices with company/client details
-export interface InvoiceWithDetails extends Invoice {
-  company?: { name: string };
-  client?: { name: string };
+// Type for invoices with company/client details (for exports)
+// Note: Not extending Invoice to allow partial company/client data
+export interface InvoiceWithDetails {
+  id: number;
+  invoiceNumber: string;
+  issueDate: string;
+  companyId: number;
+  clientId: number;
+  baseAmount: number;
+  irpfAmount: number;
+  reAmount: number;
+  totalAmount: number;
+  notes?: string;
+  company?: { businessName: string };
+  client?: { businessName: string };
 }
 
 export const exportInvoicesToExcel = (invoices: InvoiceWithDetails[]) => {
-  const data = invoices.map(inv => ({
-    'N° Factura': inv.invoiceNumber,
-    'Fecha': formatDate(inv.date),
-    'Empresa': inv.company?.name ?? `Empresa #${inv.companyId}`,
-    'Cliente': inv.client?.name ?? `Cliente #${inv.clientId}`,
-    'Subtotal': inv.subtotal,
-    'IVA': inv.totalVAT,
-    'IRPF': inv.totalIRPF,
-    'RE': inv.totalRE,
-    'Total': inv.total,
-    'Notas': inv.notes ?? '',
-  }));
+  const data = invoices.map(inv => {
+    // Calculate VAT: totalAmount = baseAmount + VAT - IRPF + RE
+    // Therefore: VAT = totalAmount - baseAmount + IRPF - RE
+    const totalVAT = inv.totalAmount - inv.baseAmount + inv.irpfAmount - inv.reAmount;
+
+    return {
+      'N° Factura': inv.invoiceNumber,
+      'Fecha': formatDate(inv.issueDate),
+      'Empresa': inv.company?.businessName ?? `Empresa #${inv.companyId}`,
+      'Cliente': inv.client?.businessName ?? `Cliente #${inv.clientId}`,
+      'Base Imponible': inv.baseAmount,
+      'IVA': totalVAT,
+      'IRPF': inv.irpfAmount,
+      'RE': inv.reAmount,
+      'Total': inv.totalAmount,
+      'Notas': inv.notes ?? '',
+    };
+  });
 
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();

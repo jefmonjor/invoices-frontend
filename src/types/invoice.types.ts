@@ -1,12 +1,12 @@
 /**
- * Tipos para facturas
+ * Tipos para facturas según contrato OpenAPI del backend
  * Compatible con Spring Boot 3 + Java 21
  */
 
 /**
  * IMPORTANTE - Manejo de BigDecimal de Java:
  *
- * Java usa BigDecimal para montos (subtotal, taxAmount, totalAmount).
+ * Java usa BigDecimal para montos (baseAmount, totalAmount, etc).
  * Spring Boot serializa BigDecimal como number en JSON.
  *
  * ⚠️ PRECAUCIÓN: JavaScript tiene problemas de precisión con decimales
@@ -21,74 +21,134 @@
  * el frontend solo visualiza y envía valores al backend.
  */
 
+// ==================== DTOs de soporte ====================
+
+export interface ClientDTO {
+  id: number;
+  businessName: string;
+  taxId: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  province: string;
+  phone: string;
+  email: string;
+}
+
+export interface CompanyDTO {
+  id: number;
+  businessName: string;
+  taxId: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  province: string;
+  phone: string;
+  email: string;
+  iban: string;
+}
+
+// ==================== Invoice Item ====================
+
 /**
- * Item de factura
- * Estructura según contrato del backend
+ * Item de factura según InvoiceItemDTO
  */
 export interface InvoiceItem {
-  id?: number; // Opcional para crear nuevos items
+  id?: number; // Opcional al crear
+  invoiceId?: number;
   description: string;
-  units: number; // Cantidad de unidades
-  price: number; // Precio unitario (BigDecimal en Java)
-  vatPercentage: number; // Porcentaje de IVA (ej: 21.0 para 21%)
-  discountPercentage: number; // Porcentaje de descuento (ej: 10.0 para 10%)
+  units: number;
+  price: number; // Precio unitario
+  vatPercentage: number;
+  discountPercentage?: number;
+  subtotal?: number; // Calculado por backend
+  total?: number; // Calculado por backend
+  createdAt?: string; // ISO-8601
+  updatedAt?: string; // ISO-8601
 }
 
 /**
- * Request para crear factura
- * POST /api/invoices
+ * Request para crear items (usado en CreateInvoiceRequest)
  */
-export interface CreateInvoiceRequest {
-  companyId: number;
-  clientId: number;
-  invoiceNumber: string;
-  irpfPercentage: number; // Porcentaje de IRPF (ej: 15.0 para 15%)
-  rePercentage: number; // Porcentaje de RE (ej: 5.2 para 5.2%)
-  notes?: string; // Notas adicionales (opcional)
-  items: InvoiceItem[];
+export interface CreateInvoiceItemRequest {
+  description: string;
+  units: number;
+  price: number;
+  vatPercentage: number;
+  discountPercentage?: number;
 }
 
+// ==================== Invoice ====================
+
 /**
- * Factura completa
- * GET /api/invoices
- * GET /api/invoices/{id}
+ * Factura completa según InvoiceDTO
+ * GET /invoices
+ * GET /invoices/{id}
  */
 export interface Invoice {
   id: number;
   companyId: number;
   clientId: number;
+  company?: CompanyDTO; // Poblado en respuestas del backend
+  client?: ClientDTO; // Poblado en respuestas del backend
   invoiceNumber: string;
-  date: string; // Fecha de emisión ISO-8601: "2025-11-20"
-  subtotal: number; // Subtotal sin impuestos (BigDecimal)
-  totalVAT: number; // Total IVA (BigDecimal)
-  totalIRPF: number; // Total IRPF (negativo, BigDecimal)
-  totalRE: number; // Total RE (BigDecimal)
-  total: number; // Total final (BigDecimal)
+  issueDate: string; // ISO-8601 date-time
+  baseAmount: number; // Subtotal sin impuestos
+  irpfPercentage: number;
+  irpfAmount: number; // Calculado por backend
+  rePercentage: number;
+  reAmount: number; // Calculado por backend
+  totalAmount: number; // Total final
+  status: string; // Estado de la factura
+  notes?: string;
+  createdAt: string; // ISO-8601
+  updatedAt: string; // ISO-8601
   items: InvoiceItem[];
-  notes?: string; // Notas adicionales (opcional)
 }
 
+/**
+ * Request para crear factura
+ * POST /invoices
+ */
+export interface CreateInvoiceRequest {
+  companyId: number;
+  clientId: number;
+  invoiceNumber: string;
+  irpfPercentage?: number; // Default 0
+  rePercentage?: number; // Default 0
+  notes?: string;
+  items: CreateInvoiceItemRequest[];
+}
+
+/**
+ * Request para actualizar factura
+ * PUT /invoices/{id}
+ */
+export interface UpdateInvoiceRequest {
+  notes?: string;
+  items?: CreateInvoiceItemRequest[];
+}
+
+// ==================== Paginación y Filtros ====================
+
 export interface InvoiceListParams {
-  page?: number;         // Número de página (0-based en Spring)
-  size?: number;         // Tamaño de página (default: 20)
-  sortBy?: string;       // Campo para ordenar (ej: "invoiceNumber")
-  sortDir?: 'asc' | 'desc';  // Dirección de ordenamiento
-  status?: string;       // Filtro por estado
-  clientId?: number;     // Filtro por cliente
+  page?: number; // 0-based
+  size?: number; // Default: 20
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
+  status?: string;
+  clientId?: number;
 }
 
 /**
  * Interfaz exacta de Spring Boot 3 - Page<T>
- *
- * Spring Data devuelve esta estructura al usar Pageable.
- * Jackson serializa automáticamente con estos nombres de campos.
  */
 export interface PagedResponse<T> {
-  content: T[];              // Array de elementos de la página actual
+  content: T[];
   pageable: {
-    pageNumber: number;      // Número de página actual (0-based)
-    pageSize: number;        // Tamaño de página
-    offset: number;          // Offset total
+    pageNumber: number;
+    pageSize: number;
+    offset: number;
     paged: boolean;
     unpaged: boolean;
     sort: {
@@ -97,14 +157,14 @@ export interface PagedResponse<T> {
       empty: boolean;
     };
   };
-  totalPages: number;        // Total de páginas
-  totalElements: number;     // Total de elementos en todas las páginas
-  last: boolean;             // ¿Es la última página?
-  first: boolean;            // ¿Es la primera página?
-  size: number;              // Tamaño de página
-  number: number;            // Número de página actual (0-based)
-  numberOfElements: number;  // Número de elementos en esta página
-  empty: boolean;            // ¿Está vacía la página?
+  totalPages: number;
+  totalElements: number;
+  last: boolean;
+  first: boolean;
+  size: number;
+  number: number;
+  numberOfElements: number;
+  empty: boolean;
   sort: {
     sorted: boolean;
     unsorted: boolean;
@@ -114,13 +174,12 @@ export interface PagedResponse<T> {
 
 /**
  * Interfaz simplificada para uso en componentes
- * (extrae solo lo necesario de PagedResponse)
  */
 export interface SimplePage<T> {
   content: T[];
   totalElements: number;
   totalPages: number;
-  currentPage: number;  // number (0-based de Spring)
+  currentPage: number;
   size: number;
   isLast: boolean;
   isFirst: boolean;
