@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 
+// ⚠️ IMPORTANTE: Actualiza estas credenciales con las de tu entorno
+// El backend requiere un email válido, no un username
+const TEST_EMAIL = 'admin@invoices.com'; // Cambiar por email válido de tu backend
+const TEST_PASSWORD = 'admin123'; // Cambiar por contraseña correcta
+
 test.describe('Authentication Flow', () => {
   test('should display login page', async ({ page }) => {
     await page.goto('/login');
@@ -18,8 +23,8 @@ test.describe('Authentication Flow', () => {
   test('should login successfully with valid credentials', async ({ page }) => {
     await page.goto('/login');
 
-    await page.getByLabel(/username|usuario/i).fill('admin');
-    await page.getByLabel(/password|contraseña/i).fill('admin123');
+    await page.getByLabel(/email|correo/i).fill(TEST_EMAIL);
+    await page.getByLabel(/password|contraseña/i).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: /iniciar sesión/i }).click();
 
     // Should redirect to dashboard
@@ -30,19 +35,19 @@ test.describe('Authentication Flow', () => {
   test('should show error with invalid credentials', async ({ page }) => {
     await page.goto('/login');
 
-    await page.getByLabel(/username|usuario/i).fill('invalid');
+    await page.getByLabel(/email|correo/i).fill('invalid@example.com');
     await page.getByLabel(/password|contraseña/i).fill('invalid123');
     await page.getByRole('button', { name: /iniciar sesión/i }).click();
 
     // Should show error message
-    await expect(page.getByText(/error/i).first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/error|inválid/i).first()).toBeVisible({ timeout: 5000 });
   });
 
   test('should logout successfully', async ({ page }) => {
     // Login first
     await page.goto('/login');
-    await page.getByLabel(/username|usuario/i).fill('admin');
-    await page.getByLabel(/password|contraseña/i).fill('admin123');
+    await page.getByLabel(/email|correo/i).fill(TEST_EMAIL);
+    await page.getByLabel(/password|contraseña/i).fill(TEST_PASSWORD);
     await page.getByRole('button', { name: /iniciar sesión/i }).click();
 
     await expect(page).toHaveURL(/.*dashboard/);
