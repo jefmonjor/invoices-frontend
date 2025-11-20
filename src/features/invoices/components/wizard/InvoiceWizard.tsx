@@ -54,10 +54,13 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
   const handleSubmit = async () => {
     try {
       if (mode === 'edit' && invoiceId) {
-        // Para UPDATE solo enviamos notes e items según UpdateInvoiceRequest del backend
+        // Para UPDATE enviamos los campos actualizables según UpdateInvoiceRequest del backend
+        // Campos actualizables: settlementNumber, notes, items
+        // Campos inmutables (NO se pueden cambiar): companyId, clientId, invoiceNumber, irpfPercentage, rePercentage
         const invoice = await updateMutation.mutateAsync({
           id: invoiceId,
           data: {
+            settlementNumber: formData.settlementNumber,
             notes: formData.notes,
             items: formData.items || [],
           },
