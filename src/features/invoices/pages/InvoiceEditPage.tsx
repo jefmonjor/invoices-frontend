@@ -45,27 +45,14 @@ export const InvoiceEditPage: React.FC = () => {
     );
   }
 
-  // Check if invoice can be edited
-  if (invoice.status !== 'DRAFT' && invoice.status !== 'PENDING') {
-    return (
-      <Box>
-        <Typography variant="h4" gutterBottom>
-          Editar Factura
-        </Typography>
-        <Alert severity="warning">
-          Esta factura no puede ser editada porque su estado es: {invoice.status}. Solo las
-          facturas en estado DRAFT o PENDING pueden ser editadas.
-        </Alert>
-      </Box>
-    );
-  }
-
   // Transform invoice to form data
   const initialData: Partial<CreateInvoiceRequest> = {
     companyId: invoice.companyId,
     clientId: invoice.clientId,
     invoiceNumber: invoice.invoiceNumber,
-    date: invoice.date,
+    irpfPercentage: invoice.irpfPercentage,
+    rePercentage: invoice.rePercentage,
+    notes: invoice.notes,
     items: invoice.items,
   };
 

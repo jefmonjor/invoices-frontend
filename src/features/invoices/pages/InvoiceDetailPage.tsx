@@ -25,7 +25,6 @@ import {
   Download as DownloadIcon,
 } from '@mui/icons-material';
 import { useInvoice, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
-import { StatusBadge } from '@/components/common/StatusBadge';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 
@@ -60,8 +59,8 @@ export const InvoiceDetailPage: React.FC = () => {
     }
   };
 
-  const canEdit = invoice && (invoice.status === 'DRAFT' || invoice.status === 'PENDING');
-  const canDelete = invoice && invoice.status === 'DRAFT';
+  const canEdit = !!invoice;
+  const canDelete = !!invoice;
 
   if (isLoading) {
     return (
@@ -91,7 +90,6 @@ export const InvoiceDetailPage: React.FC = () => {
             Volver
           </Button>
           <Typography variant="h4">Factura {invoice.invoiceNumber}</Typography>
-          <StatusBadge status={invoice.status} size="medium" />
         </Box>
 
         <Stack direction="row" spacing={1}>
@@ -146,15 +144,6 @@ export const InvoiceDetailPage: React.FC = () => {
 
                 <Grid item xs={6}>
                   <Typography variant="caption" color="text.secondary">
-                    Estado
-                  </Typography>
-                  <Box sx={{ mt: 0.5 }}>
-                    <StatusBadge status={invoice.status} />
-                  </Box>
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Typography variant="caption" color="text.secondary">
                     Fecha
                   </Typography>
                   <Typography variant="body1">{formatDate(invoice.date)}</Typography>
@@ -198,18 +187,24 @@ export const InvoiceDetailPage: React.FC = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {invoice.items.map((item, index) => (
-                      <TableRow key={item.id || index}>
-                        <TableCell>{item.description}</TableCell>
-                        <TableCell align="right">{item.units}</TableCell>
-                        <TableCell align="right">{formatCurrency(item.price)}</TableCell>
-                        <TableCell align="right">{item.vatPercentage}%</TableCell>
-                        <TableCell align="right">{item.discountPercentage || 0}%</TableCell>
-                        <TableCell align="right">
-                          <strong>{formatCurrency(item.total || 0)}</strong>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {invoice.items.map((item, index) => {
+                      const itemTotal = item.units * item.price *
+                        (1 + item.vatPercentage / 100) *
+                        (1 - (item.discountPercentage || 0) / 100);
+
+                      return (
+                        <TableRow key={item.id || index}>
+                          <TableCell>{item.description}</TableCell>
+                          <TableCell align="right">{item.units}</TableCell>
+                          <TableCell align="right">{formatCurrency(item.price)}</TableCell>
+                          <TableCell align="right">{item.vatPercentage}%</TableCell>
+                          <TableCell align="right">{item.discountPercentage || 0}%</TableCell>
+                          <TableCell align="right">
+                            <strong>{formatCurrency(itemTotal)}</strong>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -254,30 +249,6 @@ export const InvoiceDetailPage: React.FC = () => {
                   {formatCurrency(invoice.total)}
                 </Typography>
               </Box>
-            </CardContent>
-          </Card>
-
-          {/* Metadata */}
-          <Card sx={{ mt: 2 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Metadatos
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-
-              <Typography variant="caption" color="text.secondary">
-                Creada el
-              </Typography>
-              <Typography variant="body2" sx={{ mb: 2 }}>
-                {formatDate(invoice.createdAt, true)}
-              </Typography>
-
-              <Typography variant="caption" color="text.secondary">
-                Última modificación
-              </Typography>
-              <Typography variant="body2">
-                {formatDate(invoice.updatedAt, true)}
-              </Typography>
             </CardContent>
           </Card>
         </Grid>

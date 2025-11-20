@@ -92,7 +92,6 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
           <Step3InvoiceData
             initialValues={{
               invoiceNumber: formData.invoiceNumber,
-              date: formData.date,
               irpfPercentage: formData.irpfPercentage,
               rePercentage: formData.rePercentage,
               notes: formData.notes,

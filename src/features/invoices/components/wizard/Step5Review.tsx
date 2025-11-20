@@ -2,7 +2,6 @@ import { Box, Button, Typography, Stack, Grid, Divider, Table, TableBody, TableC
 import { useQuery } from '@tanstack/react-query';
 import { companiesApi } from '@/api/companies.api';
 import { clientsApi } from '@/api/clients.api';
-import { formatDate } from '@/utils/formatters';
 import type { CreateInvoiceRequest } from '@/types/invoice.types';
 
 interface Step5ReviewProps {
@@ -85,19 +84,13 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Grid container spacing={1}>
-                <Grid item xs={6}>
+                <Grid item xs={12}>
                   <Typography variant="caption" color="text.secondary">
                     Número:
                   </Typography>
                   <Typography variant="body2" fontWeight="bold">
                     {formData.invoiceNumber}
                   </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" color="text.secondary">
-                    Fecha:
-                  </Typography>
-                  <Typography variant="body2">{formatDate(formData.date)}</Typography>
                 </Grid>
                 {formData.irpfPercentage > 0 && (
                   <Grid item xs={6}>
