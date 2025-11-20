@@ -63,7 +63,7 @@ export const createInvoiceSchema = z.object({
     .string()
     .min(1, 'El número de factura es requerido')
     .max(50, 'El número de factura no puede exceder 50 caracteres')
-    .regex(/^[A-Za-z0-9.\/-]+$/, 'Formato inválido (letras, números, guiones, puntos y barras)'),
+    .regex(/^[A-Za-z0-9./-]+$/, 'Formato inválido (letras, números, guiones, puntos y barras)'),
   settlementNumber: z
     .string()
     .max(50, 'El número de liquidación no puede exceder 50 caracteres')
