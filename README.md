@@ -27,6 +27,21 @@ npm run dev
 
 **Prerequisitos:** Backend corriendo en http://localhost:8080
 
+### 👤 Crear Usuario de Prueba
+
+Para probar la aplicación o ejecutar tests E2E, necesitas crear un usuario:
+
+**Opción 1: Registro desde el frontend** (Recomendado)
+1. Ve a: http://localhost:3000/register o https://invoices-frontend-vert.vercel.app/register
+2. Completa el formulario con un email válido (ej: `admin@invoices.com`)
+3. Usa las credenciales para iniciar sesión
+
+**Opción 2: Desde la página de login**
+- En la parte inferior verás "¿No tienes cuenta? **Regístrate aquí**"
+- Haz clic y completa el formulario
+
+📘 **Guía detallada**: Ver [CREAR_USUARIO_TEST.md](./CREAR_USUARIO_TEST.md)
+
 ## 📁 Estructura
 
 ```
