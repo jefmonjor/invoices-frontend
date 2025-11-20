@@ -9,7 +9,7 @@ import type {
 export const invoicesApi = {
   // Listar facturas
   list: async (params?: InvoiceListParams): Promise<PagedResponse<Invoice>> => {
-    const response = await apiClient.get<PagedResponse<Invoice>>('/api/invoices', {
+    const response = await apiClient.get<PagedResponse<Invoice>>('/invoices', {
       params,
     });
     return response.data;
@@ -17,31 +17,31 @@ export const invoicesApi = {
 
   // Obtener factura por ID
   getById: async (id: number): Promise<Invoice> => {
-    const response = await apiClient.get<Invoice>(`/api/invoices/${id}`);
+    const response = await apiClient.get<Invoice>(`/invoices/${id}`);
     return response.data;
   },
 
   // Crear factura
   create: async (data: CreateInvoiceRequest): Promise<Invoice> => {
-    const response = await apiClient.post<Invoice>('/api/invoices', data);
+    const response = await apiClient.post<Invoice>('/invoices', data);
     return response.data;
   },
 
   // Actualizar factura
   update: async (id: number, data: Partial<CreateInvoiceRequest>): Promise<Invoice> => {
-    const response = await apiClient.put<Invoice>(`/api/invoices/${id}`, data);
+    const response = await apiClient.put<Invoice>(`/invoices/${id}`, data);
     return response.data;
   },
 
   // Eliminar factura
   delete: async (id: number): Promise<void> => {
-    await apiClient.delete(`/api/invoices/${id}`);
+    await apiClient.delete(`/invoices/${id}`);
   },
 
   // Generar/Descargar PDF
   // Según contrato del backend: GET /api/invoices/{id}/pdf
   generatePDF: async (id: number): Promise<Blob> => {
-    const response = await apiClient.get(`/api/invoices/${id}/pdf`, {
+    const response = await apiClient.get(`/invoices/${id}/pdf`, {
       responseType: 'blob',
     });
     return response.data;

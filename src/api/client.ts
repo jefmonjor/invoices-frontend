@@ -1,6 +1,8 @@
 import axios, { AxiosError } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+// IMPORTANTE: La baseURL debe incluir /api al final
+// Ejemplo: http://localhost:8080/api o https://backend.com/api
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 // Cliente Axios configurado
 export const apiClient = axios.create({
