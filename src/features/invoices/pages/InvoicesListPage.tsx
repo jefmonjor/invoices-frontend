@@ -84,10 +84,15 @@ export const InvoicesListPage: React.FC = () => {
     navigate('/invoices/create');
   };
 
-  // Filter invoices by search term (invoice number)
-  const filteredInvoices = data?.content.filter((invoice) =>
-    searchTerm ? invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) : true
-  );
+  // Filter invoices by search term and status (client-side filtering)
+  const filteredInvoices = data
+    ?.filter((invoice) =>
+      searchTerm ? invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) : true
+    )
+    .filter((invoice) => (statusFilter ? invoice.status === statusFilter : true));
+
+  // Client-side pagination
+  const paginatedInvoices = filteredInvoices?.slice(page * size, page * size + size);
 
   if (error) {
     return (
@@ -162,17 +167,17 @@ export const InvoicesListPage: React.FC = () => {
       ) : (
         <>
           <InvoiceTable
-            invoices={filteredInvoices}
+            invoices={paginatedInvoices || []}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
             onDownloadPDF={handleDownloadPDF}
           />
 
-          {/* Pagination */}
+          {/* Pagination (client-side) */}
           <TablePagination
             component="div"
-            count={data?.totalElements || 0}
+            count={filteredInvoices.length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={size}
