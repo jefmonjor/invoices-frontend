@@ -1,8 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { invoicesApi } from '@/api/invoices.api';
-import type { InvoiceListParams, CreateInvoiceRequest, UpdateInvoiceRequest } from '@/types/invoice.types';
+import type { InvoiceListParams, CreateInvoiceRequest, UpdateInvoiceRequest, Invoice } from '@/types/invoice.types';
+import type { Company } from '@/types/company.types';
+import type { Client } from '@/types/client.types';
 import { toast } from 'react-toastify';
+import { generateInvoicePdfBlob } from '../utils/pdfGenerator';
 
 // Keys for React Query cache
 export const invoiceKeys = {
@@ -123,6 +126,7 @@ export const useDeleteInvoice = () => {
 
 /**
  * Hook para generar y descargar PDF de una factura
+ * Intenta descargar desde el backend (MinIO o JasperReports fallback)
  */
 export const useGeneratePDF = () => {
   return useMutation({
@@ -143,24 +147,39 @@ export const useGeneratePDF = () => {
 };
 
 /**
- * Hook para subir un documento
+ * Hook para subir un documento (PDF) al backend
+ * El backend almacena el archivo en MinIO y guarda la referencia en la DB
  */
 export const useUploadDocument = () => {
   return useMutation({
-    mutationFn: ({ file, invoiceId }: { file: File; invoiceId: number }) => {
+    mutationFn: ({
+      file,
+      invoiceId,
+      uploadedBy = 'system',
+      silent = false
+    }: {
+      file: File;
+      invoiceId: number;
+      uploadedBy?: string;
+      silent?: boolean;
+    }) => {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('invoiceId', invoiceId.toString());
-      formData.append('uploadedBy', 'system'); // Or get from auth context if available
+      formData.append('uploadedBy', uploadedBy);
 
+      // Attach silent flag to response for conditional toast
       return axios.post('/api/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      });
+      }).then(response => ({ ...response, silent }));
     },
-    onSuccess: () => {
-      toast.success('Documento subido exitosamente');
+    onSuccess: (response) => {
+      // Only show toast if not silent mode (automatic PDF generation is silent)
+      if (!response.silent) {
+        toast.success('Documento subido exitosamente');
+      }
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)
@@ -168,6 +187,53 @@ export const useUploadDocument = () => {
         : error instanceof Error
           ? error.message
           : 'Error al subir documento';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook para regenerar PDF de una factura existente
+ * Usado para facturas antiguas que no tienen PDF en MinIO
+ * o cuando se necesita regenerar el PDF por cualquier razón
+ */
+export const useRegeneratePdf = () => {
+  const uploadMutation = useUploadDocument();
+
+  return useMutation({
+    mutationFn: async ({
+      invoice,
+      company,
+      client,
+    }: {
+      invoice: Invoice;
+      company: Company;
+      client: Client;
+    }) => {
+      // Generate PDF blob using React-PDF
+      const blob = await generateInvoicePdfBlob(invoice, company, client);
+
+      // Create file from blob
+      const filename = `${invoice.invoiceNumber}.pdf`;
+      const file = new File([blob], filename, { type: 'application/pdf' });
+
+      // Upload to backend
+      return uploadMutation.mutateAsync({
+        file,
+        invoiceId: invoice.id,
+        uploadedBy: 'manual-regeneration',
+        silent: false, // Show success toast for manual regeneration
+      });
+    },
+    onSuccess: (_data, variables) => {
+      toast.success(`PDF de factura ${variables.invoice.invoiceNumber} regenerado exitosamente`);
+    },
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+          ? error.message
+          : 'Error al regenerar PDF';
       toast.error(message);
     },
   });
