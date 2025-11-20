@@ -43,7 +43,7 @@ export const createInvoiceSchema = z.object({
     .string()
     .min(1, 'El número de factura es requerido')
     .max(50, 'El número de factura no puede exceder 50 caracteres')
-    .regex(/^[A-Z0-9-]+$/, 'Formato inválido (solo mayúsculas, números y guiones)'),
+    .regex(/^[A-Za-z0-9.-]+$/, 'Formato inválido (solo letras, números, guiones y puntos)'),
   companyId: z.number().min(1, 'Debe seleccionar una empresa'),
   clientId: z.number().min(1, 'Debe seleccionar un cliente'),
   irpfPercentage: z

@@ -42,8 +42,8 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
     if (!formData.invoiceNumber.trim()) {
       newErrors.invoiceNumber = 'El número de factura es requerido';
-    } else if (!/^[A-Z0-9-]+$/.test(formData.invoiceNumber)) {
-      newErrors.invoiceNumber = 'Solo mayúsculas, números y guiones';
+    } else if (!/^[A-Za-z0-9.-]+$/.test(formData.invoiceNumber)) {
+      newErrors.invoiceNumber = 'Solo letras, números, guiones y puntos';
     }
 
     if (!formData.date) {
@@ -95,10 +95,10 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
             fullWidth
             label="Número de Factura"
             value={formData.invoiceNumber}
-            onChange={(e) => handleChange('invoiceNumber', e.target.value.toUpperCase())}
+            onChange={(e) => handleChange('invoiceNumber', e.target.value)}
             error={!!errors.invoiceNumber}
-            helperText={errors.invoiceNumber || 'Formato: INV-2025-001 (solo mayúsculas, números y guiones)'}
-            placeholder="INV-2025-001"
+            helperText={errors.invoiceNumber || 'Ejemplos: FacturaA057.pdf, 4592JBZ-SEP-25.pdf, INV-2025-001'}
+            placeholder="FacturaA057.pdf"
           />
         </Grid>
 
