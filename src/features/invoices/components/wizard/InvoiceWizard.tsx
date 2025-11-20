@@ -54,9 +54,13 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
   const handleSubmit = async () => {
     try {
       if (mode === 'edit' && invoiceId) {
+        // Para UPDATE solo enviamos notes e items según UpdateInvoiceRequest del backend
         const invoice = await updateMutation.mutateAsync({
           id: invoiceId,
-          data: formData as CreateInvoiceRequest,
+          data: {
+            notes: formData.notes,
+            items: formData.items || [],
+          },
         });
         onSuccess(invoice.id);
       } else {

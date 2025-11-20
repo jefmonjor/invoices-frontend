@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { invoicesApi } from '@/api/invoices.api';
-import type { InvoiceListParams, CreateInvoiceRequest } from '@/types/invoice.types';
+import type { InvoiceListParams, CreateInvoiceRequest, UpdateInvoiceRequest } from '@/types/invoice.types';
 import { toast } from 'react-toastify';
 
 // Keys for React Query cache
@@ -71,7 +71,7 @@ export const useUpdateInvoice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<CreateInvoiceRequest> }) =>
+    mutationFn: ({ id, data }: { id: number; data: UpdateInvoiceRequest }) =>
       invoicesApi.update(id, data),
     onSuccess: (updatedInvoice) => {
       // Invalidate lists
