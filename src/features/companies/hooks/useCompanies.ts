@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { companiesApi } from '@/api/companies.api';
 import type { CreateCompanyRequest } from '@/types/company.types';
 import { toast } from 'react-toastify';
@@ -47,8 +48,12 @@ export const useCreateCompany = () => {
       queryClient.setQueryData(companyKeys.detail(newCompany.id), newCompany);
       toast.success(`Empresa ${newCompany.name} creada exitosamente`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al crear empresa';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al crear empresa';
       toast.error(message);
     },
   });
@@ -68,8 +73,12 @@ export const useUpdateCompany = () => {
       queryClient.setQueryData(companyKeys.detail(updatedCompany.id), updatedCompany);
       toast.success(`Empresa ${updatedCompany.name} actualizada`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al actualizar empresa';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al actualizar empresa';
       toast.error(message);
     },
   });
@@ -88,8 +97,12 @@ export const useDeleteCompany = () => {
       queryClient.removeQueries({ queryKey: companyKeys.detail(id) });
       toast.success('Empresa eliminada exitosamente');
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al eliminar empresa';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al eliminar empresa';
       toast.error(message);
     },
   });

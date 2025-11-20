@@ -19,7 +19,11 @@ export interface InvoiceWithDetails extends Invoice {
 
 // Helper to calculate item total
 const calculateItemTotal = (item: InvoiceItem): number => {
-  return item.total ?? (item.quantity * item.unitPrice);
+  const subtotal = item.units * item.price;
+  const discount = subtotal * (item.discountPercentage / 100);
+  const afterDiscount = subtotal - discount;
+  const vat = afterDiscount * (item.vatPercentage / 100);
+  return afterDiscount + vat;
 };
 
 export const exportInvoiceToPDF = (invoice: InvoiceWithDetails) => {
@@ -32,9 +36,10 @@ export const exportInvoiceToPDF = (invoice: InvoiceWithDetails) => {
   // Invoice info
   doc.setFontSize(10);
   doc.text(`Número: ${invoice.invoiceNumber}`, 20, 40);
-  doc.text(`Fecha: ${formatDate(invoice.issueDate)}`, 20, 46);
-  doc.text(`Vencimiento: ${formatDate(invoice.dueDate)}`, 20, 52);
-  doc.text(`Estado: ${invoice.status}`, 20, 58);
+  doc.text(`Fecha: ${formatDate(invoice.date)}`, 20, 46);
+  if (invoice.notes) {
+    doc.text(`Notas: ${invoice.notes}`, 20, 52);
+  }
 
   // Company info (if available)
   if (invoice.company) {
@@ -65,27 +70,30 @@ export const exportInvoiceToPDF = (invoice: InvoiceWithDetails) => {
   // Items table
   const tableData = invoice.items.map(item => [
     item.description,
-    item.quantity,
-    formatCurrency(item.unitPrice),
-    `${item.taxRate}%`,
+    item.units,
+    formatCurrency(item.price),
+    `${item.vatPercentage}%`,
+    `${item.discountPercentage}%`,
     formatCurrency(calculateItemTotal(item)),
   ]);
 
   autoTable(doc, {
     startY: 100,
-    head: [['Descripción', 'Cantidad', 'Precio Unit.', 'IVA', 'Total']],
+    head: [['Descripción', 'Unidades', 'Precio Unit.', 'IVA', 'Desc.', 'Total']],
     body: tableData,
     theme: 'grid',
     headStyles: { fillColor: [41, 128, 185] },
   });
 
   // Totals
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  const finalY = (doc as typeof jsPDF.prototype & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
   doc.setFontSize(10);
   doc.text(`Subtotal: ${formatCurrency(invoice.subtotal)}`, 140, finalY);
-  doc.text(`IVA: ${formatCurrency(invoice.taxAmount)}`, 140, finalY + 6);
+  doc.text(`IVA: ${formatCurrency(invoice.totalVAT)}`, 140, finalY + 6);
+  doc.text(`IRPF: ${formatCurrency(invoice.totalIRPF)}`, 140, finalY + 12);
+  doc.text(`RE: ${formatCurrency(invoice.totalRE)}`, 140, finalY + 18);
   doc.setFontSize(12);
-  doc.text(`TOTAL: ${formatCurrency(invoice.totalAmount)}`, 140, finalY + 14);
+  doc.text(`TOTAL: ${formatCurrency(invoice.total)}`, 140, finalY + 26);
 
   // Save
   doc.save(`factura-${invoice.invoiceNumber}.pdf`);
@@ -99,15 +107,14 @@ export const exportInvoiceListToPDF = (invoices: InvoiceWithDetails[]) => {
 
   const tableData = invoices.map(inv => [
     inv.invoiceNumber,
-    formatDate(inv.issueDate),
+    formatDate(inv.date),
     inv.client?.name ?? `Cliente #${inv.clientId}`,
-    formatCurrency(inv.totalAmount),
-    inv.status,
+    formatCurrency(inv.total),
   ]);
 
   autoTable(doc, {
     startY: 30,
-    head: [['N° Factura', 'Fecha', 'Cliente', 'Total', 'Estado']],
+    head: [['N° Factura', 'Fecha', 'Cliente', 'Total']],
     body: tableData,
     theme: 'striped',
     headStyles: { fillColor: [41, 128, 185] },

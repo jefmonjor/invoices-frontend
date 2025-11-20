@@ -5,10 +5,18 @@ import { toISODate } from '@/utils/formatters';
 interface Step3InvoiceDataProps {
   initialValues?: {
     invoiceNumber?: string;
-    issueDate?: string;
-    dueDate?: string;
+    date?: string;
+    irpfPercentage?: number;
+    rePercentage?: number;
+    notes?: string;
   };
-  onNext: (data: { invoiceNumber: string; issueDate: string; dueDate: string }) => void;
+  onNext: (data: {
+    invoiceNumber: string;
+    date: string;
+    irpfPercentage?: number;
+    rePercentage?: number;
+    notes?: string;
+  }) => void;
   onBack: () => void;
 }
 
@@ -18,13 +26,13 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
   onBack,
 }) => {
   const today = new Date();
-  const oneMonthLater = new Date(today);
-  oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
 
   const [formData, setFormData] = useState({
     invoiceNumber: initialValues?.invoiceNumber || '',
-    issueDate: initialValues?.issueDate || toISODate(today, true),
-    dueDate: initialValues?.dueDate || toISODate(oneMonthLater, true),
+    date: initialValues?.date || toISODate(today, true),
+    irpfPercentage: initialValues?.irpfPercentage ?? 0,
+    rePercentage: initialValues?.rePercentage ?? 0,
+    notes: initialValues?.notes || '',
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -38,20 +46,16 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
       newErrors.invoiceNumber = 'Solo mayúsculas, números y guiones';
     }
 
-    if (!formData.issueDate) {
-      newErrors.issueDate = 'La fecha de emisión es requerida';
+    if (!formData.date) {
+      newErrors.date = 'La fecha es requerida';
     }
 
-    if (!formData.dueDate) {
-      newErrors.dueDate = 'La fecha de vencimiento es requerida';
+    if (formData.irpfPercentage < 0 || formData.irpfPercentage > 100) {
+      newErrors.irpfPercentage = 'El IRPF debe estar entre 0% y 100%';
     }
 
-    if (formData.issueDate && formData.dueDate) {
-      const issue = new Date(formData.issueDate);
-      const due = new Date(formData.dueDate);
-      if (due < issue) {
-        newErrors.dueDate = 'La fecha de vencimiento debe ser posterior a la fecha de emisión';
-      }
+    if (formData.rePercentage < 0 || formData.rePercentage > 100) {
+      newErrors.rePercentage = 'El RE debe estar entre 0% y 100%';
     }
 
     setErrors(newErrors);
@@ -82,11 +86,11 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
         Paso 3: Datos de la Factura
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Ingresa el número y las fechas de la factura
+        Ingresa los datos de la factura
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+        <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
             label="Número de Factura"
@@ -102,29 +106,51 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
           <TextField
             fullWidth
             type="date"
-            label="Fecha de Emisión"
-            value={formData.issueDate}
-            onChange={(e) => handleChange('issueDate', e.target.value)}
-            error={!!errors.issueDate}
-            helperText={errors.issueDate}
+            label="Fecha"
+            value={formData.date}
+            onChange={(e) => handleChange('date', e.target.value)}
+            error={!!errors.date}
+            helperText={errors.date}
             InputLabelProps={{
               shrink: true,
             }}
           />
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={4}>
           <TextField
             fullWidth
-            type="date"
-            label="Fecha de Vencimiento"
-            value={formData.dueDate}
-            onChange={(e) => handleChange('dueDate', e.target.value)}
-            error={!!errors.dueDate}
-            helperText={errors.dueDate}
-            InputLabelProps={{
-              shrink: true,
-            }}
+            type="number"
+            label="IRPF %"
+            value={formData.irpfPercentage}
+            onChange={(e) => handleChange('irpfPercentage', e.target.value)}
+            error={!!errors.irpfPercentage}
+            helperText={errors.irpfPercentage || 'Retención de IRPF'}
+            inputProps={{ min: 0, max: 100, step: 0.01 }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            type="number"
+            label="RE %"
+            value={formData.rePercentage}
+            onChange={(e) => handleChange('rePercentage', e.target.value)}
+            error={!!errors.rePercentage}
+            helperText={errors.rePercentage || 'Recargo de Equivalencia'}
+            inputProps={{ min: 0, max: 100, step: 0.01 }}
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <TextField
+            fullWidth
+            label="Notas"
+            value={formData.notes}
+            onChange={(e) => handleChange('notes', e.target.value)}
+            helperText="Notas adicionales (opcional)"
+            multiline
           />
         </Grid>
       </Grid>

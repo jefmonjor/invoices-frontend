@@ -37,9 +37,10 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
 
   const [newItem, setNewItem] = useState<InvoiceItem>({
     description: '',
-    quantity: 1,
-    unitPrice: 0,
-    taxRate: 21, // Default IVA in Spain
+    units: 1,
+    price: 0,
+    vatPercentage: 21, // Default IVA in Spain
+    discountPercentage: 0,
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -50,14 +51,17 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
     if (!item.description.trim()) {
       newErrors.description = 'La descripción es requerida';
     }
-    if (item.quantity < 1) {
-      newErrors.quantity = 'La cantidad debe ser al menos 1';
+    if (item.units < 1) {
+      newErrors.units = 'Las unidades deben ser al menos 1';
     }
-    if (item.unitPrice <= 0) {
-      newErrors.unitPrice = 'El precio debe ser mayor a 0';
+    if (item.price <= 0) {
+      newErrors.price = 'El precio debe ser mayor a 0';
     }
-    if (item.taxRate < 0 || item.taxRate > 100) {
-      newErrors.taxRate = 'El IVA debe estar entre 0% y 100%';
+    if (item.vatPercentage < 0 || item.vatPercentage > 100) {
+      newErrors.vatPercentage = 'El IVA debe estar entre 0% y 100%';
+    }
+    if (item.discountPercentage < 0 || item.discountPercentage > 100) {
+      newErrors.discountPercentage = 'El descuento debe estar entre 0% y 100%';
     }
 
     setErrors(newErrors);
@@ -69,9 +73,10 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
       setItems([...items, { ...newItem }]);
       setNewItem({
         description: '',
-        quantity: 1,
-        unitPrice: 0,
-        taxRate: 21,
+        units: 1,
+        price: 0,
+        vatPercentage: 21,
+        discountPercentage: 0,
       });
       setErrors({});
     }
@@ -90,9 +95,11 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
   };
 
   const calculateItemTotal = (item: InvoiceItem) => {
-    const subtotal = item.quantity * item.unitPrice;
-    const tax = subtotal * (item.taxRate / 100);
-    return subtotal + tax;
+    const subtotal = item.units * item.price;
+    const discount = subtotal * (item.discountPercentage / 100);
+    const subtotalAfterDiscount = subtotal - discount;
+    const vat = subtotalAfterDiscount * (item.vatPercentage / 100);
+    return subtotalAfterDiscount + vat;
   };
 
   return (
@@ -111,7 +118,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             Nuevo Item
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={3}>
               <TextField
                 fullWidth
                 label="Descripción"
@@ -122,46 +129,59 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                 size="small"
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <TextField
                 fullWidth
                 type="number"
-                label="Cantidad"
-                value={newItem.quantity}
-                onChange={(e) => setNewItem({ ...newItem, quantity: parseFloat(e.target.value) })}
-                error={!!errors.quantity}
-                helperText={errors.quantity}
+                label="Unidades"
+                value={newItem.units}
+                onChange={(e) => setNewItem({ ...newItem, units: parseFloat(e.target.value) })}
+                error={!!errors.units}
+                helperText={errors.units}
                 size="small"
                 inputProps={{ min: 1, step: 1 }}
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <TextField
                 fullWidth
                 type="number"
-                label="Precio Unit."
-                value={newItem.unitPrice}
-                onChange={(e) => setNewItem({ ...newItem, unitPrice: parseFloat(e.target.value) })}
-                error={!!errors.unitPrice}
-                helperText={errors.unitPrice}
+                label="Precio"
+                value={newItem.price}
+                onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) })}
+                error={!!errors.price}
+                helperText={errors.price}
                 size="small"
                 inputProps={{ min: 0, step: 0.01 }}
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
               <TextField
                 fullWidth
                 type="number"
                 label="IVA %"
-                value={newItem.taxRate}
-                onChange={(e) => setNewItem({ ...newItem, taxRate: parseFloat(e.target.value) })}
-                error={!!errors.taxRate}
-                helperText={errors.taxRate}
+                value={newItem.vatPercentage}
+                onChange={(e) => setNewItem({ ...newItem, vatPercentage: parseFloat(e.target.value) })}
+                error={!!errors.vatPercentage}
+                helperText={errors.vatPercentage}
                 size="small"
                 inputProps={{ min: 0, max: 100, step: 0.01 }}
               />
             </Grid>
-            <Grid item xs={6} sm={2}>
+            <Grid item xs={6} sm={1.5}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Desc. %"
+                value={newItem.discountPercentage}
+                onChange={(e) => setNewItem({ ...newItem, discountPercentage: parseFloat(e.target.value) })}
+                error={!!errors.discountPercentage}
+                helperText={errors.discountPercentage}
+                size="small"
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
               <Button
                 fullWidth
                 variant="contained"
@@ -183,9 +203,10 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             <TableHead>
               <TableRow>
                 <TableCell>Descripción</TableCell>
-                <TableCell align="right">Cant.</TableCell>
+                <TableCell align="right">Unidades</TableCell>
                 <TableCell align="right">Precio</TableCell>
                 <TableCell align="right">IVA %</TableCell>
+                <TableCell align="right">Desc. %</TableCell>
                 <TableCell align="right">Total</TableCell>
                 <TableCell align="right">Acciones</TableCell>
               </TableRow>
@@ -194,9 +215,10 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               {items.map((item, index) => (
                 <TableRow key={index}>
                   <TableCell>{item.description}</TableCell>
-                  <TableCell align="right">{item.quantity}</TableCell>
-                  <TableCell align="right">€{item.unitPrice.toFixed(2)}</TableCell>
-                  <TableCell align="right">{item.taxRate}%</TableCell>
+                  <TableCell align="right">{item.units}</TableCell>
+                  <TableCell align="right">€{item.price.toFixed(2)}</TableCell>
+                  <TableCell align="right">{item.vatPercentage}%</TableCell>
+                  <TableCell align="right">{item.discountPercentage}%</TableCell>
                   <TableCell align="right">
                     <strong>€{calculateItemTotal(item).toFixed(2)}</strong>
                   </TableCell>

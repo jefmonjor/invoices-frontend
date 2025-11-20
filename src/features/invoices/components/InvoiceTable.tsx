@@ -15,7 +15,6 @@ import {
   Delete as DeleteIcon,
   Download as DownloadIcon,
 } from '@mui/icons-material';
-import { StatusBadge } from '@/components/common/StatusBadge';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import type { Invoice } from '@/types/invoice.types';
 
@@ -34,26 +33,18 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
   onDelete,
   onDownloadPDF,
 }) => {
-  const canEdit = (invoice: Invoice) => {
-    return invoice.status === 'DRAFT' || invoice.status === 'PENDING';
-  };
-
-  const canDelete = (invoice: Invoice) => {
-    return invoice.status === 'DRAFT';
-  };
-
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
             <TableCell>Número</TableCell>
-            <TableCell>Fecha Emisión</TableCell>
-            <TableCell>Fecha Vencimiento</TableCell>
+            <TableCell>Fecha</TableCell>
             <TableCell align="right">Subtotal</TableCell>
             <TableCell align="right">IVA</TableCell>
+            <TableCell align="right">IRPF</TableCell>
+            <TableCell align="right">RE</TableCell>
             <TableCell align="right">Total</TableCell>
-            <TableCell>Estado</TableCell>
             <TableCell align="right">Acciones</TableCell>
           </TableRow>
         </TableHead>
@@ -67,15 +58,13 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
               <TableCell component="th" scope="row">
                 <strong>{invoice.invoiceNumber}</strong>
               </TableCell>
-              <TableCell>{formatDate(invoice.issueDate)}</TableCell>
-              <TableCell>{formatDate(invoice.dueDate)}</TableCell>
+              <TableCell>{formatDate(invoice.date)}</TableCell>
               <TableCell align="right">{formatCurrency(invoice.subtotal)}</TableCell>
-              <TableCell align="right">{formatCurrency(invoice.taxAmount)}</TableCell>
+              <TableCell align="right">{formatCurrency(invoice.totalVAT)}</TableCell>
+              <TableCell align="right">{formatCurrency(invoice.totalIRPF || 0)}</TableCell>
+              <TableCell align="right">{formatCurrency(invoice.totalRE || 0)}</TableCell>
               <TableCell align="right">
-                <strong>{formatCurrency(invoice.totalAmount)}</strong>
-              </TableCell>
-              <TableCell>
-                <StatusBadge status={invoice.status} />
+                <strong>{formatCurrency(invoice.total)}</strong>
               </TableCell>
               <TableCell align="right">
                 <Tooltip title="Ver detalle">
@@ -84,13 +73,11 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   </IconButton>
                 </Tooltip>
 
-                {canEdit(invoice) && (
-                  <Tooltip title="Editar">
-                    <IconButton size="small" onClick={() => onEdit(invoice)} color="info">
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
+                <Tooltip title="Editar">
+                  <IconButton size="small" onClick={() => onEdit(invoice)} color="info">
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
 
                 <Tooltip title="Descargar PDF">
                   <IconButton size="small" onClick={() => onDownloadPDF(invoice)} color="secondary">
@@ -98,13 +85,11 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   </IconButton>
                 </Tooltip>
 
-                {canDelete(invoice) && (
-                  <Tooltip title="Eliminar">
-                    <IconButton size="small" onClick={() => onDelete(invoice)} color="error">
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                )}
+                <Tooltip title="Eliminar">
+                  <IconButton size="small" onClick={() => onDelete(invoice)} color="error">
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </TableCell>
             </TableRow>
           ))}

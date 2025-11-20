@@ -104,7 +104,8 @@ export const useRecentTraces = (limit: number = 10) => {
       tracesApi.list({
         page: 0,
         size: limit,
-        sort: 'timestamp,desc',
+        sortBy: 'createdAt',
+        sortDir: 'DESC',
       }),
     staleTime: 1000 * 30, // 30 segundos (para mostrar actividad casi en tiempo real)
     refetchInterval: 1000 * 60, // Refetch cada minuto

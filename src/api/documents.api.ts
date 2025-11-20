@@ -9,11 +9,26 @@ export const documentsApi = {
   /**
    * Subir un documento PDF
    * POST /api/documents
+   *
+   * @param file - Archivo PDF a subir
+   * @param invoiceId - (Opcional) ID de la factura a asociar
+   * @param uploadedBy - (Opcional) Nombre de usuario (default: "system")
    */
-  upload: async (file: File, invoiceId: number): Promise<UploadDocumentResponse> => {
+  upload: async (
+    file: File,
+    invoiceId?: number,
+    uploadedBy?: string
+  ): Promise<UploadDocumentResponse> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('invoiceId', invoiceId.toString());
+
+    if (invoiceId !== undefined) {
+      formData.append('invoiceId', invoiceId.toString());
+    }
+
+    if (uploadedBy) {
+      formData.append('uploadedBy', uploadedBy);
+    }
 
     const response = await apiClient.post<UploadDocumentResponse>('/api/documents', formData, {
       headers: {

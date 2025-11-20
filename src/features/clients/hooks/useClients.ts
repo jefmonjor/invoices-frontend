@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { clientsApi } from '@/api/clients.api';
 import type { CreateClientRequest } from '@/types/client.types';
 import { toast } from 'react-toastify';
@@ -47,8 +48,12 @@ export const useCreateClient = () => {
       queryClient.setQueryData(clientKeys.detail(newClient.id), newClient);
       toast.success(`Cliente ${newClient.name} creado exitosamente`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al crear cliente';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al crear cliente';
       toast.error(message);
     },
   });
@@ -68,8 +73,12 @@ export const useUpdateClient = () => {
       queryClient.setQueryData(clientKeys.detail(updatedClient.id), updatedClient);
       toast.success(`Cliente ${updatedClient.name} actualizado`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al actualizar cliente';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al actualizar cliente';
       toast.error(message);
     },
   });
@@ -88,8 +97,12 @@ export const useDeleteClient = () => {
       queryClient.removeQueries({ queryKey: clientKeys.detail(id) });
       toast.success('Cliente eliminado exitosamente');
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al eliminar cliente';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al eliminar cliente';
       toast.error(message);
     },
   });

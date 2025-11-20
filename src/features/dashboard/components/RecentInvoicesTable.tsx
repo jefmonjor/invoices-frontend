@@ -71,10 +71,10 @@ export const RecentInvoicesTable: React.FC<RecentInvoicesTableProps> = ({ invoic
                   >
                     <TableCell>{invoice.invoiceNumber}</TableCell>
                     <TableCell>{invoice.clientName}</TableCell>
-                    <TableCell>{formatDate(invoice.issueDate)}</TableCell>
+                    <TableCell>{formatDate(invoice.date)}</TableCell>
                     <TableCell align="right">{formatCurrency(invoice.total)}</TableCell>
                     <TableCell>
-                      <StatusBadge status={invoice.status as any} />
+                      <StatusBadge status={invoice.status as 'DRAFT' | 'PENDING' | 'PAID' | 'CANCELLED'} />
                     </TableCell>
                     <TableCell align="center">
                       <Button size="small" variant="outlined" onClick={() => handleViewInvoice(invoice.id)}>

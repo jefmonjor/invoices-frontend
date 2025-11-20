@@ -21,38 +21,51 @@
  * el frontend solo visualiza y envía valores al backend.
  */
 
+/**
+ * Item de factura
+ * Estructura según contrato del backend
+ */
 export interface InvoiceItem {
   id?: number; // Opcional para crear nuevos items
   description: string;
-  quantity: number;
-  unitPrice: number; // BigDecimal en Java → number en TS (solo para visualizar)
-  taxRate: number;   // Porcentaje (ej: 21.0 para 21%)
-  total?: number;    // Calculado por el backend
+  units: number; // Cantidad de unidades
+  price: number; // Precio unitario (BigDecimal en Java)
+  vatPercentage: number; // Porcentaje de IVA (ej: 21.0 para 21%)
+  discountPercentage: number; // Porcentaje de descuento (ej: 10.0 para 10%)
 }
 
+/**
+ * Request para crear factura
+ * POST /api/invoices
+ */
 export interface CreateInvoiceRequest {
-  invoiceNumber: string;
   companyId: number;
   clientId: number;
-  issueDate: string;  // ISO-8601: "2025-11-17" (LocalDate en Java)
-  dueDate: string;    // ISO-8601: "2025-12-17"
+  invoiceNumber: string;
+  irpfPercentage: number; // Porcentaje de IRPF (ej: 15.0 para 15%)
+  rePercentage: number; // Porcentaje de RE (ej: 5.2 para 5.2%)
+  notes?: string; // Notas adicionales (opcional)
   items: InvoiceItem[];
 }
 
+/**
+ * Factura completa
+ * GET /api/invoices
+ * GET /api/invoices/{id}
+ */
 export interface Invoice {
-  id: number;  // Long en Java - Compatible si < 9,007,199,254,740,991
-  invoiceNumber: string;
+  id: number;
   companyId: number;
   clientId: number;
-  issueDate: string;      // ISO-8601: "2025-11-17T10:30:00"
-  dueDate: string;        // ISO-8601: "2025-12-17T23:59:59"
-  status: 'DRAFT' | 'PENDING' | 'PAID' | 'CANCELLED'; // Debe coincidir con Java Enum
-  subtotal: number;       // BigDecimal en Java → number en TS
-  taxAmount: number;      // BigDecimal en Java → number en TS
-  totalAmount: number;
+  invoiceNumber: string;
+  date: string; // Fecha de emisión ISO-8601: "2025-11-20"
+  subtotal: number; // Subtotal sin impuestos (BigDecimal)
+  totalVAT: number; // Total IVA (BigDecimal)
+  totalIRPF: number; // Total IRPF (negativo, BigDecimal)
+  totalRE: number; // Total RE (BigDecimal)
+  total: number; // Total final (BigDecimal)
   items: InvoiceItem[];
-  createdAt: string;
-  updatedAt: string;
+  notes?: string; // Notas adicionales (opcional)
 }
 
 export interface InvoiceListParams {

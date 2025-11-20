@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import { documentsApi } from '@/api/documents.api';
 
 /**
@@ -44,23 +45,34 @@ export const useUploadDocument = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ file, invoiceId }: { file: File; invoiceId: number }) =>
-      documentsApi.upload(file, invoiceId),
+    mutationFn: ({
+      file,
+      invoiceId,
+      uploadedBy,
+    }: {
+      file: File;
+      invoiceId?: number;
+      uploadedBy?: string;
+    }) => documentsApi.upload(file, invoiceId, uploadedBy),
 
     onSuccess: (newDocument, variables) => {
-      // Invalidar cache de documentos de la factura
-      queryClient.invalidateQueries({
-        queryKey: documentKeys.byInvoice(variables.invoiceId),
-      });
+      // Invalidar cache de documentos de la factura si existe
+      if (variables.invoiceId) {
+        queryClient.invalidateQueries({
+          queryKey: documentKeys.byInvoice(variables.invoiceId),
+        });
+      }
 
       // Agregar al cache del documento
       queryClient.setQueryData(documentKeys.detail(newDocument.id), newDocument);
 
-      toast.success(`Documento "${newDocument.fileName}" subido correctamente`);
+      toast.success(`Documento "${newDocument.originalFilename}" subido correctamente`);
     },
 
-    onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al subir documento';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Error al subir documento';
       toast.error(message);
       console.error('Upload document error:', error);
     },
@@ -93,8 +105,10 @@ export const useDownloadDocument = () => {
       toast.success(`Documento "${fileName}" descargado`);
     },
 
-    onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al descargar documento';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Error al descargar documento';
       toast.error(message);
       console.error('Download document error:', error);
     },
@@ -120,8 +134,10 @@ export const useDeleteDocument = () => {
       toast.success('Documento eliminado correctamente');
     },
 
-    onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al eliminar documento';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Error al eliminar documento';
       toast.error(message);
       console.error('Delete document error:', error);
     },

@@ -26,12 +26,14 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
 };
 
 // Hook para verificar permisos
+// eslint-disable-next-line react-refresh/only-export-components
 export const useHasRole = (roles: string[]): boolean => {
   const { user } = useAuthStore();
   if (!user) return false;
   return user.roles.some(role => roles.includes(role));
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useIsAdmin = (): boolean => {
   return useHasRole(['ROLE_ADMIN']);
 };

@@ -14,6 +14,7 @@ import {
   Alert,
 } from '@mui/material';
 import { Receipt as InvoiceIcon } from '@mui/icons-material';
+import axios from 'axios';
 import { apiClient } from '@/api/client';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -59,9 +60,13 @@ export const RegisterPage: React.FC = () => {
 
       toast.success('Registro exitoso! Por favor inicia sesión.');
       navigate('/login');
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Error al registrarse. Por favor intenta nuevamente.';
-      setError(message);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const message = err.response?.data?.message || 'Error al registrarse. Por favor intenta nuevamente.';
+        setError(message);
+      } else {
+        setError('Error al registrarse. Por favor intenta nuevamente.');
+      }
     } finally {
       setIsSubmitting(false);
     }

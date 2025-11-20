@@ -92,8 +92,9 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
           <Step3InvoiceData
             initialValues={{
               invoiceNumber: formData.invoiceNumber,
-              issueDate: formData.issueDate,
-              dueDate: formData.dueDate,
+              irpfPercentage: formData.irpfPercentage,
+              rePercentage: formData.rePercentage,
+              notes: formData.notes,
             }}
             onNext={(data) => updateFormData(data)}
             onBack={handleBack}

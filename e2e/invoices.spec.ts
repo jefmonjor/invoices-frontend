@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 // Helper to login before tests
-async function login(page: any) {
+async function login(page: Page) {
   await page.goto('/login');
   await page.getByLabel(/username|usuario/i).fill('admin');
   await page.getByLabel(/password|contraseña/i).fill('admin123');

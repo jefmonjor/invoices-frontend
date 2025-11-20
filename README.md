@@ -126,14 +126,46 @@ npm run lint      # ESLint
 - ✅ React Query cache
 - ✅ Material-UI tema personalizado
 
+## 🧪 Testing
+
+### Unit Tests (Vitest)
+
+```bash
+# Ejecutar tests unitarios
+npm test
+
+# Modo watch
+npm test -- --watch
+
+# Coverage
+npm run test:coverage
+```
+
+**Estado**: ✅ 24/24 tests passing
+
+### E2E Tests (Playwright)
+
+```bash
+# Instalar navegadores
+npx playwright install --with-deps
+
+# Ejecutar E2E tests
+npm run test:e2e
+
+# Con UI
+npm run test:e2e:ui
+```
+
+**Nota**: Los tests E2E requieren el backend corriendo. Ver [E2E_TESTS.md](./E2E_TESTS.md) para más detalles.
+
 ## 🚀 Próximos Pasos
 
-- [ ] Lista de facturas con tabla
-- [ ] Crear/editar factura (wizard)
-- [ ] Generar PDF
-- [ ] Módulo de usuarios (Admin)
-- [ ] Dashboard con gráficas
-- [ ] Tests (Vitest)
+- [x] Lista de facturas con tabla
+- [x] Crear/editar factura (wizard)
+- [x] Generar PDF
+- [x] Módulo de usuarios (Admin)
+- [x] Dashboard con gráficas
+- [x] Tests (Vitest + Playwright)
 
 ## 📚 Documentación
 

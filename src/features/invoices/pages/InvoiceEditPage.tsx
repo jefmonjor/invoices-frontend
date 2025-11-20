@@ -45,28 +45,16 @@ export const InvoiceEditPage: React.FC = () => {
     );
   }
 
-  // Check if invoice can be edited
-  if (invoice.status !== 'DRAFT' && invoice.status !== 'PENDING') {
-    return (
-      <Box>
-        <Typography variant="h4" gutterBottom>
-          Editar Factura
-        </Typography>
-        <Alert severity="warning">
-          Esta factura no puede ser editada porque su estado es: {invoice.status}. Solo las
-          facturas en estado DRAFT o PENDING pueden ser editadas.
-        </Alert>
-      </Box>
-    );
-  }
-
   // Transform invoice to form data
+  // Nota: Invoice no contiene los porcentajes, solo los totales calculados
+  // Usamos 0 como valor por defecto ya que no podemos calcular el porcentaje exacto
   const initialData: Partial<CreateInvoiceRequest> = {
     companyId: invoice.companyId,
     clientId: invoice.clientId,
     invoiceNumber: invoice.invoiceNumber,
-    issueDate: invoice.issueDate,
-    dueDate: invoice.dueDate,
+    irpfPercentage: 0, // Valor por defecto, el usuario debe especificarlo
+    rePercentage: 0, // Valor por defecto, el usuario debe especificarlo
+    notes: invoice.notes,
     items: invoice.items,
   };
 

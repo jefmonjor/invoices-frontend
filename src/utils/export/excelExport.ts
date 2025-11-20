@@ -13,14 +13,15 @@ export interface InvoiceWithDetails extends Invoice {
 export const exportInvoicesToExcel = (invoices: InvoiceWithDetails[]) => {
   const data = invoices.map(inv => ({
     'N° Factura': inv.invoiceNumber,
-    'Fecha Emisión': formatDate(inv.issueDate),
-    'Fecha Vencimiento': formatDate(inv.dueDate),
+    'Fecha': formatDate(inv.date),
     'Empresa': inv.company?.name ?? `Empresa #${inv.companyId}`,
     'Cliente': inv.client?.name ?? `Cliente #${inv.clientId}`,
     'Subtotal': inv.subtotal,
-    'IVA': inv.taxAmount,
-    'Total': inv.totalAmount,
-    'Estado': inv.status,
+    'IVA': inv.totalVAT,
+    'IRPF': inv.totalIRPF,
+    'RE': inv.totalRE,
+    'Total': inv.total,
+    'Notas': inv.notes ?? '',
   }));
 
   const ws = XLSX.utils.json_to_sheet(data);
@@ -31,14 +32,15 @@ export const exportInvoicesToExcel = (invoices: InvoiceWithDetails[]) => {
   const maxWidth = data.reduce((w, r) => Math.max(w, r['N° Factura'].length), 10);
   ws['!cols'] = [
     { wch: maxWidth },
-    { wch: 15 },
-    { wch: 15 },
+    { wch: 12 },
     { wch: 20 },
     { wch: 20 },
     { wch: 12 },
     { wch: 12 },
     { wch: 12 },
     { wch: 12 },
+    { wch: 12 },
+    { wch: 30 },
   ];
 
   XLSX.writeFile(wb, `facturas-${new Date().toISOString().split('T')[0]}.xlsx`);
@@ -97,7 +99,7 @@ export const exportCompaniesToExcel = (companies: Company[]) => {
 };
 
 // Generic export function
-export const exportToExcel = <T extends Record<string, any>>(
+export const exportToExcel = <T extends Record<string, unknown>>(
   data: T[],
   filename: string,
   sheetName: string = 'Data'

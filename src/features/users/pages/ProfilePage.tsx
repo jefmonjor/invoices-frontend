@@ -38,7 +38,11 @@ export const ProfilePage: React.FC = () => {
   });
 
   const onSubmit = async (data: ProfileFormData) => {
-    const updateData: any = {
+    const updateData: {
+      firstName: string;
+      lastName: string;
+      password?: string;
+    } = {
       firstName: data.firstName,
       lastName: data.lastName,
     };

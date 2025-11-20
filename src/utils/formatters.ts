@@ -112,7 +112,7 @@ export const formatInvoiceStatus = (status: string): string => {
 export const getStatusColor = (
   status: string
 ): 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' => {
-  const colorMap: Record<string, any> = {
+  const colorMap: Record<string, 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error'> = {
     DRAFT: 'default',
     PENDING: 'warning',
     PAID: 'success',

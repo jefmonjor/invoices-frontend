@@ -164,4 +164,5 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const DRAWER_WIDTH_EXPORT = DRAWER_WIDTH;

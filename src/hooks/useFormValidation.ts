@@ -6,7 +6,7 @@ interface ValidationError {
   [key: string]: string;
 }
 
-export function useFormValidation<T extends Record<string, any>>(schema: ZodSchema<T>) {
+export function useFormValidation<T extends Record<string, unknown>>(schema: ZodSchema<T>) {
   const [errors, setErrors] = useState<ValidationError>({});
   const [isValidating, setIsValidating] = useState(false);
 
@@ -36,7 +36,7 @@ export function useFormValidation<T extends Record<string, any>>(schema: ZodSche
   );
 
   const validateField = useCallback(
-    async (fieldName: keyof T, value: any): Promise<boolean> => {
+    async (fieldName: keyof T, value: unknown): Promise<boolean> => {
       setIsValidating(true);
       try {
         // Validate the entire object with just this field
