@@ -146,7 +146,7 @@ export const InvoiceDetailPage: React.FC = () => {
                   <Typography variant="caption" color="text.secondary">
                     Fecha
                   </Typography>
-                  <Typography variant="body1">{formatDate(invoice.date)}</Typography>
+                  <Typography variant="body1">{formatDate(invoice.issueDate)}</Typography>
                 </Grid>
 
                 <Grid item xs={6}>
@@ -222,23 +222,23 @@ export const InvoiceDetailPage: React.FC = () => {
               <Divider sx={{ mb: 2 }} />
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography>Subtotal:</Typography>
-                <Typography>{formatCurrency(invoice.subtotal)}</Typography>
+                <Typography>Base Imponible:</Typography>
+                <Typography>{formatCurrency(invoice.baseAmount)}</Typography>
               </Box>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>IVA:</Typography>
-                <Typography>{formatCurrency(invoice.totalVAT)}</Typography>
+                <Typography>{formatCurrency(invoice.totalAmount - invoice.baseAmount + invoice.irpfAmount - invoice.reAmount)}</Typography>
               </Box>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>IRPF:</Typography>
-                <Typography>{formatCurrency(invoice.totalIRPF || 0)}</Typography>
+                <Typography>{formatCurrency(invoice.irpfAmount)}</Typography>
               </Box>
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>RE:</Typography>
-                <Typography>{formatCurrency(invoice.totalRE || 0)}</Typography>
+                <Typography>{formatCurrency(invoice.reAmount)}</Typography>
               </Box>
 
               <Divider sx={{ my: 2 }} />
@@ -246,7 +246,7 @@ export const InvoiceDetailPage: React.FC = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h6">Total:</Typography>
                 <Typography variant="h6" color="primary">
-                  {formatCurrency(invoice.total)}
+                  {formatCurrency(invoice.totalAmount)}
                 </Typography>
               </Box>
             </CardContent>

@@ -1,20 +1,42 @@
+/**
+ * Client según ClientDTO del backend
+ * Compatible con Spring Boot 3 + Java 21
+ */
 export interface Client {
   id: number;
-  name: string;
+  businessName: string; // Razón social (antes 'name')
   taxId: string; // CIF/NIF
   address: string;
-  phone?: string;
+  city: string;
+  postalCode: string;
+  province: string;
+  phone: string;
   email: string;
-  contactPerson?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string; // ISO-8601
+  updatedAt?: string; // ISO-8601
 }
 
+/**
+ * Request para crear/actualizar cliente
+ */
 export interface CreateClientRequest {
-  name: string;
+  businessName: string;
   taxId: string;
   address: string;
-  phone?: string;
+  city: string;
+  postalCode: string;
+  province: string;
+  phone: string;
   email: string;
-  contactPerson?: string;
+}
+
+export interface UpdateClientRequest {
+  businessName?: string;
+  taxId?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  province?: string;
+  phone?: string;
+  email?: string;
 }

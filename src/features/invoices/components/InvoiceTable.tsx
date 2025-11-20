@@ -40,7 +40,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
           <TableRow>
             <TableCell>Número</TableCell>
             <TableCell>Fecha</TableCell>
-            <TableCell align="right">Subtotal</TableCell>
+            <TableCell align="right">Base Imponible</TableCell>
             <TableCell align="right">IVA</TableCell>
             <TableCell align="right">IRPF</TableCell>
             <TableCell align="right">RE</TableCell>
@@ -49,23 +49,27 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow
-              key={invoice.id}
-              hover
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                <strong>{invoice.invoiceNumber}</strong>
-              </TableCell>
-              <TableCell>{formatDate(invoice.date)}</TableCell>
-              <TableCell align="right">{formatCurrency(invoice.subtotal)}</TableCell>
-              <TableCell align="right">{formatCurrency(invoice.totalVAT)}</TableCell>
-              <TableCell align="right">{formatCurrency(invoice.totalIRPF || 0)}</TableCell>
-              <TableCell align="right">{formatCurrency(invoice.totalRE || 0)}</TableCell>
-              <TableCell align="right">
-                <strong>{formatCurrency(invoice.total)}</strong>
-              </TableCell>
+          {invoices.map((invoice) => {
+            // Calculate VAT: totalAmount = baseAmount + VAT - IRPF + RE
+            const totalVAT = invoice.totalAmount - invoice.baseAmount + invoice.irpfAmount - invoice.reAmount;
+
+            return (
+              <TableRow
+                key={invoice.id}
+                hover
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  <strong>{invoice.invoiceNumber}</strong>
+                </TableCell>
+                <TableCell>{formatDate(invoice.issueDate)}</TableCell>
+                <TableCell align="right">{formatCurrency(invoice.baseAmount)}</TableCell>
+                <TableCell align="right">{formatCurrency(totalVAT)}</TableCell>
+                <TableCell align="right">{formatCurrency(invoice.irpfAmount)}</TableCell>
+                <TableCell align="right">{formatCurrency(invoice.reAmount)}</TableCell>
+                <TableCell align="right">
+                  <strong>{formatCurrency(invoice.totalAmount)}</strong>
+                </TableCell>
               <TableCell align="right">
                 <Tooltip title="Ver detalle">
                   <IconButton size="small" onClick={() => onView(invoice)} color="primary">
@@ -91,8 +95,9 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   </IconButton>
                 </Tooltip>
               </TableCell>
-            </TableRow>
-          ))}
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>

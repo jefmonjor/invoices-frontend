@@ -49,11 +49,11 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
           ) : (
             clients.map((client) => (
               <TableRow key={client.id} hover>
-                <TableCell>{client.name}</TableCell>
+                <TableCell>{client.businessName}</TableCell>
                 <TableCell>{client.taxId}</TableCell>
                 <TableCell>{client.email}</TableCell>
                 <TableCell>{client.phone || '-'}</TableCell>
-                <TableCell>{formatDate(client.createdAt)}</TableCell>
+                <TableCell>{client.createdAt ? formatDate(client.createdAt) : "-"}</TableCell>
                 <TableCell align="center">
                   {onView && (
                     <Tooltip title="Ver detalles">

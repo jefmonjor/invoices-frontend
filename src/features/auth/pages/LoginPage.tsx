@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Card, CardContent, TextField, Button, Typography, Alert } from '@mui/material';
+import { Box, Card, CardContent, TextField, Button, Typography, Alert, Link } from '@mui/material';
 import axios from 'axios';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
@@ -8,7 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 export const LoginPage = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ export const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await authApi.login({ username, password });
+      const response = await authApi.login({ username: email, password });
       setAuth(response.token, response.user);
       navigate('/dashboard');
     } catch (err: unknown) {
@@ -60,14 +60,16 @@ export const LoginPage = () => {
 
           <form onSubmit={handleSubmit}>
             <TextField
-              label="Usuario"
-              type="text"
+              label="Email"
+              type="email"
               fullWidth
               margin="normal"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               autoFocus
+              autoComplete="email"
+              placeholder="ejemplo@correo.com"
             />
             <TextField
               label="Contraseña"
@@ -77,6 +79,7 @@ export const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
             />
             <Button
               type="submit"
@@ -88,6 +91,21 @@ export const LoginPage = () => {
             >
               {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </Button>
+
+            <Box sx={{ textAlign: 'center', mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                ¿No tienes cuenta?{' '}
+                <Link
+                  component="button"
+                  variant="body2"
+                  onClick={() => navigate('/register')}
+                  sx={{ cursor: 'pointer', fontWeight: 'medium' }}
+                  type="button"
+                >
+                  Regístrate aquí
+                </Link>
+              </Typography>
+            </Box>
           </form>
         </CardContent>
       </Card>

@@ -27,6 +27,21 @@ npm run dev
 
 **Prerequisitos:** Backend corriendo en http://localhost:8080
 
+### 👤 Crear Usuario de Prueba
+
+Para probar la aplicación o ejecutar tests E2E, necesitas crear un usuario:
+
+**Opción 1: Registro desde el frontend** (Recomendado)
+1. Ve a: http://localhost:3000/register o https://invoices-frontend-vert.vercel.app/register
+2. Completa el formulario con un email válido (ej: `admin@invoices.com`)
+3. Usa las credenciales para iniciar sesión
+
+**Opción 2: Desde la página de login**
+- En la parte inferior verás "¿No tienes cuenta? **Regístrate aquí**"
+- Haz clic y completa el formulario
+
+📘 **Guía detallada**: Ver [CREAR_USUARIO_TEST.md](./CREAR_USUARIO_TEST.md)
+
 ## 📁 Estructura
 
 ```
@@ -146,17 +161,24 @@ npm run test:coverage
 ### E2E Tests (Playwright)
 
 ```bash
-# Instalar navegadores
+# 1. Configurar credenciales (primera vez)
+cp .env.e2e.example .env.e2e.local
+# Editar .env.e2e.local con tus credenciales del backend
+
+# 2. Instalar navegadores
 npx playwright install --with-deps
 
-# Ejecutar E2E tests
+# 3. Ejecutar E2E tests
 npm run test:e2e
 
 # Con UI
 npm run test:e2e:ui
 ```
 
-**Nota**: Los tests E2E requieren el backend corriendo. Ver [E2E_TESTS.md](./E2E_TESTS.md) para más detalles.
+**⚠️ Importante**: Los tests E2E requieren:
+- Backend corriendo y accesible
+- Credenciales válidas con **email** (no username)
+- Ver [E2E_TESTS.md](./E2E_TESTS.md) para configuración detallada
 
 ## 🚀 Próximos Pasos
 

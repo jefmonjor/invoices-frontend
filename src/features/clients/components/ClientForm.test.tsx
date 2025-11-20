@@ -22,11 +22,14 @@ describe('ClientForm', () => {
     it('renders all form fields', () => {
       render(<ClientForm {...defaultProps} />)
 
-      expect(screen.getByLabelText(/nombre del cliente/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/razón social/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/cif\/nif/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/dirección/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/ciudad/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/código postal/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/provincia/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/teléfono/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
     })
 
     it('shows validation errors for required fields', async () => {
@@ -37,9 +40,13 @@ describe('ClientForm', () => {
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getByText('El nombre es requerido')).toBeInTheDocument()
+        expect(screen.getByText('La razón social es requerida')).toBeInTheDocument()
         expect(screen.getByText('El CIF/NIF es requerido')).toBeInTheDocument()
         expect(screen.getByText('La dirección es requerida')).toBeInTheDocument()
+        expect(screen.getByText('La ciudad es requerida')).toBeInTheDocument()
+        expect(screen.getByText('El código postal es requerido')).toBeInTheDocument()
+        expect(screen.getByText('La provincia es requerida')).toBeInTheDocument()
+        expect(screen.getByText('El teléfono es requerido')).toBeInTheDocument()
         expect(screen.getByText('El email es requerido')).toBeInTheDocument()
       })
 
@@ -65,8 +72,8 @@ describe('ClientForm', () => {
       const user = userEvent.setup()
       render(<ClientForm {...defaultProps} />)
 
-      const nameInput = screen.getByLabelText(/nombre del cliente/i)
-      await user.type(nameInput, 'a'.repeat(201))
+      const businessNameInput = screen.getByLabelText(/razón social/i)
+      await user.type(businessNameInput, 'a'.repeat(201))
 
       const submitButton = screen.getByRole('button', { name: /crear/i })
       await user.click(submitButton)
@@ -80,44 +87,29 @@ describe('ClientForm', () => {
       const user = userEvent.setup()
       render(<ClientForm {...defaultProps} />)
 
-      await user.type(screen.getByLabelText(/nombre del cliente/i), 'Acme Corp')
+      await user.type(screen.getByLabelText(/razón social/i), 'Acme Corp')
       await user.type(screen.getByLabelText(/cif\/nif/i), 'B12345678')
       await user.type(screen.getByLabelText(/dirección/i), '123 Main St')
-      await user.type(screen.getByLabelText(/email/i), 'contact@acme.com')
+      await user.type(screen.getByLabelText(/ciudad/i), 'Madrid')
+      await user.type(screen.getByLabelText(/código postal/i), '28001')
+      await user.type(screen.getByLabelText(/provincia/i), 'Madrid')
       await user.type(screen.getByLabelText(/teléfono/i), '+34 123456789')
+      await user.type(screen.getByLabelText(/email/i), 'contact@acme.com')
 
       const submitButton = screen.getByRole('button', { name: /crear/i })
       await user.click(submitButton)
 
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledWith({
-          name: 'Acme Corp',
+          businessName: 'Acme Corp',
           taxId: 'B12345678',
           address: '123 Main St',
-          email: 'contact@acme.com',
+          city: 'Madrid',
+          postalCode: '28001',
+          province: 'Madrid',
           phone: '+34 123456789',
+          email: 'contact@acme.com',
         })
-      })
-    })
-
-    it('allows empty phone field (optional)', async () => {
-      const user = userEvent.setup()
-      render(<ClientForm {...defaultProps} />)
-
-      await user.type(screen.getByLabelText(/nombre del cliente/i), 'Acme Corp')
-      await user.type(screen.getByLabelText(/cif\/nif/i), 'B12345678')
-      await user.type(screen.getByLabelText(/dirección/i), '123 Main St')
-      await user.type(screen.getByLabelText(/email/i), 'contact@acme.com')
-
-      const submitButton = screen.getByRole('button', { name: /crear/i })
-      await user.click(submitButton)
-
-      await waitFor(() => {
-        expect(mockOnSubmit).toHaveBeenCalledWith(
-          expect.objectContaining({
-            phone: '',
-          })
-        )
       })
     })
 
@@ -135,21 +127,27 @@ describe('ClientForm', () => {
   describe('Edit mode', () => {
     const mockClient: Client = {
       id: 1,
-      name: 'Acme Corp',
+      businessName: 'Acme Corp',
       taxId: 'B12345678',
       address: '123 Main St',
-      email: 'contact@acme.com',
+      city: 'Madrid',
+      postalCode: '28001',
+      province: 'Madrid',
       phone: '+34 123456789',
+      email: 'contact@acme.com',
     }
 
     it('pre-fills form with initial data', () => {
       render(<ClientForm {...defaultProps} initialData={mockClient} />)
 
-      expect(screen.getByLabelText(/nombre del cliente/i)).toHaveValue(mockClient.name)
+      expect(screen.getByLabelText(/razón social/i)).toHaveValue(mockClient.businessName)
       expect(screen.getByLabelText(/cif\/nif/i)).toHaveValue(mockClient.taxId)
       expect(screen.getByLabelText(/dirección/i)).toHaveValue(mockClient.address)
-      expect(screen.getByLabelText(/email/i)).toHaveValue(mockClient.email)
+      expect(screen.getByLabelText(/ciudad/i)).toHaveValue(mockClient.city)
+      expect(screen.getByLabelText(/código postal/i)).toHaveValue(mockClient.postalCode)
+      expect(screen.getByLabelText(/provincia/i)).toHaveValue(mockClient.province)
       expect(screen.getByLabelText(/teléfono/i)).toHaveValue(mockClient.phone)
+      expect(screen.getByLabelText(/email/i)).toHaveValue(mockClient.email)
     })
 
     it('shows update button instead of create', () => {
@@ -163,9 +161,9 @@ describe('ClientForm', () => {
       const user = userEvent.setup()
       render(<ClientForm {...defaultProps} initialData={mockClient} />)
 
-      const nameInput = screen.getByLabelText(/nombre del cliente/i)
-      await user.clear(nameInput)
-      await user.type(nameInput, 'Updated Corp')
+      const businessNameInput = screen.getByLabelText(/razón social/i)
+      await user.clear(businessNameInput)
+      await user.type(businessNameInput, 'Updated Corp')
 
       const submitButton = screen.getByRole('button', { name: /actualizar/i })
       await user.click(submitButton)
@@ -173,7 +171,7 @@ describe('ClientForm', () => {
       await waitFor(() => {
         expect(mockOnSubmit).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Updated Corp',
+            businessName: 'Updated Corp',
           })
         )
       })
@@ -184,11 +182,14 @@ describe('ClientForm', () => {
     it('disables all inputs when submitting', () => {
       render(<ClientForm {...defaultProps} isSubmitting={true} />)
 
-      expect(screen.getByLabelText(/nombre del cliente/i)).toBeDisabled()
+      expect(screen.getByLabelText(/razón social/i)).toBeDisabled()
       expect(screen.getByLabelText(/cif\/nif/i)).toBeDisabled()
       expect(screen.getByLabelText(/dirección/i)).toBeDisabled()
-      expect(screen.getByLabelText(/email/i)).toBeDisabled()
+      expect(screen.getByLabelText(/ciudad/i)).toBeDisabled()
+      expect(screen.getByLabelText(/código postal/i)).toBeDisabled()
+      expect(screen.getByLabelText(/provincia/i)).toBeDisabled()
       expect(screen.getByLabelText(/teléfono/i)).toBeDisabled()
+      expect(screen.getByLabelText(/email/i)).toBeDisabled()
     })
 
     it('shows loading text on submit button', () => {

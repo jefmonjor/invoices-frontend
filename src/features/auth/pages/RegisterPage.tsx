@@ -50,7 +50,7 @@ export const RegisterPage: React.FC = () => {
     setError(null);
 
     try {
-      await apiClient.post('/auth/register', {
+      await apiClient.post('/api/auth/register', {
         email: data.email,
         password: data.password,
         firstName: data.firstName,
@@ -58,7 +58,7 @@ export const RegisterPage: React.FC = () => {
         roles: ['ROLE_USER'], // Default role
       });
 
-      toast.success('Registro exitoso! Por favor inicia sesión.');
+      toast.success('¡Registro exitoso! Ahora puedes iniciar sesión.');
       navigate('/login');
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

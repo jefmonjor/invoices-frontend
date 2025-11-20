@@ -6,11 +6,14 @@ import { Box, TextField, Button, Stack, Grid } from '@mui/material';
 import type { Client, CreateClientRequest } from '@/types/client.types';
 
 const clientSchema = z.object({
-  name: z.string().min(1, 'El nombre es requerido').max(200, 'Máximo 200 caracteres'),
+  businessName: z.string().min(1, 'La razón social es requerida').max(200, 'Máximo 200 caracteres'),
   taxId: z.string().min(1, 'El CIF/NIF es requerido').max(20, 'Máximo 20 caracteres'),
   address: z.string().min(1, 'La dirección es requerida').max(500, 'Máximo 500 caracteres'),
+  city: z.string().min(1, 'La ciudad es requerida').max(100, 'Máximo 100 caracteres'),
+  postalCode: z.string().min(1, 'El código postal es requerido').max(10, 'Máximo 10 caracteres'),
+  province: z.string().min(1, 'La provincia es requerida').max(100, 'Máximo 100 caracteres'),
+  phone: z.string().min(1, 'El teléfono es requerido').max(20, 'Máximo 20 caracteres'),
   email: z.string().min(1, 'El email es requerido').email('Email inválido'),
-  phone: z.string().max(20, 'Máximo 20 caracteres').optional(),
 });
 
 interface ClientFormProps {
@@ -35,29 +38,38 @@ export const ClientForm: React.FC<ClientFormProps> = ({
     resolver: zodResolver(clientSchema),
     defaultValues: initialData
       ? {
-          name: initialData.name,
+          businessName: initialData.businessName,
           taxId: initialData.taxId,
           address: initialData.address,
+          city: initialData.city,
+          postalCode: initialData.postalCode,
+          province: initialData.province,
+          phone: initialData.phone,
           email: initialData.email,
-          phone: initialData.phone || '',
         }
       : {
-          name: '',
+          businessName: '',
           taxId: '',
           address: '',
-          email: '',
+          city: '',
+          postalCode: '',
+          province: '',
           phone: '',
+          email: '',
         },
   });
 
   useEffect(() => {
     if (initialData) {
       reset({
-        name: initialData.name,
+        businessName: initialData.businessName,
         taxId: initialData.taxId,
         address: initialData.address,
+        city: initialData.city,
+        postalCode: initialData.postalCode,
+        province: initialData.province,
+        phone: initialData.phone,
         email: initialData.email,
-        phone: initialData.phone || '',
       });
     }
   }, [initialData, reset]);
@@ -71,12 +83,12 @@ export const ClientForm: React.FC<ClientFormProps> = ({
       <Grid container spacing={3}>
         <Grid xs={12} md={6}>
           <TextField
-            {...register('name')}
-            label="Nombre del Cliente"
+            {...register('businessName')}
+            label="Razón Social"
             fullWidth
             required
-            error={!!errors.name}
-            helperText={errors.name?.message}
+            error={!!errors.businessName}
+            helperText={errors.businessName?.message}
             disabled={isSubmitting}
           />
         </Grid>
@@ -105,6 +117,54 @@ export const ClientForm: React.FC<ClientFormProps> = ({
           />
         </Grid>
 
+        <Grid xs={12} md={4}>
+          <TextField
+            {...register('city')}
+            label="Ciudad"
+            fullWidth
+            required
+            error={!!errors.city}
+            helperText={errors.city?.message}
+            disabled={isSubmitting}
+          />
+        </Grid>
+
+        <Grid xs={12} md={4}>
+          <TextField
+            {...register('postalCode')}
+            label="Código Postal"
+            fullWidth
+            required
+            error={!!errors.postalCode}
+            helperText={errors.postalCode?.message}
+            disabled={isSubmitting}
+          />
+        </Grid>
+
+        <Grid xs={12} md={4}>
+          <TextField
+            {...register('province')}
+            label="Provincia"
+            fullWidth
+            required
+            error={!!errors.province}
+            helperText={errors.province?.message}
+            disabled={isSubmitting}
+          />
+        </Grid>
+
+        <Grid xs={12} md={6}>
+          <TextField
+            {...register('phone')}
+            label="Teléfono"
+            fullWidth
+            required
+            error={!!errors.phone}
+            helperText={errors.phone?.message}
+            disabled={isSubmitting}
+          />
+        </Grid>
+
         <Grid xs={12} md={6}>
           <TextField
             {...register('email')}
@@ -114,17 +174,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             required
             error={!!errors.email}
             helperText={errors.email?.message}
-            disabled={isSubmitting}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6}>
-          <TextField
-            {...register('phone')}
-            label="Teléfono (Opcional)"
-            fullWidth
-            error={!!errors.phone}
-            helperText={errors.phone?.message}
             disabled={isSubmitting}
           />
         </Grid>
