@@ -23,7 +23,7 @@ import type { User } from '@/types/user.types';
 const AVAILABLE_ROLES = ['ROLE_USER', 'ROLE_ADMIN'];
 
 const userSchema = z.object({
-  email: z.string().email('Email inválido').min(1, 'El email es requerido'),
+  email: z.string().min(1, 'El email es requerido').email('Email inválido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres').optional().or(z.literal('')),
   firstName: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
   lastName: z.string().min(1, 'El apellido es requerido').max(100, 'Máximo 100 caracteres'),
@@ -86,8 +86,12 @@ export const UserForm: React.FC<UserFormProps> = ({
     }
   }, [initialData, reset]);
 
+  const handleFormSubmit = (data: UserFormData) => {
+    onSubmit(data);
+  };
+
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} noValidate>
       <Grid container spacing={3}>
         <Grid xs={12} md={6}>
           <TextField
@@ -145,9 +149,11 @@ export const UserForm: React.FC<UserFormProps> = ({
             control={control}
             render={({ field }) => (
               <FormControl fullWidth error={!!errors.roles}>
-                <InputLabel>Roles</InputLabel>
+                <InputLabel id="roles-label">Roles</InputLabel>
                 <Select
                   {...field}
+                  labelId="roles-label"
+                  id="roles-select"
                   multiple
                   input={<OutlinedInput label="Roles" />}
                   renderValue={(selected) => (

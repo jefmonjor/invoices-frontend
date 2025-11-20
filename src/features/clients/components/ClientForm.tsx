@@ -9,7 +9,7 @@ const clientSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(200, 'Máximo 200 caracteres'),
   taxId: z.string().min(1, 'El CIF/NIF es requerido').max(20, 'Máximo 20 caracteres'),
   address: z.string().min(1, 'La dirección es requerida').max(500, 'Máximo 500 caracteres'),
-  email: z.string().email('Email inválido').min(1, 'El email es requerido'),
+  email: z.string().min(1, 'El email es requerido').email('Email inválido'),
   phone: z.string().max(20, 'Máximo 20 caracteres').optional(),
 });
 
@@ -62,8 +62,12 @@ export const ClientForm: React.FC<ClientFormProps> = ({
     }
   }, [initialData, reset]);
 
+  const handleFormSubmit = (data: CreateClientRequest) => {
+    onSubmit(data);
+  };
+
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} noValidate>
       <Grid container spacing={3}>
         <Grid xs={12} md={6}>
           <TextField
