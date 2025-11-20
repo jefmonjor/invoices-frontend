@@ -99,7 +99,7 @@ export const exportCompaniesToExcel = (companies: Company[]) => {
 };
 
 // Generic export function
-export const exportToExcel = <T extends Record<string, any>>(
+export const exportToExcel = <T extends Record<string, unknown>>(
   data: T[],
   filename: string,
   sheetName: string = 'Data'

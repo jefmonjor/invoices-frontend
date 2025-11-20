@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Card, CardContent, TextField, Button, Typography, Alert } from '@mui/material';
+import axios from 'axios';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 
@@ -21,8 +22,12 @@ export const LoginPage = () => {
       const response = await authApi.login({ username, password });
       setAuth(response.token, response.user);
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || 'Error al iniciar sesión');
+      } else {
+        setError('Error al iniciar sesión');
+      }
     } finally {
       setLoading(false);
     }

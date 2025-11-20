@@ -17,7 +17,7 @@ export interface SpringValidationError {
     defaultMessage: string;  // Mensaje de error
     objectName: string;      // Nombre del objeto (ej: "createInvoiceRequest")
     code: string;            // Código de error (ej: "NotNull", "Min")
-    rejectedValue?: any;     // Valor rechazado
+    rejectedValue?: unknown;     // Valor rechazado
   }>;
 }
 
@@ -36,7 +36,7 @@ export interface SpringFieldErrors {
  */
 export const setSpringErrors = (
   error: unknown,
-  setError: UseFormSetError<any>
+  setError: UseFormSetError<Record<string, unknown>>
 ) => {
   if (!(error instanceof AxiosError)) return;
 

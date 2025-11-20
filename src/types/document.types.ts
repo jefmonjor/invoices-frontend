@@ -37,7 +37,7 @@ export interface UploadDocumentRequest {
  * Response al subir documento
  * El backend devuelve la misma estructura que Document
  */
-export interface UploadDocumentResponse extends Document {}
+export type UploadDocumentResponse = Document;
 
 /**
  * Parámetros para listar documentos

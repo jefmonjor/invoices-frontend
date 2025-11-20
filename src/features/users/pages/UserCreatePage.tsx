@@ -8,8 +8,29 @@ export const UserCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const createMutation = useCreateUser();
 
-  const handleSubmit = async (data: CreateUserRequest) => {
+  const handleSubmit = async (formData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    roles: string[];
+    password?: string;
+    enabled?: boolean;
+  }) => {
     try {
+      // Ensure password is provided for new users
+      if (!formData.password || formData.password.trim() === '') {
+        throw new Error('La contraseña es requerida');
+      }
+
+      const data: CreateUserRequest = {
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        roles: formData.roles,
+        enabled: formData.enabled,
+      };
+
       await createMutation.mutateAsync(data);
       navigate('/users');
     } catch (error) {

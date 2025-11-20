@@ -86,7 +86,7 @@ export const exportInvoiceToPDF = (invoice: InvoiceWithDetails) => {
   });
 
   // Totals
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  const finalY = (doc as typeof jsPDF.prototype & { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10;
   doc.setFontSize(10);
   doc.text(`Subtotal: ${formatCurrency(invoice.subtotal)}`, 140, finalY);
   doc.text(`IVA: ${formatCurrency(invoice.totalVAT)}`, 140, finalY + 6);

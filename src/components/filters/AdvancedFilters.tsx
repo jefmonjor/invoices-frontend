@@ -46,7 +46,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
   const [filters, setFilters] = useState<FilterValues>({});
   const [expanded, setExpanded] = useState(false);
 
-  const handleChange = (field: keyof FilterValues, value: any) => {
+  const handleChange = (field: keyof FilterValues, value: string | number) => {
     const newFilters = { ...filters, [field]: value };
     setFilters(newFilters);
     onFilterChange(newFilters);

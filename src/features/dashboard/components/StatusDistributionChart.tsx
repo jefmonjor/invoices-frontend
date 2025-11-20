@@ -1,5 +1,6 @@
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts';
 import type { InvoiceStatusDistribution } from '@/types/dashboard.types';
 
 interface StatusDistributionChartProps {
@@ -34,7 +35,10 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={(props: any) => `${props.name}: ${props.percentage.toFixed(1)}%`}
+                label={(props: PieLabelRenderProps) => {
+                  const data = props as PieLabelRenderProps & { name?: string; percentage?: number };
+                  return `${data.name || ''}: ${(data.percentage || 0).toFixed(1)}%`;
+                }}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"

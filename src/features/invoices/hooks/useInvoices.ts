@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { invoicesApi } from '@/api/invoices.api';
 import type { InvoiceListParams, CreateInvoiceRequest } from '@/types/invoice.types';
 import { toast } from 'react-toastify';
@@ -52,8 +53,12 @@ export const useCreateInvoice = () => {
 
       toast.success(`Factura ${newInvoice.invoiceNumber} creada exitosamente`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al crear factura';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al crear factura';
       toast.error(message);
     },
   });
@@ -77,8 +82,12 @@ export const useUpdateInvoice = () => {
 
       toast.success(`Factura ${updatedInvoice.invoiceNumber} actualizada`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al actualizar factura';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al actualizar factura';
       toast.error(message);
     },
   });
@@ -101,8 +110,12 @@ export const useDeleteInvoice = () => {
 
       toast.success('Factura eliminada exitosamente');
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al eliminar factura';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al eliminar factura';
       toast.error(message);
     },
   });
@@ -118,8 +131,12 @@ export const useGeneratePDF = () => {
     onSuccess: (_data, variables) => {
       toast.success(`PDF de factura ${variables.invoiceNumber} descargado`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al generar PDF';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al generar PDF';
       toast.error(message);
     },
   });

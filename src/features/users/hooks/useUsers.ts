@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { usersApi } from '@/api/users.api';
 import type { CreateUserRequest, UpdateUserRequest, UserListParams } from '@/types/user.types';
 import { toast } from 'react-toastify';
@@ -59,8 +60,12 @@ export const useCreateUser = () => {
       queryClient.setQueryData(userKeys.detail(newUser.id), newUser);
       toast.success(`Usuario ${newUser.email} creado exitosamente`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al crear usuario';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al crear usuario';
       toast.error(message);
     },
   });
@@ -80,8 +85,12 @@ export const useUpdateUser = () => {
       queryClient.setQueryData(userKeys.detail(updatedUser.id), updatedUser);
       toast.success(`Usuario ${updatedUser.email} actualizado`);
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al actualizar usuario';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al actualizar usuario';
       toast.error(message);
     },
   });
@@ -99,8 +108,12 @@ export const useUpdateProfile = () => {
       queryClient.setQueryData(userKeys.profile(), updatedUser);
       toast.success('Perfil actualizado exitosamente');
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al actualizar perfil';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al actualizar perfil';
       toast.error(message);
     },
   });
@@ -119,8 +132,12 @@ export const useDeleteUser = () => {
       queryClient.removeQueries({ queryKey: userKeys.detail(id) });
       toast.success('Usuario eliminado exitosamente');
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || error.message || 'Error al eliminar usuario';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+        ? error.message
+        : 'Error al eliminar usuario';
       toast.error(message);
     },
   });

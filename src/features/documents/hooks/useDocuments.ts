@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import { documentsApi } from '@/api/documents.api';
 
 /**
@@ -68,8 +69,10 @@ export const useUploadDocument = () => {
       toast.success(`Documento "${newDocument.originalFilename}" subido correctamente`);
     },
 
-    onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al subir documento';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Error al subir documento';
       toast.error(message);
       console.error('Upload document error:', error);
     },
@@ -102,8 +105,10 @@ export const useDownloadDocument = () => {
       toast.success(`Documento "${fileName}" descargado`);
     },
 
-    onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al descargar documento';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Error al descargar documento';
       toast.error(message);
       console.error('Download document error:', error);
     },
@@ -129,8 +134,10 @@ export const useDeleteDocument = () => {
       toast.success('Documento eliminado correctamente');
     },
 
-    onError: (error: any) => {
-      const message = error.response?.data?.message || 'Error al eliminar documento';
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : 'Error al eliminar documento';
       toast.error(message);
       console.error('Delete document error:', error);
     },

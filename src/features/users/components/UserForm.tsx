@@ -35,7 +35,7 @@ type UserFormData = z.infer<typeof userSchema>;
 
 interface UserFormProps {
   initialData?: User;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: UserFormData) => void;
   onCancel: () => void;
   isSubmitting: boolean;
 }

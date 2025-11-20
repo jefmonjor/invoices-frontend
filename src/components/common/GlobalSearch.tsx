@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -62,8 +62,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
   // Debounce search
-  const debouncedSetSearch = useCallback(
-    debounce((value: string) => setDebouncedSearch(value), 300),
+  const debouncedSetSearch = useMemo(
+    () => debounce((value: string) => setDebouncedSearch(value), 300),
     []
   );
 
