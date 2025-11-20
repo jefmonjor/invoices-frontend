@@ -2,6 +2,7 @@ import { apiClient } from './client';
 import type {
   Invoice,
   CreateInvoiceRequest,
+  UpdateInvoiceRequest,
   InvoiceListParams,
 } from '@/types/invoice.types';
 
@@ -27,7 +28,7 @@ export const invoicesApi = {
   },
 
   // Actualizar factura
-  update: async (id: number, data: Partial<CreateInvoiceRequest>): Promise<Invoice> => {
+  update: async (id: number, data: UpdateInvoiceRequest): Promise<Invoice> => {
     const response = await apiClient.put<Invoice>(`/api/invoices/${id}`, data);
     return response.data;
   },

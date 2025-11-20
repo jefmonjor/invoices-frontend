@@ -26,9 +26,47 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor: Manejar errores globales
+/**
+ * Convierte arrays de fecha del backend ([2025, 11, 20, ...]) a strings ISO-8601
+ * Java serializa LocalDateTime como arrays cuando no está bien configurado
+ */
+const parseDateArrays = (obj: unknown): unknown => {
+  if (obj === null || obj === undefined) return obj;
+
+  // Si es un array de números con 6-7 elementos, es una fecha
+  if (Array.isArray(obj) && obj.length >= 6 && obj.length <= 7 && obj.every(n => typeof n === 'number')) {
+    const [year, month, day, hour = 0, minute = 0, second = 0] = obj;
+    // Crear fecha ISO-8601 (month en JavaScript es 0-indexed, pero en el array del backend es 1-indexed)
+    const date = new Date(year, month - 1, day, hour, minute, second);
+    return date.toISOString();
+  }
+
+  // Si es un array, recursivamente parsear cada elemento
+  if (Array.isArray(obj)) {
+    return obj.map(parseDateArrays);
+  }
+
+  // Si es un objeto, recursivamente parsear cada propiedad
+  if (typeof obj === 'object') {
+    const parsed: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(obj)) {
+      parsed[key] = parseDateArrays(value);
+    }
+    return parsed;
+  }
+
+  return obj;
+};
+
+// Interceptor: Parsear fechas y manejar errores globales
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Parsear fechas automáticamente
+    if (response.data) {
+      response.data = parseDateArrays(response.data);
+    }
+    return response;
+  },
   (error: AxiosError) => {
     if (error.response?.status === 401) {
       // Token expirado o inválido

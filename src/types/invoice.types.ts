@@ -137,10 +137,19 @@ export interface CreateInvoiceRequest {
 /**
  * Request para actualizar factura
  * PUT /invoices/{id}
+ *
+ * Campos actualizables según contrato de API:
+ * - settlementNumber: Actualizable
+ * - notes: Actualizable
+ * - items: Actualizable
+ *
+ * Campos inmutables (NO enviar o enviar con el mismo valor):
+ * - companyId, clientId, invoiceNumber, irpfPercentage, rePercentage
  */
 export interface UpdateInvoiceRequest {
-  notes?: string;
-  items?: CreateInvoiceItemRequest[];
+  settlementNumber?: string; // Actualizable - Número de liquidación
+  notes?: string; // Actualizable - Notas
+  items?: CreateInvoiceItemRequest[]; // Actualizable - Reemplaza todos los items
 }
 
 // ==================== Paginación y Filtros ====================
