@@ -92,6 +92,16 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                     {formData.invoiceNumber}
                   </Typography>
                 </Grid>
+                {formData.settlementNumber && (
+                  <Grid item xs={12}>
+                    <Typography variant="caption" color="text.secondary">
+                      Liquidación Nº:
+                    </Typography>
+                    <Typography variant="body2" fontWeight="bold">
+                      {formData.settlementNumber}
+                    </Typography>
+                  </Grid>
+                )}
                 {(formData.irpfPercentage || 0) > 0 && (
                   <Grid item xs={6}>
                     <Typography variant="caption" color="text.secondary">

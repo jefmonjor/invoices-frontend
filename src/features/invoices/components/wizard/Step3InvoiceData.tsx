@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { Box, Button, TextField, Typography, Stack, Grid } from '@mui/material';
+import { Box, Button, TextField, Typography, Stack, Grid, IconButton, Tooltip } from '@mui/material';
+import { AutoFixHigh as AutoGenerateIcon } from '@mui/icons-material';
 import { toISODate } from '@/utils/formatters';
+import { generateInvoiceNumber } from '@/utils/invoiceNumberGenerator';
 
 interface Step3InvoiceDataProps {
   initialValues?: {
     invoiceNumber?: string;
+    settlementNumber?: string;
     date?: string;
     irpfPercentage?: number;
     rePercentage?: number;
@@ -12,6 +15,7 @@ interface Step3InvoiceDataProps {
   };
   onNext: (data: {
     invoiceNumber: string;
+    settlementNumber?: string;
     date: string;
     irpfPercentage?: number;
     rePercentage?: number;
@@ -29,6 +33,7 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
   const [formData, setFormData] = useState({
     invoiceNumber: initialValues?.invoiceNumber || '',
+    settlementNumber: initialValues?.settlementNumber || '',
     date: initialValues?.date || toISODate(today, true),
     irpfPercentage: initialValues?.irpfPercentage ?? 0,
     rePercentage: initialValues?.rePercentage ?? 0,
@@ -42,8 +47,8 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
     if (!formData.invoiceNumber.trim()) {
       newErrors.invoiceNumber = 'El número de factura es requerido';
-    } else if (!/^[A-Za-z0-9.-]+$/.test(formData.invoiceNumber)) {
-      newErrors.invoiceNumber = 'Solo letras, números, guiones y puntos';
+    } else if (!/^[A-Za-z0-9.\/-]+$/.test(formData.invoiceNumber)) {
+      newErrors.invoiceNumber = 'Solo letras, números, guiones, puntos y barras';
     }
 
     if (!formData.date) {
@@ -80,6 +85,20 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
     }
   };
 
+  const handleGenerateInvoiceNumber = () => {
+    // Generar número de factura con prefijo vacío por defecto
+    const generated = generateInvoiceNumber();
+    setFormData((prev) => ({ ...prev, invoiceNumber: generated }));
+    // Limpiar error si existe
+    if (errors.invoiceNumber) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.invoiceNumber;
+        return newErrors;
+      });
+    }
+  };
+
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -91,14 +110,36 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+            <TextField
+              fullWidth
+              label="Número de Factura"
+              value={formData.invoiceNumber}
+              onChange={(e) => handleChange('invoiceNumber', e.target.value)}
+              error={!!errors.invoiceNumber}
+              helperText={errors.invoiceNumber || 'Ejemplos: A057/2025, 047/2025, FacturaA057.pdf'}
+              placeholder="A057/2025"
+            />
+            <Tooltip title="Generar automáticamente">
+              <IconButton
+                color="primary"
+                onClick={handleGenerateInvoiceNumber}
+                sx={{ mt: 1 }}
+              >
+                <AutoGenerateIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
           <TextField
             fullWidth
-            label="Número de Factura"
-            value={formData.invoiceNumber}
-            onChange={(e) => handleChange('invoiceNumber', e.target.value)}
-            error={!!errors.invoiceNumber}
-            helperText={errors.invoiceNumber || 'Ejemplos: FacturaA057.pdf, 4592JBZ-SEP-25.pdf, INV-2025-001'}
-            placeholder="FacturaA057.pdf"
+            label="Número de Liquidación (Opcional)"
+            value={formData.settlementNumber}
+            onChange={(e) => handleChange('settlementNumber', e.target.value)}
+            helperText="Para facturas de transporte"
+            placeholder="LIQ-001"
           />
         </Grid>
 

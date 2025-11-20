@@ -63,6 +63,12 @@ export interface InvoiceItem {
   discountPercentage?: number;
   subtotal?: number; // Calculado por backend
   total?: number; // Calculado por backend
+  // Campos adicionales para facturas de transporte
+  itemDate?: string; // ISO-8601 date (YYYY-MM-DD)
+  vehiclePlate?: string; // Matrícula del vehículo
+  orderNumber?: string; // Número de pedido
+  zone?: string; // Zona (ej: CDF 11, CDF 12)
+  gasPercentage?: number; // Porcentaje de gas
   createdAt?: string; // ISO-8601
   updatedAt?: string; // ISO-8601
 }
@@ -76,6 +82,12 @@ export interface CreateInvoiceItemRequest {
   price: number;
   vatPercentage: number;
   discountPercentage?: number;
+  // Campos adicionales para facturas de transporte
+  itemDate?: string; // ISO-8601 date (YYYY-MM-DD)
+  vehiclePlate?: string; // Matrícula del vehículo
+  orderNumber?: string; // Número de pedido
+  zone?: string; // Zona (ej: CDF 11, CDF 12)
+  gasPercentage?: number; // Porcentaje de gas
 }
 
 // ==================== Invoice ====================
@@ -92,6 +104,7 @@ export interface Invoice {
   company?: CompanyDTO; // Poblado en respuestas del backend
   client?: ClientDTO; // Poblado en respuestas del backend
   invoiceNumber: string;
+  settlementNumber?: string; // Número de liquidación (opcional)
   issueDate: string; // ISO-8601 date-time
   baseAmount: number; // Subtotal sin impuestos
   irpfPercentage: number;
@@ -114,6 +127,7 @@ export interface CreateInvoiceRequest {
   companyId: number;
   clientId: number;
   invoiceNumber: string;
+  settlementNumber?: string; // Número de liquidación (opcional, para facturas de transporte)
   irpfPercentage?: number; // Default 0
   rePercentage?: number; // Default 0
   notes?: string;
