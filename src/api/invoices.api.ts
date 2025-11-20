@@ -38,15 +38,12 @@ export const invoicesApi = {
     await apiClient.delete(`/api/invoices/${id}`);
   },
 
-  // Generar PDF
+  // Generar/Descargar PDF
+  // Según contrato del backend: GET /api/invoices/{id}/pdf
   generatePDF: async (id: number): Promise<Blob> => {
-    const response = await apiClient.post(
-      `/api/invoices/${id}/generate-pdf`,
-      {},
-      {
-        responseType: 'blob',
-      }
-    );
+    const response = await apiClient.get(`/api/invoices/${id}/pdf`, {
+      responseType: 'blob',
+    });
     return response.data;
   },
 

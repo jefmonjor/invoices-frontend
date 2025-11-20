@@ -65,8 +65,7 @@ export const InvoiceEditPage: React.FC = () => {
     companyId: invoice.companyId,
     clientId: invoice.clientId,
     invoiceNumber: invoice.invoiceNumber,
-    issueDate: invoice.issueDate,
-    dueDate: invoice.dueDate,
+    date: invoice.date,
     items: invoice.items,
   };
 

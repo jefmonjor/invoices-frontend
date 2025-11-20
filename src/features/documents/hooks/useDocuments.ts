@@ -44,19 +44,28 @@ export const useUploadDocument = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ file, invoiceId }: { file: File; invoiceId: number }) =>
-      documentsApi.upload(file, invoiceId),
+    mutationFn: ({
+      file,
+      invoiceId,
+      uploadedBy,
+    }: {
+      file: File;
+      invoiceId?: number;
+      uploadedBy?: string;
+    }) => documentsApi.upload(file, invoiceId, uploadedBy),
 
     onSuccess: (newDocument, variables) => {
-      // Invalidar cache de documentos de la factura
-      queryClient.invalidateQueries({
-        queryKey: documentKeys.byInvoice(variables.invoiceId),
-      });
+      // Invalidar cache de documentos de la factura si existe
+      if (variables.invoiceId) {
+        queryClient.invalidateQueries({
+          queryKey: documentKeys.byInvoice(variables.invoiceId),
+        });
+      }
 
       // Agregar al cache del documento
       queryClient.setQueryData(documentKeys.detail(newDocument.id), newDocument);
 
-      toast.success(`Documento "${newDocument.fileName}" subido correctamente`);
+      toast.success(`Documento "${newDocument.originalFilename}" subido correctamente`);
     },
 
     onError: (error: any) => {

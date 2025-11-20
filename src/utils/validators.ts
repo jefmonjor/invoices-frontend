@@ -16,18 +16,22 @@ export const invoiceItemSchema = z.object({
     .string()
     .min(1, 'La descripción es requerida')
     .max(500, 'La descripción no puede exceder 500 caracteres'),
-  quantity: z
+  units: z
     .number()
-    .min(1, 'La cantidad debe ser al menos 1')
-    .max(9999, 'La cantidad no puede exceder 9999'),
-  unitPrice: z
+    .min(1, 'Las unidades deben ser al menos 1')
+    .max(9999, 'Las unidades no pueden exceder 9999'),
+  price: z
     .number()
     .min(0.01, 'El precio debe ser mayor a 0')
     .max(999999.99, 'El precio es demasiado alto'),
-  taxRate: z
+  vatPercentage: z
     .number()
-    .min(0, 'La tasa de impuesto no puede ser negativa')
-    .max(100, 'La tasa de impuesto no puede exceder 100%'),
+    .min(0, 'El porcentaje de IVA no puede ser negativo')
+    .max(100, 'El porcentaje de IVA no puede exceder 100%'),
+  discountPercentage: z
+    .number()
+    .min(0, 'El porcentaje de descuento no puede ser negativo')
+    .max(100, 'El porcentaje de descuento no puede exceder 100%'),
 });
 
 /**
@@ -42,8 +46,18 @@ export const createInvoiceSchema = z.object({
     .regex(/^[A-Z0-9-]+$/, 'Formato inválido (solo mayúsculas, números y guiones)'),
   companyId: z.number().min(1, 'Debe seleccionar una empresa'),
   clientId: z.number().min(1, 'Debe seleccionar un cliente'),
-  issueDate: z.string().min(1, 'La fecha de emisión es requerida'),
-  dueDate: z.string().min(1, 'La fecha de vencimiento es requerida'),
+  irpfPercentage: z
+    .number()
+    .min(0, 'El porcentaje de IRPF no puede ser negativo')
+    .max(100, 'El porcentaje de IRPF no puede exceder 100%'),
+  rePercentage: z
+    .number()
+    .min(0, 'El porcentaje de RE no puede ser negativo')
+    .max(100, 'El porcentaje de RE no puede exceder 100%'),
+  notes: z
+    .string()
+    .max(1000, 'Las notas no pueden exceder 1000 caracteres')
+    .optional(),
   items: z
     .array(invoiceItemSchema)
     .min(1, 'Debe agregar al menos un ítem')
@@ -55,16 +69,6 @@ export const createInvoiceSchema = z.object({
  */
 export type InvoiceItemFormData = z.infer<typeof invoiceItemSchema>;
 export type CreateInvoiceFormData = z.infer<typeof createInvoiceSchema>;
-
-/**
- * Validador personalizado para fechas
- * Asegura que dueDate >= issueDate
- */
-export const validateDates = (issueDate: string, dueDate: string): boolean => {
-  const issue = new Date(issueDate);
-  const due = new Date(dueDate);
-  return due >= issue;
-};
 
 // Additional validators for edge cases
 export const errorMessages = {

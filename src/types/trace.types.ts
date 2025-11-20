@@ -1,5 +1,6 @@
 /**
  * Tipos de eventos de auditoría
+ * Según contrato del backend
  */
 export type EventType =
   // Eventos de Facturas
@@ -30,61 +31,48 @@ export type EventType =
   | 'COMPANY_DELETED';
 
 /**
- * Tipo de entidad siendo auditada
- */
-export type EntityType = 'Invoice' | 'Document' | 'User' | 'Client' | 'Company';
-
-/**
- * Tipo de acción realizada
- */
-export type ActionType = 'CREATE' | 'READ' | 'UPDATE' | 'DELETE' | 'DOWNLOAD' | 'GENERATE';
-
-/**
  * Log de auditoría individual
+ * Estructura según contrato del backend:
+ * GET /api/traces - List with filters
+ * GET /api/traces/{id} - Get by ID
+ *
+ * Respuesta del backend:
+ * {
+ *   "id": 1,
+ *   "invoiceId": 1,
+ *   "clientId": 1,
+ *   "eventType": "INVOICE_CREATED",
+ *   "eventData": "{...}",
+ *   "createdAt": "2025-11-20T01:00:00Z"
+ * }
  */
 export interface AuditLog {
   id: number;
+  invoiceId?: number | null;
+  clientId?: number | null;
   eventType: EventType;
-  userId: number;
-  username: string;
-  userEmail?: string;
-  entityType: EntityType;
-  entityId: number;
-  action: ActionType;
-  description: string;
-  ipAddress?: string;
-  userAgent?: string;
-  metadata?: Record<string, any>; // JSON adicional con detalles
-  timestamp: string; // ISO-8601, ej: "2025-11-18T10:30:00Z"
-  createdAt: string; // ISO-8601
+  eventData?: string; // JSON string con datos adicionales
+  createdAt: string; // ISO-8601: "2025-11-20T01:00:00Z"
 }
 
 /**
  * Parámetros para listar logs de auditoría
+ * Según contrato del backend:
+ * GET /api/traces?invoiceId={id}&clientId={id}&eventType={type}&page=0&size=20&sortBy=createdAt&sortDir=DESC
  */
 export interface AuditLogListParams {
   // Paginación
-  page?: number;
-  size?: number;
-  sort?: string; // ej: "timestamp,desc"
+  page?: number; // Default: 0
+  size?: number; // Default: 20
+  sortBy?: string; // Campo para ordenar (default: createdAt)
+  sortDir?: 'ASC' | 'DESC'; // Default: DESC
 
   // Filtros por entidad
   invoiceId?: number;
   clientId?: number;
-  companyId?: number;
-  userId?: number;
 
   // Filtros por tipo
   eventType?: EventType;
-  entityType?: EntityType;
-  action?: ActionType;
-
-  // Filtros por fecha
-  startDate?: string; // ISO-8601
-  endDate?: string; // ISO-8601
-
-  // Búsqueda
-  search?: string; // Búsqueda en description
 }
 
 /**

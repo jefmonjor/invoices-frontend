@@ -155,16 +155,9 @@ export const InvoiceDetailPage: React.FC = () => {
 
                 <Grid item xs={6}>
                   <Typography variant="caption" color="text.secondary">
-                    Fecha de Emisión
+                    Fecha
                   </Typography>
-                  <Typography variant="body1">{formatDate(invoice.issueDate)}</Typography>
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Typography variant="caption" color="text.secondary">
-                    Fecha de Vencimiento
-                  </Typography>
-                  <Typography variant="body1">{formatDate(invoice.dueDate)}</Typography>
+                  <Typography variant="body1">{formatDate(invoice.date)}</Typography>
                 </Grid>
 
                 <Grid item xs={6}>
@@ -197,9 +190,10 @@ export const InvoiceDetailPage: React.FC = () => {
                   <TableHead>
                     <TableRow>
                       <TableCell>Descripción</TableCell>
-                      <TableCell align="right">Cantidad</TableCell>
-                      <TableCell align="right">Precio Unit.</TableCell>
+                      <TableCell align="right">Unidades</TableCell>
+                      <TableCell align="right">Precio</TableCell>
                       <TableCell align="right">IVA %</TableCell>
+                      <TableCell align="right">Descuento %</TableCell>
                       <TableCell align="right">Total</TableCell>
                     </TableRow>
                   </TableHead>
@@ -207,9 +201,10 @@ export const InvoiceDetailPage: React.FC = () => {
                     {invoice.items.map((item, index) => (
                       <TableRow key={item.id || index}>
                         <TableCell>{item.description}</TableCell>
-                        <TableCell align="right">{item.quantity}</TableCell>
-                        <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
-                        <TableCell align="right">{item.taxRate}%</TableCell>
+                        <TableCell align="right">{item.units}</TableCell>
+                        <TableCell align="right">{formatCurrency(item.price)}</TableCell>
+                        <TableCell align="right">{item.vatPercentage}%</TableCell>
+                        <TableCell align="right">{item.discountPercentage || 0}%</TableCell>
                         <TableCell align="right">
                           <strong>{formatCurrency(item.total || 0)}</strong>
                         </TableCell>
@@ -238,7 +233,17 @@ export const InvoiceDetailPage: React.FC = () => {
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>IVA:</Typography>
-                <Typography>{formatCurrency(invoice.taxAmount)}</Typography>
+                <Typography>{formatCurrency(invoice.totalVAT)}</Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>IRPF:</Typography>
+                <Typography>{formatCurrency(invoice.totalIRPF || 0)}</Typography>
+              </Box>
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography>RE:</Typography>
+                <Typography>{formatCurrency(invoice.totalRE || 0)}</Typography>
               </Box>
 
               <Divider sx={{ my: 2 }} />
@@ -246,7 +251,7 @@ export const InvoiceDetailPage: React.FC = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h6">Total:</Typography>
                 <Typography variant="h6" color="primary">
-                  {formatCurrency(invoice.totalAmount)}
+                  {formatCurrency(invoice.total)}
                 </Typography>
               </Box>
             </CardContent>

@@ -32,5 +32,5 @@ export interface RecentInvoice {
   clientName: string;
   total: number;
   status: string;
-  issueDate: string;
+  date: string;
 }

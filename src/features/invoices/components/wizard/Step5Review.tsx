@@ -35,21 +35,36 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
 
   // Calculate totals
   const calculateItemSubtotal = (item: typeof formData.items[0]) => {
-    return item.quantity * item.unitPrice;
+    return item.units * item.price;
   };
 
-  const calculateItemTax = (item: typeof formData.items[0]) => {
+  const calculateItemDiscount = (item: typeof formData.items[0]) => {
     const subtotal = calculateItemSubtotal(item);
-    return subtotal * (item.taxRate / 100);
+    return subtotal * (item.discountPercentage / 100);
+  };
+
+  const calculateItemVAT = (item: typeof formData.items[0]) => {
+    const subtotal = calculateItemSubtotal(item);
+    const discount = calculateItemDiscount(item);
+    const subtotalAfterDiscount = subtotal - discount;
+    return subtotalAfterDiscount * (item.vatPercentage / 100);
   };
 
   const calculateItemTotal = (item: typeof formData.items[0]) => {
-    return calculateItemSubtotal(item) + calculateItemTax(item);
+    const subtotal = calculateItemSubtotal(item);
+    const discount = calculateItemDiscount(item);
+    const subtotalAfterDiscount = subtotal - discount;
+    const vat = calculateItemVAT(item);
+    return subtotalAfterDiscount + vat;
   };
 
   const subtotal = formData.items.reduce((sum, item) => sum + calculateItemSubtotal(item), 0);
-  const taxAmount = formData.items.reduce((sum, item) => sum + calculateItemTax(item), 0);
-  const totalAmount = subtotal + taxAmount;
+  const totalDiscount = formData.items.reduce((sum, item) => sum + calculateItemDiscount(item), 0);
+  const subtotalAfterDiscount = subtotal - totalDiscount;
+  const totalVAT = formData.items.reduce((sum, item) => sum + calculateItemVAT(item), 0);
+  const totalIRPF = subtotalAfterDiscount * ((formData.irpfPercentage || 0) / 100);
+  const totalRE = subtotalAfterDiscount * ((formData.rePercentage || 0) / 100);
+  const totalAmount = subtotalAfterDiscount + totalVAT - totalIRPF + totalRE;
 
   return (
     <Box>
@@ -80,16 +95,34 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="caption" color="text.secondary">
-                    Fecha Emisión:
+                    Fecha:
                   </Typography>
-                  <Typography variant="body2">{formatDate(formData.issueDate)}</Typography>
+                  <Typography variant="body2">{formatDate(formData.date)}</Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" color="text.secondary">
-                    Fecha Vencimiento:
-                  </Typography>
-                  <Typography variant="body2">{formatDate(formData.dueDate)}</Typography>
-                </Grid>
+                {formData.irpfPercentage > 0 && (
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      IRPF:
+                    </Typography>
+                    <Typography variant="body2">{formData.irpfPercentage}%</Typography>
+                  </Grid>
+                )}
+                {formData.rePercentage > 0 && (
+                  <Grid item xs={6}>
+                    <Typography variant="caption" color="text.secondary">
+                      RE:
+                    </Typography>
+                    <Typography variant="body2">{formData.rePercentage}%</Typography>
+                  </Grid>
+                )}
+                {formData.notes && (
+                  <Grid item xs={12}>
+                    <Typography variant="caption" color="text.secondary">
+                      Notas:
+                    </Typography>
+                    <Typography variant="body2">{formData.notes}</Typography>
+                  </Grid>
+                )}
               </Grid>
             </CardContent>
           </Card>
@@ -159,10 +192,28 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 <Typography>Subtotal:</Typography>
                 <Typography>€{subtotal.toFixed(2)}</Typography>
               </Box>
+              {totalDiscount > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography>Descuento:</Typography>
+                  <Typography color="error">-€{totalDiscount.toFixed(2)}</Typography>
+                </Box>
+              )}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>IVA:</Typography>
-                <Typography>€{taxAmount.toFixed(2)}</Typography>
+                <Typography>€{totalVAT.toFixed(2)}</Typography>
               </Box>
+              {totalIRPF > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography>IRPF:</Typography>
+                  <Typography color="error">-€{totalIRPF.toFixed(2)}</Typography>
+                </Box>
+              )}
+              {totalRE > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography>RE:</Typography>
+                  <Typography>€{totalRE.toFixed(2)}</Typography>
+                </Box>
+              )}
               <Divider sx={{ my: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="h6">Total:</Typography>
@@ -184,9 +235,10 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
               <TableHead>
                 <TableRow>
                   <TableCell>Descripción</TableCell>
-                  <TableCell align="right">Cant.</TableCell>
-                  <TableCell align="right">Precio Unit.</TableCell>
+                  <TableCell align="right">Unidades</TableCell>
+                  <TableCell align="right">Precio</TableCell>
                   <TableCell align="right">IVA %</TableCell>
+                  <TableCell align="right">Desc. %</TableCell>
                   <TableCell align="right">Total</TableCell>
                 </TableRow>
               </TableHead>
@@ -194,9 +246,10 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 {formData.items.map((item, index) => (
                   <TableRow key={index}>
                     <TableCell>{item.description}</TableCell>
-                    <TableCell align="right">{item.quantity}</TableCell>
-                    <TableCell align="right">€{item.unitPrice.toFixed(2)}</TableCell>
-                    <TableCell align="right">{item.taxRate}%</TableCell>
+                    <TableCell align="right">{item.units}</TableCell>
+                    <TableCell align="right">€{item.price.toFixed(2)}</TableCell>
+                    <TableCell align="right">{item.vatPercentage}%</TableCell>
+                    <TableCell align="right">{item.discountPercentage}%</TableCell>
                     <TableCell align="right">
                       <strong>€{calculateItemTotal(item).toFixed(2)}</strong>
                     </TableCell>

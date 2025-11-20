@@ -48,10 +48,11 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
         <TableHead>
           <TableRow>
             <TableCell>Número</TableCell>
-            <TableCell>Fecha Emisión</TableCell>
-            <TableCell>Fecha Vencimiento</TableCell>
+            <TableCell>Fecha</TableCell>
             <TableCell align="right">Subtotal</TableCell>
             <TableCell align="right">IVA</TableCell>
+            <TableCell align="right">IRPF</TableCell>
+            <TableCell align="right">RE</TableCell>
             <TableCell align="right">Total</TableCell>
             <TableCell>Estado</TableCell>
             <TableCell align="right">Acciones</TableCell>
@@ -67,12 +68,13 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
               <TableCell component="th" scope="row">
                 <strong>{invoice.invoiceNumber}</strong>
               </TableCell>
-              <TableCell>{formatDate(invoice.issueDate)}</TableCell>
-              <TableCell>{formatDate(invoice.dueDate)}</TableCell>
+              <TableCell>{formatDate(invoice.date)}</TableCell>
               <TableCell align="right">{formatCurrency(invoice.subtotal)}</TableCell>
-              <TableCell align="right">{formatCurrency(invoice.taxAmount)}</TableCell>
+              <TableCell align="right">{formatCurrency(invoice.totalVAT)}</TableCell>
+              <TableCell align="right">{formatCurrency(invoice.totalIRPF || 0)}</TableCell>
+              <TableCell align="right">{formatCurrency(invoice.totalRE || 0)}</TableCell>
               <TableCell align="right">
-                <strong>{formatCurrency(invoice.totalAmount)}</strong>
+                <strong>{formatCurrency(invoice.total)}</strong>
               </TableCell>
               <TableCell>
                 <StatusBadge status={invoice.status} />
