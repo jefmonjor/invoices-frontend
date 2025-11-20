@@ -38,11 +38,14 @@ El frontend ha sido **completamente actualizado** para ser 100% compatible con e
 - ✅ **Type Aliases corregidos** - Interfaces vacías → type aliases
 - ✅ **Tipado estricto en Recharts** - `PieLabelRenderProps` correctamente tipado
 - ✅ **Validación de password** - Manejo correcto en UserCreatePage
+- ✅ **Unit tests corregidos** - Zod validation order, form handlers, accessibility IDs
+- ✅ **CI/CD E2E tests** - Playwright browsers instalados automáticamente en workflow
 
 **Commits finales**:
 - `a1a1675` - fix: Resolve all 44 ESLint errors and TypeScript compilation issues
 - `e2ce9b6` - fix: Resolve final 3 ESLint errors in test files
 - `5e95f5c` - fix: Fix failing unit tests in form components
+- `cccf9a9` - ci: Install Playwright browsers before running E2E tests
 
 **Actualizaciones realizadas:**
 
@@ -408,6 +411,7 @@ GET    /actuator/health            # Full health check
 | **TypeScript Compilation** | ✅ PASS | 0 errores |
 | **ESLint** | ✅ PASS | 0 errores, 0 warnings |
 | **Unit Tests** | ✅ PASS | 24/24 tests passing |
+| **E2E Tests (Playwright)** | ✅ READY | Browsers instalados en CI/CD |
 | **Build** | ✅ PASS | Completado en 26.89s |
 | **Bundle Size** | ⚠️ INFO | 520 kB (considerar code-splitting) |
 | **Git Status** | ✅ CLEAN | Working tree clean |
