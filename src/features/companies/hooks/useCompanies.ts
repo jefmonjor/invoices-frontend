@@ -46,7 +46,7 @@ export const useCreateCompany = () => {
     onSuccess: (newCompany) => {
       queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
       queryClient.setQueryData(companyKeys.detail(newCompany.id), newCompany);
-      toast.success(`Empresa ${newCompany.name} creada exitosamente`);
+      toast.success(`Empresa ${newCompany.businessName} creada exitosamente`);
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)
@@ -71,7 +71,7 @@ export const useUpdateCompany = () => {
     onSuccess: (updatedCompany) => {
       queryClient.invalidateQueries({ queryKey: companyKeys.lists() });
       queryClient.setQueryData(companyKeys.detail(updatedCompany.id), updatedCompany);
-      toast.success(`Empresa ${updatedCompany.name} actualizada`);
+      toast.success(`Empresa ${updatedCompany.businessName} actualizada`);
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)

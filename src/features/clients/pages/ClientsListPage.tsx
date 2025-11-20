@@ -46,7 +46,7 @@ export const ClientsListPage: React.FC = () => {
   // Filter clients by search term
   const filteredClients = clients?.filter((client) =>
     searchTerm
-      ? client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ? client.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.taxId.toLowerCase().includes(searchTerm.toLowerCase())
       : true
   );
@@ -115,7 +115,7 @@ export const ClientsListPage: React.FC = () => {
       <ConfirmDialog
         open={deleteDialog.open}
         title="Eliminar Cliente"
-        message={`¿Estás seguro de que deseas eliminar el cliente ${deleteDialog.client?.name}? Esta acción no se puede deshacer.`}
+        message={`¿Estás seguro de que deseas eliminar el cliente ${deleteDialog.client?.businessName}? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
         onConfirm={handleDeleteConfirm}

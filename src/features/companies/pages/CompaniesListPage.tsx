@@ -46,7 +46,7 @@ export const CompaniesListPage: React.FC = () => {
   // Filter companies by search term
   const filteredCompanies = companies?.filter((company) =>
     searchTerm
-      ? company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ? company.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         company.taxId.toLowerCase().includes(searchTerm.toLowerCase())
       : true
   );
@@ -115,7 +115,7 @@ export const CompaniesListPage: React.FC = () => {
       <ConfirmDialog
         open={deleteDialog.open}
         title="Eliminar Empresa"
-        message={`¿Estás seguro de que deseas eliminar la empresa ${deleteDialog.company?.name}? Esta acción no se puede deshacer.`}
+        message={`¿Estás seguro de que deseas eliminar la empresa ${deleteDialog.company?.businessName}? Esta acción no se puede deshacer.`}
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
         onConfirm={handleDeleteConfirm}

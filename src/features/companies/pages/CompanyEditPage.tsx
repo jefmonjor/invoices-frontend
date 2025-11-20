@@ -55,7 +55,7 @@ export const CompanyEditPage: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Editar Empresa: {company.name}
+        Editar Empresa: {company.businessName}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Modifica los datos de la empresa

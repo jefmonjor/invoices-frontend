@@ -55,7 +55,7 @@ export const ClientEditPage: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Editar Cliente: {client.name}
+        Editar Cliente: {client.businessName}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Modifica los datos del cliente

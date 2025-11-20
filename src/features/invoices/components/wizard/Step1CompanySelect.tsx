@@ -50,7 +50,7 @@ export const Step1CompanySelect: React.FC<Step1CompanySelectProps> = ({
           >
             {companies?.map((company) => (
               <MenuItem key={company.id} value={company.id}>
-                {company.name} ({company.taxId})
+                {company.businessName} ({company.taxId})
               </MenuItem>
             ))}
           </Select>
@@ -64,7 +64,7 @@ export const Step1CompanySelect: React.FC<Step1CompanySelectProps> = ({
             return company ? (
               <>
                 <Typography variant="subtitle2" gutterBottom>
-                  <strong>{company.name}</strong>
+                  <strong>{company.businessName}</strong>
                 </Typography>
                 <Typography variant="body2">CIF/NIF: {company.taxId}</Typography>
                 <Typography variant="body2">Dirección: {company.address}</Typography>

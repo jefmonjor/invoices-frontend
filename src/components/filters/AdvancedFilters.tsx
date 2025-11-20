@@ -27,8 +27,8 @@ export interface FilterValues {
 interface AdvancedFiltersProps {
   onFilterChange: (filters: FilterValues) => void;
   onClear: () => void;
-  companies?: Array<{id: number; name: string}>;
-  clients?: Array<{id: number; name: string}>;
+  companies?: Array<{id: number; businessName: string}>;
+  clients?: Array<{id: number; businessName: string}>;
   showAmountFilter?: boolean;
   showDateFilter?: boolean;
   showStatusFilter?: boolean;
@@ -160,7 +160,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 <MenuItem value="">Todas</MenuItem>
                 {companies.map(company => (
                   <MenuItem key={company.id} value={company.id}>
-                    {company.name}
+                    {company.businessName}
                   </MenuItem>
                 ))}
               </TextField>
@@ -179,7 +179,7 @@ export const AdvancedFilters: React.FC<AdvancedFiltersProps> = ({
                 <MenuItem value="">Todos</MenuItem>
                 {clients.map(client => (
                   <MenuItem key={client.id} value={client.id}>
-                    {client.name}
+                    {client.businessName}
                   </MenuItem>
                 ))}
               </TextField>

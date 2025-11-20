@@ -50,7 +50,7 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
           >
             {clients?.map((client) => (
               <MenuItem key={client.id} value={client.id}>
-                {client.name} ({client.taxId})
+                {client.businessName} ({client.taxId})
               </MenuItem>
             ))}
           </Select>
@@ -64,13 +64,12 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
             return client ? (
               <>
                 <Typography variant="subtitle2" gutterBottom>
-                  <strong>{client.name}</strong>
+                  <strong>{client.businessName}</strong>
                 </Typography>
                 <Typography variant="body2">CIF/NIF: {client.taxId}</Typography>
-                <Typography variant="body2">Dirección: {client.address}</Typography>
+                <Typography variant="body2">Dirección: {client.address}, {client.city} ({client.postalCode})</Typography>
                 <Typography variant="body2">Email: {client.email}</Typography>
-                {client.phone && <Typography variant="body2">Teléfono: {client.phone}</Typography>}
-                {client.contactPerson && <Typography variant="body2">Contacto: {client.contactPerson}</Typography>}
+                <Typography variant="body2">Teléfono: {client.phone}</Typography>
               </>
             ) : null;
           })()}

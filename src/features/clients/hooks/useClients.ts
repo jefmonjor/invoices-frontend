@@ -46,7 +46,7 @@ export const useCreateClient = () => {
     onSuccess: (newClient) => {
       queryClient.invalidateQueries({ queryKey: clientKeys.lists() });
       queryClient.setQueryData(clientKeys.detail(newClient.id), newClient);
-      toast.success(`Cliente ${newClient.name} creado exitosamente`);
+      toast.success(`Cliente ${newClient.businessName} creado exitosamente`);
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)
@@ -71,7 +71,7 @@ export const useUpdateClient = () => {
     onSuccess: (updatedClient) => {
       queryClient.invalidateQueries({ queryKey: clientKeys.lists() });
       queryClient.setQueryData(clientKeys.detail(updatedClient.id), updatedClient);
-      toast.success(`Cliente ${updatedClient.name} actualizado`);
+      toast.success(`Cliente ${updatedClient.businessName} actualizado`);
     },
     onError: (error: unknown) => {
       const message = axios.isAxiosError(error)

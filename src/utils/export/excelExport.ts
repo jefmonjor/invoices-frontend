@@ -65,7 +65,7 @@ export const exportInvoicesToExcel = (invoices: InvoiceWithDetails[]) => {
 export const exportClientsToExcel = (clients: Client[]) => {
   const data = clients.map(client => ({
     'ID': client.id,
-    'Nombre': client.name,
+    'Nombre': client.businessName,
     'CIF/NIF': client.taxId,
     'Dirección': client.address,
     'Email': client.email,
@@ -91,7 +91,7 @@ export const exportClientsToExcel = (clients: Client[]) => {
 export const exportCompaniesToExcel = (companies: Company[]) => {
   const data = companies.map(company => ({
     'ID': company.id,
-    'Nombre': company.name,
+    'Nombre': company.businessName,
     'CIF': company.taxId,
     'Dirección': company.address,
     'Email': company.email,

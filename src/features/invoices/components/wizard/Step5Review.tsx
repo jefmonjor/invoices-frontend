@@ -132,7 +132,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
               {company ? (
                 <>
                   <Typography variant="body2" fontWeight="bold">
-                    {company.name}
+                    {company.businessName}
                   </Typography>
                   <Typography variant="body2">CIF: {company.taxId}</Typography>
                   <Typography variant="body2">{company.address}</Typography>
@@ -158,7 +158,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
               {client ? (
                 <>
                   <Typography variant="body2" fontWeight="bold">
-                    {client.name}
+                    {client.businessName}
                   </Typography>
                   <Typography variant="body2">CIF: {client.taxId}</Typography>
                   <Typography variant="body2">{client.address}</Typography>

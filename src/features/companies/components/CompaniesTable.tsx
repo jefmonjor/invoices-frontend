@@ -49,11 +49,11 @@ export const CompaniesTable: React.FC<CompaniesTableProps> = ({
           ) : (
             companies.map((company) => (
               <TableRow key={company.id} hover>
-                <TableCell>{company.name}</TableCell>
+                <TableCell>{company.businessName}</TableCell>
                 <TableCell>{company.taxId}</TableCell>
                 <TableCell>{company.email}</TableCell>
                 <TableCell>{company.phone || '-'}</TableCell>
-                <TableCell>{formatDate(company.createdAt)}</TableCell>
+                <TableCell>{company.createdAt ? formatDate(company.createdAt) : "-"}</TableCell>
                 <TableCell align="center">
                   {onView && (
                     <Tooltip title="Ver detalles">

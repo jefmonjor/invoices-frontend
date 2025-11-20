@@ -1,19 +1,45 @@
+/**
+ * Company según CompanyDTO del backend
+ * Compatible con Spring Boot 3 + Java 21
+ */
 export interface Company {
   id: number;
-  name: string;
-  taxId: string; // CIF/NIF
+  businessName: string; // Razón social (antes 'name')
+  taxId: string; // CIF
   address: string;
-  phone?: string;
+  city: string;
+  postalCode: string;
+  province: string;
+  phone: string;
   email: string;
-  logoUrl?: string;
-  createdAt: string;
-  updatedAt: string;
+  iban: string; // Cuenta bancaria
+  createdAt?: string; // ISO-8601
+  updatedAt?: string; // ISO-8601
 }
 
+/**
+ * Request para crear/actualizar empresa
+ */
 export interface CreateCompanyRequest {
-  name: string;
+  businessName: string;
   taxId: string;
   address: string;
-  phone?: string;
+  city: string;
+  postalCode: string;
+  province: string;
+  phone: string;
   email: string;
+  iban: string;
+}
+
+export interface UpdateCompanyRequest {
+  businessName?: string;
+  taxId?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  province?: string;
+  phone?: string;
+  email?: string;
+  iban?: string;
 }
