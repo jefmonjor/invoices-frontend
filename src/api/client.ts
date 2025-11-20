@@ -1,8 +1,9 @@
 import axios, { AxiosError } from 'axios';
 
-// IMPORTANTE: La baseURL debe incluir /api al final
-// Ejemplo: http://localhost:8080/api o https://backend.com/api
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+// IMPORTANTE: baseURL NO debe incluir /api
+// Los endpoints específicos incluyen /api/ cuando lo necesitan según OpenAPI
+// Ejemplo: /api/auth/login, /api/users, pero /invoices (sin /api)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 // Cliente Axios configurado
 export const apiClient = axios.create({

@@ -30,7 +30,7 @@ export const documentsApi = {
       formData.append('uploadedBy', uploadedBy);
     }
 
-    const response = await apiClient.post<UploadDocumentResponse>('/documents', formData, {
+    const response = await apiClient.post<UploadDocumentResponse>('/api/documents', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -44,7 +44,7 @@ export const documentsApi = {
    * GET /api/documents/{id}
    */
   getById: async (id: number): Promise<Document> => {
-    const response = await apiClient.get<Document>(`/documents/${id}`);
+    const response = await apiClient.get<Document>(`/api/documents/${id}`);
     return response.data;
   },
 
@@ -54,7 +54,7 @@ export const documentsApi = {
    * @returns Blob del archivo PDF
    */
   download: async (id: number): Promise<Blob> => {
-    const response = await apiClient.get<Blob>(`/documents/${id}/download`, {
+    const response = await apiClient.get<Blob>(`/api/documents/${id}/download`, {
       responseType: 'blob',
     });
     return response.data;
@@ -65,7 +65,7 @@ export const documentsApi = {
    * GET /api/documents?invoiceId={invoiceId}
    */
   listByInvoice: async (invoiceId: number): Promise<Document[]> => {
-    const response = await apiClient.get<Document[]>('/documents', {
+    const response = await apiClient.get<Document[]>('/api/documents', {
       params: { invoiceId },
     });
     return response.data;
@@ -76,6 +76,6 @@ export const documentsApi = {
    * DELETE /api/documents/{id}
    */
   delete: async (id: number): Promise<void> => {
-    await apiClient.delete(`/documents/${id}`);
+    await apiClient.delete(`/api/documents/${id}`);
   },
 };
