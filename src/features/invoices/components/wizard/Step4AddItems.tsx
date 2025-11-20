@@ -41,6 +41,12 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
     price: 0,
     vatPercentage: 21, // Default IVA in Spain
     discountPercentage: 0,
+    // Campos opcionales para facturas de transporte
+    itemDate: '',
+    vehiclePlate: '',
+    orderNumber: '',
+    zone: '',
+    gasPercentage: 0,
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -77,6 +83,11 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
         price: 0,
         vatPercentage: 21,
         discountPercentage: 0,
+        itemDate: '',
+        vehiclePlate: '',
+        orderNumber: '',
+        zone: '',
+        gasPercentage: 0,
       });
       setErrors({});
     }
@@ -191,6 +202,65 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               >
                 Agregar
               </Button>
+            </Grid>
+
+            {/* Campos opcionales para facturas de transporte */}
+            <Grid item xs={12}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                Campos opcionales (para facturas de transporte):
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                type="date"
+                label="Fecha"
+                value={newItem.itemDate}
+                onChange={(e) => setNewItem({ ...newItem, itemDate: e.target.value })}
+                size="small"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Matrícula"
+                value={newItem.vehiclePlate}
+                onChange={(e) => setNewItem({ ...newItem, vehiclePlate: e.target.value })}
+                size="small"
+                placeholder="4592JBZ"
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Pedido"
+                value={newItem.orderNumber}
+                onChange={(e) => setNewItem({ ...newItem, orderNumber: e.target.value })}
+                size="small"
+                placeholder="PED-001"
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                label="Zona"
+                value={newItem.zone}
+                onChange={(e) => setNewItem({ ...newItem, zone: e.target.value })}
+                size="small"
+                placeholder="CDF 11"
+              />
+            </Grid>
+            <Grid item xs={12} sm={2}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Gas %"
+                value={newItem.gasPercentage}
+                onChange={(e) => setNewItem({ ...newItem, gasPercentage: parseFloat(e.target.value) })}
+                size="small"
+                inputProps={{ min: 0, max: 100, step: 0.01 }}
+              />
             </Grid>
           </Grid>
         </CardContent>

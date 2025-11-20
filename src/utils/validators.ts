@@ -19,11 +19,11 @@ export const invoiceItemSchema = z.object({
   units: z
     .number()
     .min(1, 'Las unidades deben ser al menos 1')
-    .max(9999, 'Las unidades no pueden exceder 9999'),
+    .max(999999, 'Las unidades no pueden exceder 999999'),
   price: z
     .number()
     .min(0.01, 'El precio debe ser mayor a 0')
-    .max(999999.99, 'El precio es demasiado alto'),
+    .max(999999999.99, 'El precio es demasiado alto'),
   vatPercentage: z
     .number()
     .min(0, 'El porcentaje de IVA no puede ser negativo')
@@ -31,7 +31,27 @@ export const invoiceItemSchema = z.object({
   discountPercentage: z
     .number()
     .min(0, 'El porcentaje de descuento no puede ser negativo')
-    .max(100, 'El porcentaje de descuento no puede exceder 100%'),
+    .max(100, 'El porcentaje de descuento no puede exceder 100%')
+    .optional(),
+  // Campos adicionales para facturas de transporte
+  itemDate: z.string().optional(),
+  vehiclePlate: z
+    .string()
+    .max(50, 'La matrícula no puede exceder 50 caracteres')
+    .optional(),
+  orderNumber: z
+    .string()
+    .max(50, 'El número de pedido no puede exceder 50 caracteres')
+    .optional(),
+  zone: z
+    .string()
+    .max(100, 'La zona no puede exceder 100 caracteres')
+    .optional(),
+  gasPercentage: z
+    .number()
+    .min(0, 'El porcentaje de gas no puede ser negativo')
+    .max(100, 'El porcentaje de gas no puede exceder 100%')
+    .optional(),
 });
 
 /**
@@ -43,7 +63,11 @@ export const createInvoiceSchema = z.object({
     .string()
     .min(1, 'El número de factura es requerido')
     .max(50, 'El número de factura no puede exceder 50 caracteres')
-    .regex(/^[A-Z0-9-]+$/, 'Formato inválido (solo mayúsculas, números y guiones)'),
+    .regex(/^[A-Za-z0-9.\/-]+$/, 'Formato inválido (letras, números, guiones, puntos y barras)'),
+  settlementNumber: z
+    .string()
+    .max(50, 'El número de liquidación no puede exceder 50 caracteres')
+    .optional(),
   companyId: z.number().min(1, 'Debe seleccionar una empresa'),
   clientId: z.number().min(1, 'Debe seleccionar un cliente'),
   irpfPercentage: z
