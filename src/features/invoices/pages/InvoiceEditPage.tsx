@@ -46,12 +46,14 @@ export const InvoiceEditPage: React.FC = () => {
   }
 
   // Transform invoice to form data
+  // Nota: Invoice no contiene los porcentajes, solo los totales calculados
+  // Usamos 0 como valor por defecto ya que no podemos calcular el porcentaje exacto
   const initialData: Partial<CreateInvoiceRequest> = {
     companyId: invoice.companyId,
     clientId: invoice.clientId,
     invoiceNumber: invoice.invoiceNumber,
-    irpfPercentage: invoice.irpfPercentage,
-    rePercentage: invoice.rePercentage,
+    irpfPercentage: 0, // Valor por defecto, el usuario debe especificarlo
+    rePercentage: 0, // Valor por defecto, el usuario debe especificarlo
     notes: invoice.notes,
     items: invoice.items,
   };
