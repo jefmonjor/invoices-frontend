@@ -16,7 +16,6 @@ interface Step3InvoiceDataProps {
   onNext: (data: {
     invoiceNumber: string;
     settlementNumber?: string;
-    date: string;
     irpfPercentage?: number;
     rePercentage?: number;
     notes?: string;
@@ -47,7 +46,7 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
     if (!formData.invoiceNumber.trim()) {
       newErrors.invoiceNumber = 'El número de factura es requerido';
-    } else if (!/^[A-Za-z0-9.\/-]+$/.test(formData.invoiceNumber)) {
+    } else if (!/^[A-Za-z0-9./-]+$/.test(formData.invoiceNumber)) {
       newErrors.invoiceNumber = 'Solo letras, números, guiones, puntos y barras';
     }
 
@@ -69,7 +68,10 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
   const handleNext = () => {
     if (validate()) {
-      onNext(formData);
+      // No enviamos el campo 'date' al backend, ya que se genera automáticamente como issueDate
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { date, ...dataToSend } = formData;
+      onNext(dataToSend);
     }
   };
 

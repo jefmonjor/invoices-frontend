@@ -62,6 +62,6 @@ export const generateInvoiceSuggestions = (): string[] => {
  * @returns true si es válido
  */
 export const isValidInvoiceNumber = (invoiceNumber: string): boolean => {
-  // Regex del backend: ^[A-Za-z0-9.\/-]+$
-  return /^[A-Za-z0-9.\/-]+$/.test(invoiceNumber);
+  // Regex del backend: ^[A-Za-z0-9./-]+$
+  return /^[A-Za-z0-9./-]+$/.test(invoiceNumber);
 };
