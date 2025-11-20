@@ -16,7 +16,6 @@ interface Step3InvoiceDataProps {
   onNext: (data: {
     invoiceNumber: string;
     settlementNumber?: string;
-    date: string;
     irpfPercentage?: number;
     rePercentage?: number;
     notes?: string;
@@ -69,7 +68,9 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
   const handleNext = () => {
     if (validate()) {
-      onNext(formData);
+      // No enviamos el campo 'date' al backend, ya que se genera automáticamente como issueDate
+      const { date, ...dataToSend } = formData;
+      onNext(dataToSend);
     }
   };
 
