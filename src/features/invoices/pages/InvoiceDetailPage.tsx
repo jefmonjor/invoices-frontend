@@ -23,10 +23,14 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Download as DownloadIcon,
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { useInvoice, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
+import { useInvoice, useDeleteInvoice, useGeneratePDF, useRegeneratePdf } from '../hooks/useInvoices';
+import { useCompanies } from '@/features/companies/hooks/useCompanies';
+import { useClients } from '@/features/clients/hooks/useClients';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import { toast } from 'react-toastify';
 
 export const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,8 +40,11 @@ export const InvoiceDetailPage: React.FC = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
 
   const { data: invoice, isLoading, error } = useInvoice(invoiceId);
+  const { data: companies } = useCompanies();
+  const { data: clients } = useClients();
   const deleteMutation = useDeleteInvoice();
   const generatePDFMutation = useGeneratePDF();
+  const regeneratePdfMutation = useRegeneratePdf();
 
   const handleBack = () => {
     navigate('/invoices');
@@ -57,6 +64,23 @@ export const InvoiceDetailPage: React.FC = () => {
     if (invoice) {
       generatePDFMutation.mutate({ id: invoice.id, invoiceNumber: invoice.invoiceNumber });
     }
+  };
+
+  const handleRegeneratePDF = () => {
+    if (!invoice || !companies || !clients) {
+      toast.error('Datos incompletos para regenerar PDF');
+      return;
+    }
+
+    const company = companies.find(c => c.id === invoice.companyId);
+    const client = clients.find(c => c.id === invoice.clientId);
+
+    if (!company || !client) {
+      toast.error('No se encontró la empresa o cliente asociado');
+      return;
+    }
+
+    regeneratePdfMutation.mutate({ invoice, company, client });
   };
 
   const canEdit = !!invoice;
@@ -100,6 +124,17 @@ export const InvoiceDetailPage: React.FC = () => {
             disabled={generatePDFMutation.isPending}
           >
             {generatePDFMutation.isPending ? 'Generando...' : 'Descargar PDF'}
+          </Button>
+
+          <Button
+            variant="outlined"
+            color="secondary"
+            startIcon={<RefreshIcon />}
+            onClick={handleRegeneratePDF}
+            disabled={regeneratePdfMutation.isPending}
+            title="Regenerar PDF usando el frontend (útil para facturas antiguas sin PDF)"
+          >
+            {regeneratePdfMutation.isPending ? 'Regenerando...' : 'Regenerar PDF'}
           </Button>
 
           {canEdit && (

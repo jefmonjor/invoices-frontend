@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Box, Stepper, Step, StepLabel } from '@mui/material';
-import { pdf } from '@react-pdf/renderer';
-import { InvoiceDocument } from '../pdf/InvoiceDocument';
 import { useCreateInvoice, useUpdateInvoice, useUploadDocument, useInvoice } from '../../hooks/useInvoices';
 import type { CreateInvoiceRequest, InvoiceItem, Invoice } from '@/types/invoice.types';
 import { useCompanies } from '@/features/companies/hooks/useCompanies';
 import { useClients } from '@/features/clients/hooks/useClients';
+import { generateInvoicePdfBlob } from '../../utils/pdfGenerator';
 import { Step1CompanySelect } from './Step1CompanySelect';
 import { Step2ClientSelect } from './Step2ClientSelect';
 import { Step3InvoiceData } from './Step3InvoiceData';
@@ -78,13 +77,7 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
       }
 
       // Generate PDF blob using React-PDF
-      const blob = await pdf(
-        <InvoiceDocument
-          invoice={invoice}
-          company={company}
-          client={client}
-        />
-      ).toBlob();
+      const blob = await generateInvoicePdfBlob(invoice, company, client);
 
       // Create file from blob with invoice number as filename
       const filename = `${invoice.invoiceNumber}.pdf`;
