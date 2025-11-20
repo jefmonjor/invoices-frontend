@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Box, Button, TextField, Typography, Stack, Grid, IconButton, Tooltip } from '@mui/material';
 import { AutoFixHigh as AutoGenerateIcon } from '@mui/icons-material';
-import { toISODate } from '@/utils/formatters';
 import { generateInvoiceNumber } from '@/utils/invoiceNumberGenerator';
 
 interface Step3InvoiceDataProps {
   initialValues?: {
     invoiceNumber?: string;
     settlementNumber?: string;
-    date?: string;
     irpfPercentage?: number;
     rePercentage?: number;
     notes?: string;
@@ -28,12 +26,10 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
   onNext,
   onBack,
 }) => {
-  const today = new Date();
 
   const [formData, setFormData] = useState({
     invoiceNumber: initialValues?.invoiceNumber || '',
     settlementNumber: initialValues?.settlementNumber || '',
-    date: initialValues?.date || toISODate(today, true),
     irpfPercentage: initialValues?.irpfPercentage ?? 0,
     rePercentage: initialValues?.rePercentage ?? 0,
     notes: initialValues?.notes || '',
@@ -50,10 +46,6 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
       newErrors.invoiceNumber = 'Solo letras, números, guiones, puntos y barras';
     }
 
-    if (!formData.date) {
-      newErrors.date = 'La fecha es requerida';
-    }
-
     if (formData.irpfPercentage < 0 || formData.irpfPercentage > 100) {
       newErrors.irpfPercentage = 'El IRPF debe estar entre 0% y 100%';
     }
@@ -68,10 +60,8 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
   const handleNext = () => {
     if (validate()) {
-      // No enviamos el campo 'date' al backend, ya que se genera automáticamente como issueDate
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { date, ...dataToSend } = formData;
-      onNext(dataToSend);
+      // El backend genera automáticamente issueDate con la fecha actual
+      onNext(formData);
     }
   };
 
@@ -142,21 +132,6 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
             onChange={(e) => handleChange('settlementNumber', e.target.value)}
             helperText="Para facturas de transporte"
             placeholder="LIQ-001"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6}>
-          <TextField
-            fullWidth
-            type="date"
-            label="Fecha"
-            value={formData.date}
-            onChange={(e) => handleChange('date', e.target.value)}
-            error={!!errors.date}
-            helperText={errors.date}
-            InputLabelProps={{
-              shrink: true,
-            }}
           />
         </Grid>
 

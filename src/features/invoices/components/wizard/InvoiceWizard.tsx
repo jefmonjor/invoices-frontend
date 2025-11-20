@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { Box, Stepper, Step, StepLabel } from '@mui/material';
+import { pdf } from '@react-pdf/renderer';
+import { InvoiceDocument } from '../pdf/InvoiceDocument';
+import { useCreateInvoice, useUpdateInvoice, useUploadDocument, useInvoice } from '../../hooks/useInvoices';
+import type { CreateInvoiceRequest, InvoiceItem, Invoice } from '@/types/invoice.types';
+import { useCompanies } from '@/features/companies/hooks/useCompanies';
+import { useClients } from '@/features/clients/hooks/useClients';
 import { Step1CompanySelect } from './Step1CompanySelect';
 import { Step2ClientSelect } from './Step2ClientSelect';
 import { Step3InvoiceData } from './Step3InvoiceData';
 import { Step4AddItems } from './Step4AddItems';
 import { Step5Review } from './Step5Review';
-import { useCreateInvoice, useUpdateInvoice } from '../../hooks/useInvoices';
-import type { CreateInvoiceRequest, InvoiceItem } from '@/types/invoice.types';
 
 const steps = ['Empresa', 'Cliente', 'Datos', 'Items', 'Revisar'];
 
@@ -32,6 +36,12 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
 
   const createMutation = useCreateInvoice();
   const updateMutation = useUpdateInvoice();
+  const uploadDocumentMutation = useUploadDocument();
+
+  // Fetch data needed for PDF generation
+  const { data: companies } = useCompanies();
+  const { data: clients } = useClients();
+  useInvoice(invoiceId || 0); // Prefetch or keep in cache if needed, but we don't use the return value here directly
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -51,34 +61,82 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
     handleNext();
   };
 
+  const generateAndUploadPdf = async (invoice: Invoice) => {
+    try {
+      // Find company and client details
+      const company = companies?.find(c => c.id === invoice.companyId);
+      const client = clients?.find(c => c.id === invoice.clientId);
+
+      if (!company || !client) {
+        console.warn('Company or Client not found for PDF generation');
+        return;
+      }
+
+      // Generate PDF blob
+      const blob = await pdf(
+        <InvoiceDocument
+          invoice={invoice}
+          company={company}
+          client={client}
+        />
+      ).toBlob();
+
+      // Create file from blob
+      const filename = `${invoice.invoiceNumber}.pdf`;
+      const file = new File([blob], filename, { type: 'application/pdf' });
+
+      // Upload file
+      await uploadDocumentMutation.mutateAsync({
+        file,
+        invoiceId: invoice.id
+      });
+
+    } catch (error) {
+      console.error('Error generating or uploading PDF:', error);
+      // Don't block success flow if PDF fails, but maybe notify user?
+      // Toast is handled in the mutation hook
+    }
+  };
+
   const handleSubmit = async () => {
     try {
+      let invoice: Invoice;
+
       if (mode === 'edit' && invoiceId) {
-        // Para UPDATE enviamos los campos actualizables según UpdateInvoiceRequest del backend
-        // Campos actualizables: settlementNumber, notes, items
-        // Campos inmutables (NO se pueden cambiar): companyId, clientId, invoiceNumber, irpfPercentage, rePercentage
+        // INMUTABLES (backend rechazará cambios): companyId, invoiceNumber
+        // ACTUALIZABLES: clientId, irpfPercentage, rePercentage, settlementNumber, notes, items
 
         // Remover campo 'id' de los items (el backend espera CreateInvoiceItemRequest que no tiene 'id')
         // En modo EDIT, los items vienen del backend con 'id', pero CreateInvoiceItemRequest no lo tiene
         // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
         const itemsWithoutId = (formData.items || []).map(({ id: _id, ...item }: any) => item);
 
-        const invoice = await updateMutation.mutateAsync({
+        invoice = await updateMutation.mutateAsync({
           id: invoiceId,
           data: {
+            // Campos inmutables - enviamos para validación
+            companyId: formData.companyId,
+            invoiceNumber: formData.invoiceNumber,
+            // Campos actualizables
+            clientId: formData.clientId,
+            irpfPercentage: formData.irpfPercentage,
+            rePercentage: formData.rePercentage,
             settlementNumber: formData.settlementNumber,
             notes: formData.notes,
             items: itemsWithoutId,
           },
         });
-        onSuccess(invoice.id);
       } else {
-        const invoice = await createMutation.mutateAsync(formData as CreateInvoiceRequest);
-        onSuccess(invoice.id);
+        invoice = await createMutation.mutateAsync(formData as CreateInvoiceRequest);
       }
+
+      // Generate and upload PDF after successful invoice creation/update
+      await generateAndUploadPdf(invoice);
+
+      onSuccess(invoice.id);
     } catch (error) {
       // Error is handled by the mutation
-      console.error(`Error ${mode === 'edit' ? 'updating' : 'creating'} invoice:`, error);
+      console.error(`Error ${mode === 'edit' ? 'updating' : 'creating'} invoice: `, error);
     }
   };
 

@@ -135,21 +135,33 @@ export interface CreateInvoiceRequest {
 }
 
 /**
- * Request para actualizar factura
+ * Request para act ualizar factura
  * PUT /invoices/{id}
  *
- * Campos actualizables según contrato de API:
- * - settlementNumber: Actualizable
- * - notes: Actualizable
- * - items: Actualizable
+ * Campos inmutables (validados por el backend - se rechaza el cambio):
+ * - companyId
+ * - invoiceNumber
  *
- * Campos inmutables (NO enviar o enviar con el mismo valor):
- * - companyId, clientId, invoiceNumber, irpfPercentage, rePercentage
+ * Campos actualizables:
+ * - clientId: Actualizable (el backend valida que el cliente exista)
+ * - irpfPercentage: Actualizable (afecta los cálculos de la factura)
+ * - rePercentage: Actualizable (afecta los cálculos de la factura)
+ * - settlementNumber: Actualizable
+ * - notes: Actualizable  
+ * - items: Actualizable (reemplaza todos los items)
  */
 export interface UpdateInvoiceRequest {
-  settlementNumber?: string; // Actualizable - Número de liquidación
-  notes?: string; // Actualizable - Notas
-  items?: CreateInvoiceItemRequest[]; // Actualizable - Reemplaza todos los items
+  // Campos inmutables - validados por backend
+  companyId?: number;
+  invoiceNumber?: string;
+
+  // Campos actualizables
+  clientId?: number;
+  irpfPercentage?: number;
+  rePercentage?: number;
+  settlementNumber?: string;
+  notes?: string;
+  items?: CreateInvoiceItemRequest[];
 }
 
 // ==================== Paginación y Filtros ====================

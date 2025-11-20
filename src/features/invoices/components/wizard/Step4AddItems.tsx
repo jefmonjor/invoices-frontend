@@ -97,12 +97,39 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
     setItems(items.filter((_, i) => i !== index));
   };
 
+  /**
+   * Limpia los campos opcionales vacíos de los items antes de enviarlos al backend.
+   * Convierte strings vacíos en undefined para campos opcionales de transporte.
+   */
+  const cleanItem = (item: InvoiceItem): InvoiceItem => {
+    const cleaned = { ...item };
+    // Si campos opcionales están vacíos, eliminarlos (undefined en lugar de "")
+    if (!cleaned.itemDate || cleaned.itemDate.trim() === '') {
+      delete cleaned.itemDate;
+    }
+    if (!cleaned.vehiclePlate || cleaned.vehiclePlate.trim() === '') {
+      delete cleaned.vehiclePlate;
+    }
+    if (!cleaned.orderNumber || cleaned.orderNumber.trim() === '') {
+      delete cleaned.orderNumber;
+    }
+    if (!cleaned.zone || cleaned.zone.trim() === '') {
+      delete cleaned.zone;
+    }
+    if (cleaned.gasPercentage === 0 || cleaned.gasPercentage === undefined) {
+      delete cleaned.gasPercentage;
+    }
+    return cleaned;
+  };
+
   const handleNext = () => {
     if (items.length === 0) {
       setErrors({ items: 'Debes agregar al menos un ítem' });
       return;
     }
-    onNext(items);
+    // Limpiar items de campos vacíos antes de enviar
+    const cleanedItems = items.map(cleanItem);
+    onNext(cleanedItems);
   };
 
   const calculateItemTotal = (item: InvoiceItem) => {

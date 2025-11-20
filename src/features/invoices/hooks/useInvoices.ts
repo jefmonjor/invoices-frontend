@@ -57,8 +57,8 @@ export const useCreateInvoice = () => {
       const message = axios.isAxiosError(error)
         ? error.response?.data?.message || error.message
         : error instanceof Error
-        ? error.message
-        : 'Error al crear factura';
+          ? error.message
+          : 'Error al crear factura';
       toast.error(message);
     },
   });
@@ -86,8 +86,8 @@ export const useUpdateInvoice = () => {
       const message = axios.isAxiosError(error)
         ? error.response?.data?.message || error.message
         : error instanceof Error
-        ? error.message
-        : 'Error al actualizar factura';
+          ? error.message
+          : 'Error al actualizar factura';
       toast.error(message);
     },
   });
@@ -114,8 +114,8 @@ export const useDeleteInvoice = () => {
       const message = axios.isAxiosError(error)
         ? error.response?.data?.message || error.message
         : error instanceof Error
-        ? error.message
-        : 'Error al eliminar factura';
+          ? error.message
+          : 'Error al eliminar factura';
       toast.error(message);
     },
   });
@@ -135,8 +135,39 @@ export const useGeneratePDF = () => {
       const message = axios.isAxiosError(error)
         ? error.response?.data?.message || error.message
         : error instanceof Error
-        ? error.message
-        : 'Error al generar PDF';
+          ? error.message
+          : 'Error al generar PDF';
+      toast.error(message);
+    },
+  });
+};
+
+/**
+ * Hook para subir un documento
+ */
+export const useUploadDocument = () => {
+  return useMutation({
+    mutationFn: ({ file, invoiceId }: { file: File; invoiceId: number }) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('invoiceId', invoiceId.toString());
+      formData.append('uploadedBy', 'system'); // Or get from auth context if available
+
+      return axios.post('/api/documents', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    onSuccess: () => {
+      toast.success('Documento subido exitosamente');
+    },
+    onError: (error: unknown) => {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || error.message
+        : error instanceof Error
+          ? error.message
+          : 'Error al subir documento';
       toast.error(message);
     },
   });

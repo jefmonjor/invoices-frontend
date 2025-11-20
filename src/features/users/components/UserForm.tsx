@@ -12,7 +12,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Chip,
   OutlinedInput,
   FormControlLabel,
   Switch,
@@ -56,21 +55,21 @@ export const UserForm: React.FC<UserFormProps> = ({
     resolver: zodResolver(userSchema),
     defaultValues: initialData
       ? {
-          email: initialData.email,
-          password: '',
-          firstName: initialData.firstName,
-          lastName: initialData.lastName,
-          roles: initialData.roles,
-          enabled: initialData.enabled,
-        }
+        email: initialData.email,
+        password: '',
+        firstName: initialData.firstName,
+        lastName: initialData.lastName,
+        roles: initialData.roles,
+        enabled: initialData.enabled,
+      }
       : {
-          email: '',
-          password: '',
-          firstName: '',
-          lastName: '',
-          roles: ['ROLE_USER'],
-          enabled: true,
-        },
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        roles: ['ROLE_USER'],
+        enabled: true,
+      },
   });
 
   useEffect(() => {
@@ -149,20 +148,14 @@ export const UserForm: React.FC<UserFormProps> = ({
             control={control}
             render={({ field }) => (
               <FormControl fullWidth error={!!errors.roles}>
-                <InputLabel id="roles-label">Roles</InputLabel>
+                <InputLabel id="roles-label">Rol</InputLabel>
                 <Select
                   {...field}
                   labelId="roles-label"
                   id="roles-select"
-                  multiple
-                  input={<OutlinedInput label="Roles" />}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value) => (
-                        <Chip key={value} label={value} size="small" />
-                      ))}
-                    </Box>
-                  )}
+                  value={field.value[0] || ''}
+                  onChange={(e) => field.onChange([e.target.value])}
+                  input={<OutlinedInput label="Rol" />}
                   disabled={isSubmitting}
                 >
                   {AVAILABLE_ROLES.map((role) => (
