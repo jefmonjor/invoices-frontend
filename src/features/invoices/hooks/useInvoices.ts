@@ -1,11 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { apiClient } from '@/api/client';
 import { invoicesApi } from '@/api/invoices.api';
-import type { InvoiceListParams, CreateInvoiceRequest, UpdateInvoiceRequest, Invoice } from '@/types/invoice.types';
-import type { Company } from '@/types/company.types';
-import type { Client } from '@/types/client.types';
+import type { InvoiceListParams, CreateInvoiceRequest, UpdateInvoiceRequest } from '@/types/invoice.types';
 import { toast } from 'react-toastify';
-import { generateInvoicePdfBlob } from '../utils/pdfGenerator';
 
 // Keys for React Query cache
 export const invoiceKeys = {
@@ -169,7 +167,7 @@ export const useUploadDocument = () => {
       formData.append('uploadedBy', uploadedBy);
 
       // Attach silent flag to response for conditional toast
-      return axios.post('/api/documents', formData, {
+      return apiClient.post('/api/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -192,49 +190,4 @@ export const useUploadDocument = () => {
   });
 };
 
-/**
- * Hook para regenerar PDF de una factura existente
- * Usado para facturas antiguas que no tienen PDF en MinIO
- * o cuando se necesita regenerar el PDF por cualquier razón
- */
-export const useRegeneratePdf = () => {
-  const uploadMutation = useUploadDocument();
 
-  return useMutation({
-    mutationFn: async ({
-      invoice,
-      company,
-      client,
-    }: {
-      invoice: Invoice;
-      company: Company;
-      client: Client;
-    }) => {
-      // Generate PDF blob using React-PDF
-      const blob = await generateInvoicePdfBlob(invoice, company, client);
-
-      // Create file from blob
-      const filename = `${invoice.invoiceNumber}.pdf`;
-      const file = new File([blob], filename, { type: 'application/pdf' });
-
-      // Upload to backend
-      return uploadMutation.mutateAsync({
-        file,
-        invoiceId: invoice.id,
-        uploadedBy: 'manual-regeneration',
-        silent: false, // Show success toast for manual regeneration
-      });
-    },
-    onSuccess: (_data, variables) => {
-      toast.success(`PDF de factura ${variables.invoice.invoiceNumber} regenerado exitosamente`);
-    },
-    onError: (error: unknown) => {
-      const message = axios.isAxiosError(error)
-        ? error.response?.data?.message || error.message
-        : error instanceof Error
-          ? error.message
-          : 'Error al regenerar PDF';
-      toast.error(message);
-    },
-  });
-};
