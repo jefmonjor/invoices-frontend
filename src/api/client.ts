@@ -61,8 +61,8 @@ const parseDateArrays = (obj: unknown): unknown => {
 // Interceptor: Parsear fechas y manejar errores globales
 apiClient.interceptors.response.use(
   (response) => {
-    // Parsear fechas automáticamente
-    if (response.data) {
+    // Parsear fechas automáticamente (excepto para blobs/archivos)
+    if (response.data && response.config.responseType !== 'blob') {
       response.data = parseDateArrays(response.data);
     }
     return response;
