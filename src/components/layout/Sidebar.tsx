@@ -66,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
       title: 'Usuarios',
       icon: <UsersIcon />,
       path: '/users',
-      roles: ['ROLE_ADMIN'],
+      roles: ['ROLE_USER', 'ROLE_ADMIN'],
     },
   ];
 
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
           <InvoiceIcon sx={{ mr: 1, color: 'primary.main' }} />
           <Typography variant="h6" noWrap component="div" color="primary">
-            Invoices App
+            Transolido SL.
           </Typography>
         </Box>
       </Toolbar>

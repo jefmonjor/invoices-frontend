@@ -15,7 +15,6 @@ import {
   Menu as MenuIcon,
   AccountCircle,
   Logout,
-  Settings,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
@@ -75,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ onDrawerToggle, drawerWidth }) =
         </IconButton>
 
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Sistema de Gestión de Facturas
+          Gestión de Facturas
         </Typography>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -124,12 +123,6 @@ export const Header: React.FC<HeaderProps> = ({ onDrawerToggle, drawerWidth }) =
                 <AccountCircle fontSize="small" />
               </ListItemIcon>
               Mi Perfil
-            </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <ListItemIcon>
-                <Settings fontSize="small" />
-              </ListItemIcon>
-              Configuración
             </MenuItem>
             <Divider />
             <MenuItem onClick={handleLogout}>
