@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { PrivateRoute } from './routes/PrivateRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { useThemeStore } from './store/themeStore';
+import { useTokenExpiration } from './hooks/useTokenExpiration';
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
@@ -63,6 +64,9 @@ const queryClient = new QueryClient({
 
 function App() {
   const themeMode = useThemeStore((state) => state.mode);
+
+  // Monitorear expiración de token
+  useTokenExpiration();
 
   // Create MUI theme dynamically based on mode
   const theme = useMemo(

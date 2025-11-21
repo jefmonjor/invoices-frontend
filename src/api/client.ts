@@ -14,11 +14,48 @@ export const apiClient = axios.create({
   },
 });
 
-// Interceptor: Agregar JWT token automáticamente
+// Función helper para decodificar JWT sin verificar firma
+const decodeJWT = (token: string): { exp: number } | null => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
+
+// Función para verificar si el token está expirado
+const isTokenExpired = (token: string): boolean => {
+  const decoded = decodeJWT(token);
+  if (!decoded || !decoded.exp) return true;
+
+  // Verificar si expira en los próximos 30 segundos
+  const expirationTime = decoded.exp * 1000; // Convertir a ms
+  const currentTime = Date.now();
+  const bufferTime = 30 * 1000; // 30 segundos de buffer
+
+  return currentTime >= (expirationTime - bufferTime);
+};
+
+// Interceptor: Agregar JWT token automáticamente y validar expiración
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
+      // Verificar si el token está expirado ANTES de enviar la petición
+      if (isTokenExpired(token)) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return Promise.reject(new Error('Token expired'));
+      }
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -69,10 +106,25 @@ apiClient.interceptors.response.use(
   },
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido
+      // Token expirado o inválido - limpiar estado y redirigir
+      const errorMessage = (error.response.data as any)?.message || '';
+
+      // Limpiar autenticación
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+
+      // Limpiar Zustand store si está disponible
+      if (typeof window !== 'undefined') {
+        // Disparar evento personalizado para que el store reaccione
+        window.dispatchEvent(new CustomEvent('auth:logout', {
+          detail: { reason: errorMessage }
+        }));
+      }
+
+      // Redirigir a login solo si no estamos ya allí
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

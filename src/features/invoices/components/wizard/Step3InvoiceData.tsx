@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, TextField, Typography, Stack, Grid, IconButton, Tooltip } from '@mui/material';
-import { AutoFixHigh as AutoGenerateIcon } from '@mui/icons-material';
-import { generateInvoiceNumber } from '@/utils/invoiceNumberGenerator';
+import { Box, Button, TextField, Typography, Stack, Grid } from '@mui/material';
 
 interface Step3InvoiceDataProps {
   initialValues?: {
@@ -77,20 +75,6 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
     }
   };
 
-  const handleGenerateInvoiceNumber = () => {
-    // Generar número de factura con prefijo vacío por defecto
-    const generated = generateInvoiceNumber();
-    setFormData((prev) => ({ ...prev, invoiceNumber: generated }));
-    // Limpiar error si existe
-    if (errors.invoiceNumber) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.invoiceNumber;
-        return newErrors;
-      });
-    }
-  };
-
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
@@ -102,26 +86,13 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
 
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-            <TextField
-              fullWidth
-              label="Número de Factura"
-              value={formData.invoiceNumber}
-              onChange={(e) => handleChange('invoiceNumber', e.target.value)}
-              error={!!errors.invoiceNumber}
-              helperText={errors.invoiceNumber || 'Ejemplos: A057/2025, 047/2025, FacturaA057.pdf'}
-              placeholder="A057/2025"
-            />
-            <Tooltip title="Generar automáticamente">
-              <IconButton
-                color="primary"
-                onClick={handleGenerateInvoiceNumber}
-                sx={{ mt: 1 }}
-              >
-                <AutoGenerateIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
+          <TextField
+            fullWidth
+            disabled
+            label="Número de Factura"
+            value="Generado automáticamente"
+            helperText="El número se asignará al guardar (ej: 001/2025)"
+          />
         </Grid>
 
         <Grid item xs={12} sm={6}>
