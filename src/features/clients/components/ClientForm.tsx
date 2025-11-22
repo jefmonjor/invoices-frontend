@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { validateSpanishTaxId } from '@/utils/validators/spanishTaxId';
 
 import { useForm, Controller } from 'react-hook-form';
@@ -35,7 +35,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   onCancel,
   isSubmitting,
 }) => {
-  const [taxIdValid, setTaxIdValid] = useState(false);
 
   const {
     register,
@@ -114,7 +113,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 name="taxId"
                 required
                 onValidation={(valid, type) => {
-                  setTaxIdValid(valid);
                   console.log(`Tax ID validation: ${valid}, type: ${type}`);
                 }}
               />
