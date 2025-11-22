@@ -8,9 +8,13 @@ import { LoadingSkeleton } from '@/components/common/LoadingSkeleton';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import type { User } from '@/types/user.types';
+import { useAuthStore } from '@/store/authStore';
 
 export const UsersListPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuthStore();
+  const isAdmin = currentUser?.roles.includes('ROLE_ADMIN') || false;
+
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,14 +73,16 @@ export const UsersListPage: React.FC = () => {
         <Typography variant="h4" component="h1">
           Gestión de Usuarios
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateNew}
-          size="large"
-        >
-          Nuevo Usuario
-        </Button>
+        {isAdmin && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateNew}
+            size="large"
+          >
+            Nuevo Usuario
+          </Button>
+        )}
       </Box>
 
       {/* Search */}
@@ -110,6 +116,7 @@ export const UsersListPage: React.FC = () => {
         <>
           <UsersTable
             users={data.content}
+            isAdmin={isAdmin}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
           />

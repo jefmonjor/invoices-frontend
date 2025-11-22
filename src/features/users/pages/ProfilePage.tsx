@@ -1,9 +1,10 @@
-import { Box, Typography, Card, CardContent, Grid, Divider, Alert, CircularProgress, Button } from '@mui/material';
+import { Box, Typography, Card, CardContent, Grid, Divider, Alert, CircularProgress, Button, FormControlLabel, Checkbox } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { TextField, Stack } from '@mui/material';
 import { useProfile, useUpdateProfile } from '../hooks/useUsers';
+import { useState, useEffect } from 'react';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
@@ -20,6 +21,13 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 export const ProfilePage: React.FC = () => {
   const { data: user, isLoading, error } = useProfile();
   const updateMutation = useUpdateProfile();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setIsAdmin(user.roles.includes('ROLE_ADMIN'));
+    }
+  }, [user]);
 
   const {
     register,
@@ -29,11 +37,11 @@ export const ProfilePage: React.FC = () => {
     resolver: zodResolver(profileSchema),
     defaultValues: user
       ? {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          password: '',
-          confirmPassword: '',
-        }
+        firstName: user.firstName,
+        lastName: user.lastName,
+        password: '',
+        confirmPassword: '',
+      }
       : undefined,
   });
 
@@ -42,9 +50,11 @@ export const ProfilePage: React.FC = () => {
       firstName: string;
       lastName: string;
       password?: string;
+      roles?: string[];
     } = {
       firstName: data.firstName,
       lastName: data.lastName,
+      roles: isAdmin ? ['ROLE_ADMIN'] : ['ROLE_USER'],
     };
 
     // Solo enviar password si se ha ingresado
@@ -152,6 +162,17 @@ export const ProfilePage: React.FC = () => {
                     error={!!errors.lastName}
                     helperText={errors.lastName?.message}
                     disabled={updateMutation.isPending}
+                  />
+                  <Divider />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={isAdmin}
+                        onChange={(e) => setIsAdmin(e.target.checked)}
+                        disabled={updateMutation.isPending}
+                      />
+                    }
+                    label="Es Administrador"
                   />
                   <Divider />
                   <Typography variant="caption" color="text.secondary">

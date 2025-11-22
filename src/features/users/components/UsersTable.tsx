@@ -17,12 +17,14 @@ import { formatDate } from '@/utils/formatters';
 
 interface UsersTableProps {
   users: User[];
+  isAdmin: boolean;
   onEdit: (user: User) => void;
   onDelete: (user: User) => void;
 }
 
 export const UsersTable: React.FC<UsersTableProps> = ({
   users,
+  isAdmin,
   onEdit,
   onDelete,
 }) => {
@@ -37,13 +39,13 @@ export const UsersTable: React.FC<UsersTableProps> = ({
             <TableCell>Roles</TableCell>
             <TableCell>Estado</TableCell>
             <TableCell>Fecha Creación</TableCell>
-            <TableCell align="center">Acciones</TableCell>
+            {isAdmin && <TableCell align="center">Acciones</TableCell>}
           </TableRow>
         </TableHead>
         <TableBody>
           {users.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} align="center">
+              <TableCell colSpan={isAdmin ? 7 : 6} align="center">
                 No hay usuarios registrados
               </TableCell>
             </TableRow>
@@ -73,18 +75,20 @@ export const UsersTable: React.FC<UsersTableProps> = ({
                   />
                 </TableCell>
                 <TableCell>{formatDate(user.createdAt)}</TableCell>
-                <TableCell align="center">
-                  <Tooltip title="Editar">
-                    <IconButton size="small" onClick={() => onEdit(user)} color="primary">
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Eliminar">
-                    <IconButton size="small" onClick={() => onDelete(user)} color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
+                {isAdmin && (
+                  <TableCell align="center">
+                    <Tooltip title="Editar">
+                      <IconButton size="small" onClick={() => onEdit(user)} color="primary">
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Eliminar">
+                      <IconButton size="small" onClick={() => onDelete(user)} color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           )}
