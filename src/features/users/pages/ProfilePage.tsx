@@ -2,6 +2,7 @@ import { Box, Typography, Card, CardContent, Grid, Divider, Alert, CircularProgr
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Edit as EditIcon } from '@mui/icons-material';
 import { TextField, Stack } from '@mui/material';
 import { useProfile, useUpdateProfile } from '../hooks/useUsers';
 import { useState, useEffect } from 'react';
@@ -32,18 +33,30 @@ export const ProfilePage: React.FC = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    defaultValues: user
-      ? {
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      password: '',
+      confirmPassword: '',
+    },
+  });
+
+  // Update form values when user data is loaded
+  useEffect(() => {
+    if (user) {
+      setIsAdmin(user.roles.includes('ROLE_ADMIN'));
+      reset({
         firstName: user.firstName,
         lastName: user.lastName,
         password: '',
         confirmPassword: '',
-      }
-      : undefined,
-  });
+      });
+    }
+  }, [user, reset]);
 
   const onSubmit = async (data: ProfileFormData) => {
     const updateData: {
@@ -106,7 +119,7 @@ export const ProfilePage: React.FC = () => {
 
       <Grid container spacing={3}>
         {/* Información de la Cuenta */}
-        <Grid xs={12} md={6}>
+        <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -138,7 +151,7 @@ export const ProfilePage: React.FC = () => {
         </Grid>
 
         {/* Editar Perfil */}
-        <Grid xs={12} md={6}>
+        <Grid item xs={12} md={6}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -154,6 +167,9 @@ export const ProfilePage: React.FC = () => {
                     error={!!errors.firstName}
                     helperText={errors.firstName?.message}
                     disabled={updateMutation.isPending}
+                    InputProps={{
+                      endAdornment: <EditIcon color="action" fontSize="small" />,
+                    }}
                   />
                   <TextField
                     {...register('lastName')}
@@ -162,6 +178,9 @@ export const ProfilePage: React.FC = () => {
                     error={!!errors.lastName}
                     helperText={errors.lastName?.message}
                     disabled={updateMutation.isPending}
+                    InputProps={{
+                      endAdornment: <EditIcon color="action" fontSize="small" />,
+                    }}
                   />
                   <Divider />
                   <FormControlLabel
