@@ -132,6 +132,7 @@ npm run lint      # ESLint
 
 ## ✅ Features Implementadas
 
+### Core Features
 - ✅ Autenticación JWT
 - ✅ Rutas protegidas
 - ✅ Dashboard básico
@@ -140,6 +141,74 @@ npm run lint      # ESLint
 - ✅ Formateo BigDecimal/fechas
 - ✅ React Query cache
 - ✅ Material-UI tema personalizado
+
+### VeriFactu - Facturación Electrónica ✨ **NUEVO**
+- ✅ **Badge de Estado Visual**
+  - 🔴 Sin verificar (NOT_SENT)
+  - 🟡 Verificando... (PENDING/PROCESSING) + spinner animado
+  - ✅ Verificado VeriFactu (ACCEPTED) + tooltip con TxID
+  - ❌ Rechazado (REJECTED/FAILED) + tooltip con error
+- ✅ **WebSocket Real-Time**
+  - Conexión automática con JWT
+  - Actualizaciones en tiempo real del estado
+  - Reconexión automática con backoff exponencial
+- ✅ **Toast Notifications**
+  - Notificaciones en tiempo real de cambios de estado
+  - Mensajes personalizados por tipo de estado
+  - Auto-close configurado por severidad
+- ✅ **Descarga Condicional**
+  - Botón PDF solo habilitado si `status === 'ACCEPTED'`
+  - Tooltip explicativo del requisito
+- ✅ **Validación Fiscal Española**
+  - Validador DNI (8 dígitos + letra control)
+  - Validador NIE (X/Y/Z + 7 dígitos + letra)
+  - Validador CIF (letra + 7 dígitos + control)
+  - Auto-detección de tipo de identificador
+  - Formateo con separadores
+
+### WebSocket Configuration
+
+```typescript
+// .env.development
+VITE_WS_URL=http://localhost:8080/ws
+VITE_API_URL=http://localhost:8080/api
+
+// .env.production
+VITE_WS_URL=https://your-backend.com/ws
+VITE_API_URL=https://your-backend.com/api
+```
+
+### Uso del Validador Fiscal
+
+```typescript
+import { validateSpanishTaxId } from '@/utils/validators/spanishTaxId';
+
+const result = validateSpanishTaxId('12345678Z');
+// { valid: true, type: 'DNI', message: 'DNI válido' }
+
+const result2 = validateSpanishTaxId('X1234567L');
+// { valid: true, type: 'NIE', message: 'NIE válido' }
+
+const result3 = validateSpanishTaxId('A58818501');
+// { valid: true, type: 'CIF', message: 'CIF válido' }
+```
+
+### Toast Notifications Usage
+
+```typescript
+import { toastService } from '@/services/toast.service';
+
+// Generic notifications
+toastService.success('Operación exitosa');
+toastService.error('Error al procesar');
+toastService.info('Información importante');
+
+// VeriFactu specific
+toastService.verifactu.processing();              // 🟡
+toastService.verifactu.accepted(txId);            // ✅
+toastService.verifactu.rejected('CIF inválido');  // ❌
+toastService.verifactu.failed(error);             // ⚠️
+```
 
 ## 🧪 Testing
 

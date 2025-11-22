@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -17,27 +17,82 @@ import {
   Stack,
   CircularProgress,
   Alert,
+  Tooltip,
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   Download as DownloadIcon,
+  PictureAsPdf as PdfIcon,
 } from '@mui/icons-material';
 import { useInvoice, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { formatCurrency, formatDate } from '@/utils/formatters';
+import VerifactuBadge from '../components/VerifactuBadge';
+import { useWebSocketInvoiceStatus } from '../hooks/useWebSocketInvoiceStatus';
+import type { InvoiceStatusMessage } from '@/services/websocket.service';
+import VerifactuDashboard from '../../dashboard/components/VerifactuDashboard';
+import { toastService } from '@/services/toast.service';
+import 'react-toastify/dist/ReactToastify.css';
 
-export const InvoiceDetailPage: React.FC = () => {
+// ... existing imports
+
+const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const invoiceId = parseInt(id || '0', 10);
 
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [verifactuStatus, setVerifactuStatus] = useState<string | undefined>(undefined);
 
   const { data: invoice, isLoading, error } = useInvoice(invoiceId);
   const deleteMutation = useDeleteInvoice();
   const generatePDFMutation = useGeneratePDF();
+
+  // Initialize status when invoice loads
+  useEffect(() => {
+    if (invoice?.verifactuStatus) {
+      setVerifactuStatus(invoice.verifactuStatus);
+    }
+  }, [invoice]);
+
+  // WebSocket handler for status updates
+  const handleStatusUpdate = useCallback((message: InvoiceStatusMessage) => {
+    console.log('[InvoiceDetail] Received status update:', message);
+    if (message.status) {
+      const previousStatus = verifactuStatus;
+      setVerifactuStatus(message.status);
+
+      // Show toast notification for status changes
+      if (previousStatus !== message.status) {
+        const normalizedStatus = message.status.toUpperCase();
+
+        switch (normalizedStatus) {
+          case 'PENDING':
+          case 'PROCESSING':
+            toastService.verifactu.processing();
+            break;
+          case 'ACCEPTED':
+            toastService.verifactu.accepted(message.txId);
+            break;
+          case 'REJECTED':
+            toastService.verifactu.rejected(message.errorMessage);
+            break;
+          case 'FAILED':
+            toastService.verifactu.failed(message.errorMessage);
+            break;
+        }
+      }
+    }
+  }, [verifactuStatus]);
+
+  // WebSocket connection with JWT and automatic reconnection
+  useWebSocketInvoiceStatus(
+    invoiceId || null,
+    handleStatusUpdate
+  );
+
 
   const handleBack = () => {
     navigate('/invoices');
@@ -47,16 +102,31 @@ export const InvoiceDetailPage: React.FC = () => {
     navigate(`/invoices/${invoiceId}/edit`);
   };
 
+  const handleGeneratePDF = async () => {
+    if (!invoice) return;
+
+    try {
+      await generatePDFMutation.mutateAsync({
+        id: invoice.id,
+        invoiceNumber: invoice.invoiceNumber
+      });
+      // Optimistic update
+      setVerifactuStatus('processing');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF');
+    }
+  };
+
+  const handleDownloadPDF = () => {
+    // Download PDF from backend
+    window.open(`/api/invoices/${invoiceId}/pdf`, '_blank');
+  };
+
   const handleDelete = async () => {
     await deleteMutation.mutateAsync(invoiceId);
     setDeleteDialog(false);
     navigate('/invoices');
-  };
-
-  const handleDownloadPDF = () => {
-    if (invoice) {
-      generatePDFMutation.mutate({ id: invoice.id, invoiceNumber: invoice.invoiceNumber });
-    }
   };
 
   const canEdit = !!invoice;
@@ -83,24 +153,60 @@ export const InvoiceDetailPage: React.FC = () => {
 
   return (
     <Box>
+      <Box mb={4}>
+        <VerifactuDashboard />
+      </Box>
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Button startIcon={<BackIcon />} onClick={handleBack}>
             Volver
           </Button>
-          <Typography variant="h4">Factura {invoice.invoiceNumber}</Typography>
+          <Box>
+            <Typography variant="h4" component="span" sx={{ mr: 2 }}>
+              Factura {invoice.invoiceNumber}
+            </Typography>
+            <VerifactuBadge status={verifactuStatus || invoice.verifactuStatus} />
+          </Box>
         </Box>
 
         <Stack direction="row" spacing={1}>
           <Button
-            variant="outlined"
-            startIcon={<DownloadIcon />}
-            onClick={handleDownloadPDF}
-            disabled={generatePDFMutation.isPending}
+            variant="contained"
+            color="primary"
+            startIcon={<PdfIcon />}
+            onClick={handleGeneratePDF}
+            disabled={generatePDFMutation.isPending || verifactuStatus === 'processing'}
           >
-            {generatePDFMutation.isPending ? 'Generando...' : 'Descargar PDF'}
+            {generatePDFMutation.isPending || verifactuStatus?.toUpperCase() === 'PROCESSING' || verifactuStatus?.toUpperCase() === 'PENDING'
+              ? 'Generando...'
+              : 'Generar PDF'}
           </Button>
+
+          {/* Download button - only enabled for ACCEPTED invoices */}
+          <Tooltip
+            title={
+              verifactuStatus?.toUpperCase() !== 'ACCEPTED'
+                ? 'El PDF solo está disponible para facturas verificadas'
+                : 'Descargar PDF verificado'
+            }
+            arrow
+          >
+            <span>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<DownloadIcon />}
+                onClick={handleDownloadPDF}
+                disabled={
+                  verifactuStatus?.toUpperCase() !== 'ACCEPTED' ||
+                  !invoice.pdfServerPath
+                }
+              >
+                Descargar PDF
+              </Button>
+            </span>
+          </Tooltip>
 
           {canEdit && (
             <Button variant="outlined" startIcon={<EditIcon />} onClick={handleEdit}>
@@ -162,6 +268,17 @@ export const InvoiceDetailPage: React.FC = () => {
                   </Typography>
                   <Typography variant="body1">{invoice.clientId}</Typography>
                 </Grid>
+
+                {invoice.documentHash && (
+                  <Grid item xs={12}>
+                    <Typography variant="caption" color="text.secondary">
+                      Hash del Documento (SHA-256)
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                      {invoice.documentHash}
+                    </Typography>
+                  </Grid>
+                )}
               </Grid>
             </CardContent>
           </Card>

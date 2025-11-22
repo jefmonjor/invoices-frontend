@@ -1,13 +1,19 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { validateSpanishTaxId } from '@/utils/validators/spanishTaxId';
+
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Box, TextField, Button, Stack, Grid } from '@mui/material';
 import type { Client, CreateClientRequest } from '@/types/client.types';
+import TaxIdField from '@/components/shared/TaxIdField';
 
 const clientSchema = z.object({
   businessName: z.string().min(1, 'La razón social es requerida').max(200, 'Máximo 200 caracteres'),
-  taxId: z.string().min(1, 'El CIF/NIF es requerido').max(20, 'Máximo 20 caracteres'),
+  taxId: z.string()
+    .min(1, 'El CIF/NIF es obligatorio')
+    .max(20, 'Máximo 20 caracteres')
+    .refine((value) => validateSpanishTaxId(value), 'CIF/NIF inválido'),
   address: z.string().min(1, 'La dirección es requerida').max(500, 'Máximo 500 caracteres'),
   city: z.string().min(1, 'La ciudad es requerida').max(100, 'Máximo 100 caracteres'),
   postalCode: z.string().min(1, 'El código postal es requerido').max(10, 'Máximo 10 caracteres'),
@@ -29,34 +35,37 @@ export const ClientForm: React.FC<ClientFormProps> = ({
   onCancel,
   isSubmitting,
 }) => {
+  const [taxIdValid, setTaxIdValid] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm<CreateClientRequest>({
     resolver: zodResolver(clientSchema),
     defaultValues: initialData
       ? {
-          businessName: initialData.businessName,
-          taxId: initialData.taxId,
-          address: initialData.address,
-          city: initialData.city,
-          postalCode: initialData.postalCode,
-          province: initialData.province,
-          phone: initialData.phone,
-          email: initialData.email,
-        }
+        businessName: initialData.businessName,
+        taxId: initialData.taxId,
+        address: initialData.address,
+        city: initialData.city,
+        postalCode: initialData.postalCode,
+        province: initialData.province,
+        phone: initialData.phone,
+        email: initialData.email,
+      }
       : {
-          businessName: '',
-          taxId: '',
-          address: '',
-          city: '',
-          postalCode: '',
-          province: '',
-          phone: '',
-          email: '',
-        },
+        businessName: '',
+        taxId: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        province: '',
+        phone: '',
+        email: '',
+      },
   });
 
   useEffect(() => {
@@ -94,14 +103,22 @@ export const ClientForm: React.FC<ClientFormProps> = ({
         </Grid>
 
         <Grid xs={12} md={6}>
-          <TextField
-            {...register('taxId')}
-            label="CIF/NIF"
-            fullWidth
-            required
-            error={!!errors.taxId}
-            helperText={errors.taxId?.message}
-            disabled={isSubmitting}
+          <Controller
+            name="taxId"
+            control={control}
+            render={({ field }) => (
+              <TaxIdField
+                value={field.value}
+                onChange={field.onChange}
+                label="DNI/NIE/CIF"
+                name="taxId"
+                required
+                onValidation={(valid, type) => {
+                  setTaxIdValid(valid);
+                  console.log(`Tax ID validation: ${valid}, type: ${type}`);
+                }}
+              />
+            )}
           />
         </Grid>
 

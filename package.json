@@ -23,6 +23,7 @@
     "@mui/material": "^6.5.0",
     "@react-pdf/renderer": "^4.3.1",
     "@sentry/react": "^10.25.0",
+    "@stomp/stompjs": "^7.2.1",
     "@tanstack/react-query": "^5.90.10",
     "axios": "^1.13.2",
     "currency.js": "^2.0.4",
@@ -39,6 +40,7 @@
     "react-toastify": "^11.0.5",
     "react-window": "^2.2.3",
     "recharts": "^3.4.1",
+    "sockjs-client": "^1.6.1",
     "xlsx": "^0.18.5",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"
@@ -52,6 +54,7 @@
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/sockjs-client": "^1.5.4",
     "@vitejs/plugin-react": "^5.1.0",
     "@vitest/ui": "^4.0.10",
     "eslint": "^9.39.1",

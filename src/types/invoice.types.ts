@@ -113,6 +113,12 @@ export interface Invoice {
   reAmount: number; // Calculado por backend
   totalAmount: number; // Total final
   status: string; // Estado de la factura
+  verifactuStatus?: string; // Estado VeriFactu (pending, processing, accepted, rejected)
+  documentHash?: string; // Hash SHA-256 del PDF
+  pdfServerPath?: string; // Ruta del PDF en MinIO
+  documentJson?: string; // JSON enviado a VeriFactu
+  verifactuTxId?: string; // ID de transacción VeriFactu
+  pdfIsFinal?: boolean; // Si el PDF es definitivo (con huella)
   notes?: string;
   createdAt: string; // ISO-8601
   updatedAt: string; // ISO-8601
