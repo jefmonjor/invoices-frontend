@@ -148,6 +148,77 @@ export const ProfilePage: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
+
+          {/* Mis Empresas - Nuevo panel */}
+          <Card sx={{ mt: 3 }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h6">
+                  Mis Empresas
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+
+              {/* TODO: Esto se completará cuando implementemos CompanyContext */}
+              <Alert severity="info">
+                Panel de gestión de empresas próximamente disponible
+              </Alert>
+
+              {/* Estructura de ejemplo - se activará con CompanyContext
+              <Stack spacing={2}>
+                <Box sx={{
+                  p: 2,
+                  border: '2px solid',
+                  borderColor: 'primary.main',
+                  borderRadius: 1,
+                  bgcolor: 'action.hover'
+                }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        Empresa Actual
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        CIF: A12345678
+                      </Typography>
+                    </Box>
+                    <Chip label="ADMIN" color="primary" size="small" />
+                  </Box>
+                </Box>
+
+                <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box>
+                      <Typography variant="subtitle1">
+                        Otra Empresa S.L.
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        CIF: B87654321
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Chip label="USER" color="default" size="small" sx={{ mr: 1 }} />
+                      <Button size="small" variant="outlined">
+                        Cambiar
+                      </Button>
+                    </Box>
+                  </Box>
+                </Box>
+              </Stack>
+
+              {isAdmin && (
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 2 }}
+                  startIcon={<GroupAddIcon />}
+                >
+                  Invitar Usuarios
+                </Button>
+              )}
+              */}
+            </CardContent>
+          </Card>
         </Grid>
 
         {/* Editar Perfil */}

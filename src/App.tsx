@@ -9,6 +9,7 @@ import { PrivateRoute } from './routes/PrivateRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { useThemeStore } from './store/themeStore';
 import { useTokenExpiration } from './hooks/useTokenExpiration';
+import { CompanyProvider } from './contexts/CompanyContext';
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
@@ -148,9 +149,13 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
 
-              {/* Private routes with Layout */}
+              {/* Private routes with Layout - Wrapped with CompanyProvider */}
               <Route element={<PrivateRoute />}>
-                <Route element={<MainLayout />}>
+                <Route element={
+                  <CompanyProvider>
+                    <MainLayout />
+                  </CompanyProvider>
+                }>
                   <Route path="/dashboard" element={<DashboardPage />} />
 
                   {/* Invoices */}
