@@ -1,11 +1,13 @@
-import { Box, Typography, Card, CardContent, Grid, Divider, Alert, CircularProgress, Button, FormControlLabel, Checkbox } from '@mui/material';
+import { Box, Typography, Card, CardContent, Grid, Divider, Alert, CircularProgress, Button, FormControlLabel, Checkbox, Chip } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Edit as EditIcon } from '@mui/icons-material';
+import { Edit as EditIcon, GroupAdd as GroupAddIcon } from '@mui/icons-material';
 import { TextField, Stack } from '@mui/material';
 import { useProfile, useUpdateProfile } from '../hooks/useUsers';
 import { useState, useEffect } from 'react';
+import { useCompanyContext } from '@/contexts/CompanyContext';
+import { useTranslation } from 'react-i18next';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
@@ -20,9 +22,11 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 export const ProfilePage: React.FC = () => {
+  const { t } = useTranslation('auth');
   const { data: user, isLoading, error } = useProfile();
   const updateMutation = useUpdateProfile();
   const [isAdmin, setIsAdmin] = useState(false);
+  const { currentCompany, userCompanies, switchCompany } = useCompanyContext();
 
   useEffect(() => {
     if (user) {
@@ -86,7 +90,7 @@ export const ProfilePage: React.FC = () => {
     return (
       <Box>
         <Typography variant="h4" gutterBottom>
-          Mi Perfil
+          {t('profile.title')}
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
@@ -99,7 +103,7 @@ export const ProfilePage: React.FC = () => {
     return (
       <Box>
         <Typography variant="h4" gutterBottom>
-          Mi Perfil
+          {t('profile.title')}
         </Typography>
         <Alert severity="error">
           Error al cargar el perfil: {error?.message || 'Perfil no encontrado'}
@@ -111,10 +115,10 @@ export const ProfilePage: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Mi Perfil
+        {t('profile.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Gestiona tu información personal y seguridad de la cuenta
+        {t('profile.subtitle')}
       </Typography>
 
       <Grid container spacing={3}>
@@ -123,100 +127,104 @@ export const ProfilePage: React.FC = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Información de la Cuenta
+                {t('profile.accountInfo')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ mb: 2 }}>
                 <Typography variant="caption" color="text.secondary">
-                  Email
+                  {t('profile.email')}
                 </Typography>
                 <Typography variant="body1">{user.email}</Typography>
               </Box>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="caption" color="text.secondary">
-                  Roles
+                  {t('profile.roles')}
                 </Typography>
                 <Typography variant="body1">{user.roles.join(', ')}</Typography>
               </Box>
               <Box sx={{ mb: 2 }}>
                 <Typography variant="caption" color="text.secondary">
-                  Estado
+                  {t('profile.status')}
                 </Typography>
                 <Typography variant="body1">
-                  {user.enabled ? 'Activo' : 'Inactivo'}
+                  {user.enabled ? t('profile.active') : t('profile.inactive')}
                 </Typography>
               </Box>
             </CardContent>
           </Card>
 
-          {/* Mis Empresas - Nuevo panel */}
+          {/* Mis Empresas - Panel activo con CompanyContext */}
           <Card sx={{ mt: 3 }}>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6">
-                  Mis Empresas
+                  {t('profile.myCompanies')}
                 </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
 
-              {/* TODO: Esto se completará cuando implementemos CompanyContext */}
-              <Alert severity="info">
-                Panel de gestión de empresas próximamente disponible
-              </Alert>
+              {userCompanies.length === 0 ? (
+                <Alert severity="info">
+                  {t('profile.companiesComingSoon')}
+                </Alert>
+              ) : (
+                <Stack spacing={2}>
+                  {userCompanies.map((userCompany) => {
+                    const isCurrentCompany = currentCompany?.id === userCompany.companyId;
 
-              {/* Estructura de ejemplo - se activará con CompanyContext
-              <Stack spacing={2}>
-                <Box sx={{
-                  p: 2,
-                  border: '2px solid',
-                  borderColor: 'primary.main',
-                  borderRadius: 1,
-                  bgcolor: 'action.hover'
-                }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        Empresa Actual
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        CIF: A12345678
-                      </Typography>
-                    </Box>
-                    <Chip label="ADMIN" color="primary" size="small" />
-                  </Box>
-                </Box>
+                    return (
+                      <Box
+                        key={userCompany.companyId}
+                        sx={{
+                          p: 2,
+                          border: isCurrentCompany ? '2px solid' : '1px solid',
+                          borderColor: isCurrentCompany ? 'primary.main' : 'divider',
+                          borderRadius: 1,
+                          bgcolor: isCurrentCompany ? 'action.hover' : 'transparent',
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box>
+                            <Typography variant="subtitle1" fontWeight={isCurrentCompany ? 'bold' : 'normal'}>
+                              {userCompany.company.businessName}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              CIF: {userCompany.company.taxId}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Chip
+                              label={userCompany.role === 'ADMIN' ? t('common:company.role.admin') : t('common:company.role.user')}
+                              color={userCompany.role === 'ADMIN' ? 'primary' : 'default'}
+                              size="small"
+                            />
+                            {!isCurrentCompany && (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => switchCompany(userCompany.companyId)}
+                              >
+                                {t('common:actions.change')}
+                              </Button>
+                            )}
+                          </Box>
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Stack>
+              )}
 
-                <Box sx={{ p: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                      <Typography variant="subtitle1">
-                        Otra Empresa S.L.
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        CIF: B87654321
-                      </Typography>
-                    </Box>
-                    <Box>
-                      <Chip label="USER" color="default" size="small" sx={{ mr: 1 }} />
-                      <Button size="small" variant="outlined">
-                        Cambiar
-                      </Button>
-                    </Box>
-                  </Box>
-                </Box>
-              </Stack>
-
-              {isAdmin && (
+              {isAdmin && userCompanies.length > 0 && (
                 <Button
                   variant="contained"
                   fullWidth
                   sx={{ mt: 2 }}
                   startIcon={<GroupAddIcon />}
                 >
-                  Invitar Usuarios
+                  {t('profile.inviteUsers')}
                 </Button>
               )}
-              */}
             </CardContent>
           </Card>
         </Grid>
@@ -226,14 +234,14 @@ export const ProfilePage: React.FC = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Editar Perfil
+                {t('profile.editProfile')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
                 <Stack spacing={2}>
                   <TextField
                     {...register('firstName')}
-                    label="Nombre"
+                    label={t('register.firstName')}
                     fullWidth
                     error={!!errors.firstName}
                     helperText={errors.firstName?.message}
@@ -244,7 +252,7 @@ export const ProfilePage: React.FC = () => {
                   />
                   <TextField
                     {...register('lastName')}
-                    label="Apellido"
+                    label={t('register.lastName')}
                     fullWidth
                     error={!!errors.lastName}
                     helperText={errors.lastName?.message}
@@ -262,15 +270,15 @@ export const ProfilePage: React.FC = () => {
                         disabled={updateMutation.isPending}
                       />
                     }
-                    label="Es Administrador"
+                    label={t('profile.isAdmin')}
                   />
                   <Divider />
                   <Typography variant="caption" color="text.secondary">
-                    Cambiar Contraseña (opcional)
+                    {t('profile.changePassword')}
                   </Typography>
                   <TextField
                     {...register('password')}
-                    label="Nueva Contraseña"
+                    label={t('profile.newPassword')}
                     type="password"
                     fullWidth
                     error={!!errors.password}
@@ -279,7 +287,7 @@ export const ProfilePage: React.FC = () => {
                   />
                   <TextField
                     {...register('confirmPassword')}
-                    label="Confirmar Nueva Contraseña"
+                    label={t('profile.confirmNewPassword')}
                     type="password"
                     fullWidth
                     error={!!errors.confirmPassword}
@@ -292,7 +300,7 @@ export const ProfilePage: React.FC = () => {
                     fullWidth
                     disabled={updateMutation.isPending}
                   >
-                    {updateMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
+                    {updateMutation.isPending ? t('common:app.loading') : t('common:actions.save')}
                   </Button>
                 </Stack>
               </Box>
