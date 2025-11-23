@@ -37,7 +37,7 @@ export const validateCIF = (cif: string): boolean => {
     const str = cif.toUpperCase();
     if (!CIF_REGEX.test(str)) return false;
 
-    const letter = str.charAt(0);
+    // const letter = str.charAt(0);
     const number = str.substr(1, 7);
     const control = str.charAt(8);
 

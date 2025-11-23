@@ -40,8 +40,6 @@ const LanguageSelector: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
-  const currentLanguage = languages.find((lang) => lang.code === i18n.language) || languages[0];
-
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };

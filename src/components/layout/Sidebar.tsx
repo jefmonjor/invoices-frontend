@@ -22,9 +22,9 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
-import { CompanySelector } from './CompanySelector';
+import CompanySelector from '../common/CompanySelector';
 import { useTranslation } from 'react-i18next';
-import { useCompany } from '@/context/CompanyContext';
+import { useCurrentCompany } from '@/contexts/CompanyContext';
 
 const DRAWER_WIDTH = 240;
 
@@ -40,7 +40,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { hasRole } = useAuthStore();
-  const { currentCompany } = useCompany();
+  const currentCompany = useCurrentCompany();
 
   const menuItems = [
     {

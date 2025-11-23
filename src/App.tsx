@@ -9,7 +9,7 @@ import { PrivateRoute } from './routes/PrivateRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { useThemeStore } from './store/themeStore';
 import { useTokenExpiration } from './hooks/useTokenExpiration';
-import { CompanyProvider } from './context/CompanyContext';
+import { CompanyProvider } from './contexts/CompanyContext';
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
