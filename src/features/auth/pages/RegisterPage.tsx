@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -12,15 +12,19 @@ import {
   Stack,
   Link,
   Alert,
-  FormControlLabel,
-  Switch,
+  ToggleButton,
+  ToggleButtonGroup,
   Divider,
 } from '@mui/material';
-import { Receipt as InvoiceIcon, Business as BusinessIcon } from '@mui/icons-material';
+import { Receipt as InvoiceIcon, Business as BusinessIcon, GroupAdd as GroupAddIcon } from '@mui/icons-material';
 import axios from 'axios';
 import { apiClient } from '@/api/client';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import TaxIdField from '@/components/shared/TaxIdField';
+import { validateSpanishTaxId } from '@/utils/validators/spanishTaxId';
+
+type RegistrationType = 'new-company' | 'join-company';
 
 const registerSchema = z.object({
   email: z.string().email('Email inválido').min(1, 'El email es requerido'),
@@ -35,6 +39,11 @@ const registerSchema = z.object({
   companyAddress: z.string().optional(),
   companyPhone: z.string().optional(),
   companyEmail: z.string().email('Email de empresa inválido').optional().or(z.literal('')),
+
+  // Campos para nueva empresa (alternative names used in other branch)
+  companyTaxId: z.string().optional(),
+  // Campo para unirse a empresa
+  invitationCode: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -58,17 +67,28 @@ export const RegisterPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createCompany, setCreateCompany] = useState(false);
+  const [registrationType, setRegistrationType] = useState<RegistrationType>('new-company');
+  const [taxIdValid, setTaxIdValid] = useState(false);
 
   const {
     register,
     handleSubmit,
+    control,
+    watch,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       createCompany: false,
+      email: '',
+      password: '',
+      confirmPassword: '',
+      firstName: '',
+      lastName: '',
+      companyName: '',
+      companyTaxId: '',
+      invitationCode: '',
     },
   });
 
@@ -88,6 +108,28 @@ export const RegisterPage: React.FC = () => {
   }, [invitationToken, setValue]);
 
   const onSubmit = async (data: RegisterFormData) => {
+    // Validaciones adicionales según tipo de registro
+    if (registrationType === 'new-company') {
+      if (!data.companyName || data.companyName.trim() === '') {
+        setError('El nombre de la empresa es obligatorio');
+        return;
+      }
+      if (!data.companyTaxId || data.companyTaxId.trim() === '') {
+        setError('El CIF de la empresa es obligatorio');
+        return;
+      }
+      const validation = validateSpanishTaxId(data.companyTaxId);
+      if (!validation.valid) {
+        setError(`CIF inválido: ${validation.message}`);
+        return;
+      }
+    } else if (registrationType === 'join-company') {
+      if (!data.invitationCode || data.invitationCode.trim() === '') {
+        setError('El código de invitación es obligatorio');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setError(null);
 
@@ -103,19 +145,21 @@ export const RegisterPage: React.FC = () => {
       if (invitationToken) {
         payload.registrationType = 'JOIN_COMPANY';
         payload.invitationToken = invitationToken;
-      } else if (data.createCompany) {
+      } else if (data.createCompany || registrationType === 'new-company') {
         payload.registrationType = 'NEW_COMPANY';
         payload.companyName = data.companyName;
-        payload.taxId = data.taxId;
+        payload.taxId = data.taxId || data.companyTaxId; // Handle both field names
         payload.companyAddress = data.companyAddress;
         payload.companyPhone = data.companyPhone;
         payload.companyEmail = data.companyEmail;
+      } else if (registrationType === 'join-company') {
+        payload.invitationCode = data.invitationCode;
       } else {
         // Default to NEW_COMPANY if no invitation and not explicitly creating (or maybe handle as error?)
         // For now, let's assume if not creating company and no invitation, it's a standalone user (which might not be allowed in multi-company strict mode)
         // But based on requirements, user MUST belong to a company.
         // So if no invitation, they MUST create a company.
-        if (!data.createCompany) {
+        if (!data.createCompany && registrationType !== 'join-company') {
           setError("Debes crear una empresa o unirte a una existente mediante invitación.");
           setIsSubmitting(false);
           return;
@@ -168,9 +212,32 @@ export const RegisterPage: React.FC = () => {
             </Typography>
           </Box>
 
-          <Typography component="h2" variant="h5" sx={{ mb: 3 }}>
+          <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
             {invitationToken ? 'Unirse a Empresa' : 'Crear Cuenta'}
           </Typography>
+
+          {/* Toggle: Nueva Empresa / Unirse a Empresa */}
+          <ToggleButtonGroup
+            value={registrationType}
+            exclusive
+            onChange={(_, newValue) => {
+              if (newValue !== null) {
+                setRegistrationType(newValue);
+                setError(null);
+              }
+            }}
+            fullWidth
+            sx={{ mb: 3 }}
+          >
+            <ToggleButton value="new-company" aria-label="Nueva empresa">
+              <BusinessIcon sx={{ mr: 1 }} />
+              Nueva Empresa
+            </ToggleButton>
+            <ToggleButton value="join-company" aria-label="Unirse a empresa">
+              <GroupAddIcon sx={{ mr: 1 }} />
+              Unirse a Empresa
+            </ToggleButton>
+          </ToggleButtonGroup>
 
           {error && (
             <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
@@ -245,26 +312,10 @@ export const RegisterPage: React.FC = () => {
               {!invitationToken && (
                 <>
                   <Divider sx={{ my: 2 }} />
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={createCompany}
-                        onChange={(e) => {
-                          setValue('createCompany', e.target.checked);
-                          setCreateCompany(e.target.checked);
-                        }}
-                        color="primary"
-                      />
-                    }
-                    label={
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <BusinessIcon sx={{ mr: 1 }} />
-                        <Typography fontWeight="bold">Registrar mi empresa</Typography>
-                      </Box>
-                    }
-                  />
 
-                  {createCompany && (
+                  {/* Toggle between switch (original) and toggle buttons (new) - keeping toggle buttons for better UX */}
+
+                  {registrationType === 'new-company' && (
                     <Stack spacing={2} sx={{ mt: 2, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
                       <Typography variant="subtitle2" color="primary">Datos de la Empresa</Typography>
 
@@ -272,20 +323,30 @@ export const RegisterPage: React.FC = () => {
                         {...register('companyName')}
                         label="Razón Social / Nombre Empresa"
                         fullWidth
-                        required={createCompany}
+                        required={registrationType === 'new-company'}
                         error={!!errors.companyName}
                         helperText={errors.companyName?.message}
                         disabled={isSubmitting}
                       />
 
-                      <TextField
-                        {...register('taxId')}
-                        label="CIF / NIF"
-                        fullWidth
-                        required={createCompany}
-                        error={!!errors.taxId}
-                        helperText={errors.taxId?.message}
-                        disabled={isSubmitting}
+                      <Controller
+                        name="companyTaxId"
+                        control={control}
+                        render={({ field }) => (
+                          <TaxIdField
+                            value={field.value || ''}
+                            onChange={(value) => {
+                              field.onChange(value);
+                              setValue('taxId', value); // Sync with taxId field
+                            }}
+                            label="CIF / NIF"
+                            name="companyTaxId"
+                            required={registrationType === 'new-company'}
+                            onValidation={(valid) => {
+                              setTaxIdValid(valid);
+                            }}
+                          />
+                        )}
                       />
 
                       <TextField
@@ -318,6 +379,28 @@ export const RegisterPage: React.FC = () => {
                       </Stack>
                     </Stack>
                   )}
+
+                  {registrationType === 'join-company' && (
+                    <>
+                      <Divider sx={{ my: 2 }}>
+                        <Typography variant="caption" color="text.secondary">
+                          Unirse a una Empresa Existente
+                        </Typography>
+                      </Divider>
+
+                      <TextField
+                        {...register('invitationCode')}
+                        label="Código de Invitación"
+                        fullWidth
+                        required
+                        error={!!errors.invitationCode}
+                        helperText={errors.invitationCode?.message || 'Solicita un código de invitación al administrador de tu empresa'}
+                        disabled={isSubmitting}
+                        placeholder="Ej: ABC123XYZ"
+                      />
+                    </>
+                  )}
+
                 </>
               )}
 
@@ -326,7 +409,7 @@ export const RegisterPage: React.FC = () => {
                 fullWidth
                 variant="contained"
                 size="large"
-                disabled={isSubmitting}
+                disabled={isSubmitting || (registrationType === 'new-company' && !taxIdValid)}
                 sx={{ mt: 3 }}
               >
                 {isSubmitting ? 'Registrando...' : (invitationToken ? 'Unirse a Empresa' : (createCompany ? 'Registrar Cuenta y Empresa' : 'Registrarse'))}
@@ -345,11 +428,11 @@ export const RegisterPage: React.FC = () => {
                   </Link>
                 </Typography>
               </Box>
-            </Stack>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+            </Stack >
+          </Box >
+        </Paper >
+      </Box >
+    </Container >
   );
 };
 

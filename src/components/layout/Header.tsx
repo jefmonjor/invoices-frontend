@@ -19,6 +19,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { ThemeToggle } from '@/components/common/ThemeToggle';
+import CompanySelector from '@/components/common/CompanySelector';
+import LanguageSelector from '@/components/common/LanguageSelector';
 
 interface HeaderProps {
   onDrawerToggle: () => void;
@@ -77,8 +79,17 @@ export const Header: React.FC<HeaderProps> = ({ onDrawerToggle, drawerWidth }) =
           Gestión de Facturas
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {/* Company Selector - Multi-empresa */}
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <CompanySelector />
+          </Box>
+
+          {/* Language Selector - Internacionalización */}
+          <LanguageSelector />
+
           <ThemeToggle />
+
           <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' } }}>
             {user?.firstName} {user?.lastName}
           </Typography>

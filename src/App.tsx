@@ -152,7 +152,11 @@ function App() {
 
                 {/* Private routes with Layout */}
                 <Route element={<PrivateRoute />}>
-                  <Route element={<MainLayout />}>
+                  <Route element={
+                    <CompanyProvider>
+                      <MainLayout />
+                    </CompanyProvider>
+                  }>
                     <Route path="/dashboard" element={<DashboardPage />} />
 
                     {/* Invoices */}
