@@ -1,0 +1,64 @@
+{
+  "app": {
+    "title": "Gestión de Facturas",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito"
+  },
+  "actions": {
+    "create": "Crear",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "back": "Volver",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "download": "Descargar",
+    "generate": "Generar",
+    "send": "Enviar",
+    "change": "Cambiar",
+    "confirm": "Confirmar",
+    "close": "Cerrar"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "invoices": "Facturas",
+    "companies": "Empresas",
+    "clients": "Clientes",
+    "users": "Usuarios",
+    "profile": "Mi Perfil",
+    "logout": "Cerrar Sesión"
+  },
+  "company": {
+    "selector": {
+      "title": "Cambiar Empresa",
+      "current": "Empresa Actual",
+      "available": "empresas disponibles",
+      "available_one": "empresa disponible",
+      "noCompanies": "No tienes empresas asignadas",
+      "loading": "Cargando empresas...",
+      "error": "Error al cargar empresas"
+    },
+    "role": {
+      "admin": "Administrador",
+      "user": "Usuario"
+    }
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "email": "Email inválido",
+    "minLength": "Mínimo {{count}} caracteres",
+    "maxLength": "Máximo {{count}} caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "invalidTaxId": "CIF/NIF/DNI inválido"
+  },
+  "messages": {
+    "confirmDelete": "¿Estás seguro de que deseas eliminar este elemento?",
+    "deleteSuccess": "Elemento eliminado correctamente",
+    "saveSuccess": "Guardado correctamente",
+    "updateSuccess": "Actualizado correctamente",
+    "createSuccess": "Creado correctamente",
+    "errorGeneric": "Ha ocurrido un error. Por favor intenta de nuevo."
+  }
+}

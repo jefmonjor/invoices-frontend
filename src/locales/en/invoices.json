@@ -1,0 +1,45 @@
+{
+  "title": "Invoices",
+  "create": "Create Invoice",
+  "edit": "Edit Invoice",
+  "detail": "Invoice Detail",
+  "list": "Invoice List",
+  "fields": {
+    "invoiceNumber": "Invoice Number",
+    "issueDate": "Issue Date",
+    "company": "Company",
+    "client": "Client",
+    "total": "Total",
+    "baseAmount": "Taxable Base",
+    "vat": "VAT",
+    "irpf": "IRPF",
+    "status": "Status",
+    "notes": "Notes"
+  },
+  "status": {
+    "draft": "Draft",
+    "sent": "Sent",
+    "paid": "Paid",
+    "cancelled": "Cancelled"
+  },
+  "verifactu": {
+    "notSent": "Not verified",
+    "pending": "Verifying...",
+    "processing": "Processing...",
+    "accepted": "VeriFactu Verified",
+    "rejected": "Rejected",
+    "failed": "Error"
+  },
+  "actions": {
+    "generatePDF": "Generate PDF",
+    "downloadPDF": "Download PDF",
+    "sendEmail": "Send by Email"
+  },
+  "messages": {
+    "pdfGenerating": "Generating PDF...",
+    "pdfReady": "PDF ready for download",
+    "verifactuProcessing": "VERI*FACTU verification in progress...",
+    "verifactuAccepted": "Invoice verified successfully",
+    "verifactuRejected": "Verification rejected"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "title": "Facturas",
+  "create": "Crear Factura",
+  "edit": "Editar Factura",
+  "detail": "Detalle de Factura",
+  "list": "Lista de Facturas",
+  "fields": {
+    "invoiceNumber": "Número de Factura",
+    "issueDate": "Fecha de Emisión",
+    "company": "Empresa",
+    "client": "Cliente",
+    "total": "Total",
+    "baseAmount": "Base Imponible",
+    "vat": "IVA",
+    "irpf": "IRPF",
+    "status": "Estado",
+    "notes": "Observaciones"
+  },
+  "status": {
+    "draft": "Borrador",
+    "sent": "Enviada",
+    "paid": "Pagada",
+    "cancelled": "Cancelada"
+  },
+  "verifactu": {
+    "notSent": "Sin verificar",
+    "pending": "Verificando...",
+    "processing": "Procesando...",
+    "accepted": "Verificado VeriFactu",
+    "rejected": "Rechazado",
+    "failed": "Error"
+  },
+  "actions": {
+    "generatePDF": "Generar PDF",
+    "downloadPDF": "Descargar PDF",
+    "sendEmail": "Enviar por Email"
+  },
+  "messages": {
+    "pdfGenerating": "Generando PDF...",
+    "pdfReady": "PDF listo para descargar",
+    "verifactuProcessing": "Verificación VERI*FACTU en proceso...",
+    "verifactuAccepted": "Factura verificada correctamente",
+    "verifactuRejected": "Verificación rechazada"
+  }
+}

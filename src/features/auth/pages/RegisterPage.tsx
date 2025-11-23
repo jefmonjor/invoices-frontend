@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -12,12 +12,19 @@ import {
   Stack,
   Link,
   Alert,
+  ToggleButton,
+  ToggleButtonGroup,
+  Divider,
 } from '@mui/material';
-import { Receipt as InvoiceIcon } from '@mui/icons-material';
+import { Receipt as InvoiceIcon, Business as BusinessIcon, GroupAdd as GroupAddIcon } from '@mui/icons-material';
 import axios from 'axios';
 import { apiClient } from '@/api/client';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import TaxIdField from '@/components/shared/TaxIdField';
+import { validateSpanishTaxId } from '@/utils/validators/spanishTaxId';
+
+type RegistrationType = 'new-company' | 'join-company';
 
 const registerSchema = z.object({
   email: z.string().email('Email inválido').min(1, 'El email es requerido'),
@@ -25,6 +32,11 @@ const registerSchema = z.object({
   confirmPassword: z.string(),
   firstName: z.string().min(1, 'El nombre es requerido'),
   lastName: z.string().min(1, 'El apellido es requerido'),
+  // Campos para nueva empresa
+  companyName: z.string().optional(),
+  companyTaxId: z.string().optional(),
+  // Campo para unirse a empresa
+  invitationCode: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
@@ -36,27 +48,75 @@ export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [registrationType, setRegistrationType] = useState<RegistrationType>('new-company');
+  const [taxIdValid, setTaxIdValid] = useState(false);
 
   const {
     register,
     handleSubmit,
+    control,
+    watch,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      firstName: '',
+      lastName: '',
+      companyName: '',
+      companyTaxId: '',
+      invitationCode: '',
+    },
   });
 
+  const companyTaxId = watch('companyTaxId');
+
   const onSubmit = async (data: RegisterFormData) => {
+    // Validaciones adicionales según tipo de registro
+    if (registrationType === 'new-company') {
+      if (!data.companyName || data.companyName.trim() === '') {
+        setError('El nombre de la empresa es obligatorio');
+        return;
+      }
+      if (!data.companyTaxId || data.companyTaxId.trim() === '') {
+        setError('El CIF de la empresa es obligatorio');
+        return;
+      }
+      const validation = validateSpanishTaxId(data.companyTaxId);
+      if (!validation.valid) {
+        setError(`CIF inválido: ${validation.message}`);
+        return;
+      }
+    } else if (registrationType === 'join-company') {
+      if (!data.invitationCode || data.invitationCode.trim() === '') {
+        setError('El código de invitación es obligatorio');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setError(null);
 
     try {
-      await apiClient.post('/api/auth/register', {
+      const payload: any = {
         email: data.email,
         password: data.password,
         firstName: data.firstName,
         lastName: data.lastName,
-        roles: ['ROLE_USER'], // Default role
-      });
+        roles: ['ROLE_USER'],
+      };
+
+      // Añadir datos de empresa si es nuevo registro
+      if (registrationType === 'new-company') {
+        payload.companyName = data.companyName;
+        payload.companyTaxId = data.companyTaxId;
+      } else {
+        payload.invitationCode = data.invitationCode;
+      }
+
+      await apiClient.post('/api/auth/register', payload);
 
       toast.success('¡Registro exitoso! Ahora puedes iniciar sesión.');
       navigate('/login');
@@ -102,9 +162,32 @@ export const RegisterPage: React.FC = () => {
             </Typography>
           </Box>
 
-          <Typography component="h2" variant="h5" sx={{ mb: 3 }}>
+          <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
             Crear Cuenta
           </Typography>
+
+          {/* Toggle: Nueva Empresa / Unirse a Empresa */}
+          <ToggleButtonGroup
+            value={registrationType}
+            exclusive
+            onChange={(_, newValue) => {
+              if (newValue !== null) {
+                setRegistrationType(newValue);
+                setError(null);
+              }
+            }}
+            fullWidth
+            sx={{ mb: 3 }}
+          >
+            <ToggleButton value="new-company" aria-label="Nueva empresa">
+              <BusinessIcon sx={{ mr: 1 }} />
+              Nueva Empresa
+            </ToggleButton>
+            <ToggleButton value="join-company" aria-label="Unirse a empresa">
+              <GroupAddIcon sx={{ mr: 1 }} />
+              Unirse a Empresa
+            </ToggleButton>
+          </ToggleButtonGroup>
 
           {error && (
             <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
@@ -172,12 +255,73 @@ export const RegisterPage: React.FC = () => {
                 autoComplete="new-password"
               />
 
+              {/* Campos condicionales según tipo de registro */}
+              {registrationType === 'new-company' && (
+                <>
+                  <Divider sx={{ my: 2 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Datos de la Empresa
+                    </Typography>
+                  </Divider>
+
+                  <TextField
+                    {...register('companyName')}
+                    label="Nombre de la Empresa"
+                    fullWidth
+                    required
+                    error={!!errors.companyName}
+                    helperText={errors.companyName?.message}
+                    disabled={isSubmitting}
+                    placeholder="Ej: Mi Empresa S.L."
+                  />
+
+                  <Controller
+                    name="companyTaxId"
+                    control={control}
+                    render={({ field }) => (
+                      <TaxIdField
+                        value={field.value || ''}
+                        onChange={field.onChange}
+                        label="CIF de la Empresa"
+                        name="companyTaxId"
+                        required
+                        onValidation={(valid, type) => {
+                          setTaxIdValid(valid);
+                          console.log(`Company Tax ID validation: ${valid}, type: ${type}`);
+                        }}
+                      />
+                    )}
+                  />
+                </>
+              )}
+
+              {registrationType === 'join-company' && (
+                <>
+                  <Divider sx={{ my: 2 }}>
+                    <Typography variant="caption" color="text.secondary">
+                      Unirse a una Empresa Existente
+                    </Typography>
+                  </Divider>
+
+                  <TextField
+                    {...register('invitationCode')}
+                    label="Código de Invitación"
+                    fullWidth
+                    required
+                    error={!!errors.invitationCode}
+                    helperText={errors.invitationCode?.message || 'Solicita un código de invitación al administrador de tu empresa'}
+                    disabled={isSubmitting}
+                    placeholder="Ej: ABC123XYZ"
+                  />
+                </>
+              )}
+
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 size="large"
-                disabled={isSubmitting}
+                disabled={isSubmitting || (registrationType === 'new-company' && !taxIdValid)}
                 sx={{ mt: 2 }}
               >
                 {isSubmitting ? 'Registrando...' : 'Registrarse'}

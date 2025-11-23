@@ -22,6 +22,8 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { useTranslation } from 'react-i18next';
+import { useCurrentCompany } from '@/contexts/CompanyContext';
 
 const DRAWER_WIDTH = 240;
 
@@ -31,39 +33,41 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) => {
+  const { t } = useTranslation('common');
   const navigate = useNavigate();
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { hasRole } = useAuthStore();
+  const currentCompany = useCurrentCompany();
 
   const menuItems = [
     {
-      title: 'Dashboard',
+      title: t('navigation.dashboard'),
       icon: <DashboardIcon />,
       path: '/dashboard',
       roles: ['ROLE_USER', 'ROLE_ADMIN'],
     },
     {
-      title: 'Facturas',
+      title: t('navigation.invoices'),
       icon: <InvoiceIcon />,
       path: '/invoices',
       roles: ['ROLE_USER', 'ROLE_ADMIN'],
     },
     {
-      title: 'Empresas',
+      title: t('navigation.companies'),
       icon: <CompanyIcon />,
       path: '/companies',
       roles: ['ROLE_USER', 'ROLE_ADMIN'],
     },
     {
-      title: 'Clientes',
+      title: t('navigation.clients'),
       icon: <ClientIcon />,
       path: '/clients',
       roles: ['ROLE_USER', 'ROLE_ADMIN'],
     },
     {
-      title: 'Usuarios',
+      title: t('navigation.users'),
       icon: <UsersIcon />,
       path: '/users',
       roles: ['ROLE_USER', 'ROLE_ADMIN'],
@@ -80,11 +84,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
   const drawer = (
     <Box>
       <Toolbar>
-        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-          <InvoiceIcon sx={{ mr: 1, color: 'primary.main' }} />
-          <Typography variant="h6" noWrap component="div" color="primary">
-            Transolido SL.
-          </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <InvoiceIcon sx={{ mr: 1, color: 'primary.main' }} />
+            <Typography variant="h6" noWrap component="div" color="primary">
+              {t('app.title')}
+            </Typography>
+          </Box>
+          {currentCompany && (
+            <Typography variant="caption" color="text.secondary" noWrap sx={{ ml: 4 }}>
+              {currentCompany.businessName}
+            </Typography>
+          )}
         </Box>
       </Toolbar>
       <Divider />
