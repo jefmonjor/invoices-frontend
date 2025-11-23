@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { websocketService, InvoiceStatusMessage } from '../services/websocket.service';
+import { websocketService } from '../../../services/websocket.service';
+import type { InvoiceStatusMessage } from '../../../services/websocket.service';
 
 /**
  * React hook for monitoring invoice status via WebSocket

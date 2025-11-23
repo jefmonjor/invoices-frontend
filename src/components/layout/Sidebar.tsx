@@ -22,6 +22,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { CompanySelector } from './CompanySelector';
 
 const DRAWER_WIDTH = 240;
 
@@ -87,6 +88,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
           </Typography>
         </Box>
       </Toolbar>
+      <Divider />
+      <Box sx={{ mt: 2 }}>
+        <CompanySelector />
+      </Box>
       <Divider />
       <List>
         {menuItems.map((item) => {

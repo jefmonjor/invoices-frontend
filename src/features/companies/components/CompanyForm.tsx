@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,8 +31,6 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({
   onCancel,
   isSubmitting,
 }) => {
-  const [taxIdValid, setTaxIdValid] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -109,7 +107,6 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({
                 name="taxId"
                 required
                 onValidation={(valid, type) => {
-                  setTaxIdValid(valid);
                   console.log(`Tax ID validation: ${valid}, type: ${type}`);
                 }}
               />

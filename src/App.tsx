@@ -9,6 +9,7 @@ import { PrivateRoute } from './routes/PrivateRoute';
 import { MainLayout } from './components/layout/MainLayout';
 import { useThemeStore } from './store/themeStore';
 import { useTokenExpiration } from './hooks/useTokenExpiration';
+import { CompanyProvider } from './context/CompanyContext';
 
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
@@ -142,48 +143,50 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <BrowserRouter>
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+          <CompanyProvider>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-              {/* Private routes with Layout */}
-              <Route element={<PrivateRoute />}>
-                <Route element={<MainLayout />}>
-                  <Route path="/dashboard" element={<DashboardPage />} />
+                {/* Private routes with Layout */}
+                <Route element={<PrivateRoute />}>
+                  <Route element={<MainLayout />}>
+                    <Route path="/dashboard" element={<DashboardPage />} />
 
-                  {/* Invoices */}
-                  <Route path="/invoices" element={<InvoicesListPage />} />
-                  <Route path="/invoices/create" element={<InvoiceCreatePage />} />
-                  <Route path="/invoices/:id/edit" element={<InvoiceEditPage />} />
-                  <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+                    {/* Invoices */}
+                    <Route path="/invoices" element={<InvoicesListPage />} />
+                    <Route path="/invoices/create" element={<InvoiceCreatePage />} />
+                    <Route path="/invoices/:id/edit" element={<InvoiceEditPage />} />
+                    <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
 
-                  {/* Companies */}
-                  <Route path="/companies" element={<CompaniesListPage />} />
-                  <Route path="/companies/create" element={<CompanyCreatePage />} />
-                  <Route path="/companies/:id/edit" element={<CompanyEditPage />} />
+                    {/* Companies */}
+                    <Route path="/companies" element={<CompaniesListPage />} />
+                    <Route path="/companies/create" element={<CompanyCreatePage />} />
+                    <Route path="/companies/:id/edit" element={<CompanyEditPage />} />
 
-                  {/* Clients */}
-                  <Route path="/clients" element={<ClientsListPage />} />
-                  <Route path="/clients/create" element={<ClientCreatePage />} />
-                  <Route path="/clients/:id/edit" element={<ClientEditPage />} />
+                    {/* Clients */}
+                    <Route path="/clients" element={<ClientsListPage />} />
+                    <Route path="/clients/create" element={<ClientCreatePage />} />
+                    <Route path="/clients/:id/edit" element={<ClientEditPage />} />
 
-                  {/* Users (Admin only) */}
-                  <Route path="/users" element={<UsersListPage />} />
-                  <Route path="/users/create" element={<UserCreatePage />} />
-                  <Route path="/users/:id/edit" element={<UserEditPage />} />
+                    {/* Users (Admin only) */}
+                    <Route path="/users" element={<UsersListPage />} />
+                    <Route path="/users/create" element={<UserCreatePage />} />
+                    <Route path="/users/:id/edit" element={<UserEditPage />} />
 
-                  {/* Profile */}
-                  <Route path="/profile" element={<ProfilePage />} />
+                    {/* Profile */}
+                    <Route path="/profile" element={<ProfilePage />} />
+                  </Route>
                 </Route>
-              </Route>
 
-              {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
-            </Routes>
-          </Suspense>
+                {/* Default redirect */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Suspense>
+          </CompanyProvider>
         </BrowserRouter>
         <ToastContainer position="top-right" autoClose={3000} />
       </ThemeProvider>
