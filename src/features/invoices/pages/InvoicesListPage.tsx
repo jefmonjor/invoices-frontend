@@ -18,19 +18,17 @@ import {
 import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useInvoices, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
-import { useCurrentCompanyId } from '@/contexts/CompanyContext';
 import { InvoiceTable } from '../components/InvoiceTable';
 import { TableSkeleton } from '@/components/common/Skeletons';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { EmptyState } from '@/components/common/EmptyState';
-import { toastService } from '@/services/toast.service';
 import VerifactuDashboard from '../../dashboard/components/VerifactuDashboard';
 import type { Invoice } from '@/types/invoice.types';
 
 export const InvoicesListPage: React.FC = () => {
   const { t } = useTranslation(['invoices', 'common']);
+
   const navigate = useNavigate();
-  const { companyId } = useCurrentCompanyId();
 
   // State
   const [page, setPage] = useState(0);
@@ -49,8 +47,8 @@ export const InvoicesListPage: React.FC = () => {
 
   // Handlers
   const handleCreateNew = () => navigate('/invoices/create');
-  const handleView = (id: number) => navigate(`/invoices/${id}`);
-  const handleEdit = (id: number) => navigate(`/invoices/${id}/edit`);
+  const handleView = (invoice: Invoice) => navigate(`/invoices/${invoice.id}`);
+  const handleEdit = (invoice: Invoice) => navigate(`/invoices/${invoice.id}/edit`);
 
   const handleDeleteClick = (invoice: Invoice) => {
     setDeleteDialog({ open: true, invoice });
@@ -98,7 +96,8 @@ export const InvoicesListPage: React.FC = () => {
     return invoices.filter((invoice) => {
       const matchesSearch =
         invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.clientName?.toLowerCase().includes(searchTerm.toLowerCase());
+        invoice.client?.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        false;
 
       const matchesStatus = statusFilter === 'all' || invoice.verifactuStatus === statusFilter;
 
@@ -111,9 +110,7 @@ export const InvoicesListPage: React.FC = () => {
     return filteredInvoices.slice(startIndex, startIndex + size);
   }, [filteredInvoices, page, size]);
 
-  // Permissions (mocked for now, can be real logic)
-  const canEditInvoice = (invoice: Invoice) => true;
-  const canDeleteInvoice = (invoice: Invoice) => true;
+
 
   return (
     <Box sx={{ p: 3 }}>
@@ -192,8 +189,8 @@ export const InvoicesListPage: React.FC = () => {
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
             onDownloadPDF={handleDownloadPDF}
-            canEdit={canEditInvoice}
-            canDelete={canDeleteInvoice}
+            canEdit={true}
+            canDelete={true}
           />
 
           {/* Pagination (client-side) */}
