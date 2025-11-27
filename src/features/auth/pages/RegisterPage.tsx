@@ -7,7 +7,6 @@ import {
   Button,
   TextField,
   Typography,
-  Paper,
   Container,
   Stack,
   Link,
@@ -16,7 +15,6 @@ import {
   ToggleButtonGroup,
   Divider,
   useTheme,
-  useMediaQuery,
 } from '@mui/material';
 import { Receipt as InvoiceIcon, Business as BusinessIcon, GroupAdd as GroupAddIcon } from '@mui/icons-material';
 import axios from 'axios';
@@ -68,7 +66,6 @@ export const RegisterPage: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [createCompany, setCreateCompany] = useState(false);
   const [registrationType, setRegistrationType] = useState<RegistrationType>('new-company');
   const [taxIdValid, setTaxIdValid] = useState(false);
 
@@ -76,7 +73,6 @@ export const RegisterPage: React.FC = () => {
     register,
     handleSubmit,
     control,
-    watch,
     formState: { errors },
     setValue,
   } = useForm<RegisterFormData>({
@@ -94,18 +90,10 @@ export const RegisterPage: React.FC = () => {
     },
   });
 
-  // Watch createCompany to toggle fields visibility
-  const watchCreateCompany = watch('createCompany');
-
-  useEffect(() => {
-    setCreateCompany(watchCreateCompany);
-  }, [watchCreateCompany]);
-
   // If invitation token is present, disable company creation
   useEffect(() => {
     if (invitationToken) {
       setValue('createCompany', false);
-      setCreateCompany(false);
     }
   }, [invitationToken, setValue]);
 
@@ -185,7 +173,6 @@ export const RegisterPage: React.FC = () => {
   };
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>

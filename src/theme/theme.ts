@@ -1,4 +1,4 @@
-import { createTheme, alpha } from '@mui/material';
+import { createTheme } from '@mui/material';
 
 // Fintech Professional Palette
 // Slate & Blue based for trust and clarity
