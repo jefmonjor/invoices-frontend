@@ -64,84 +64,79 @@ const queryClient = new QueryClient({
   },
 });
 
+import { getTheme } from './theme/theme';
+
 function App() {
   const themeMode = useThemeStore((state) => state.mode);
 
   // Monitorear expiración de token
   useTokenExpiration();
 
-  import { getTheme } from './theme/theme';
+  // Monitorear expiración de token
+  useTokenExpiration();
 
-  // ...
+  // Create MUI theme dynamically based on mode
+  const theme = useMemo(() => getTheme(themeMode), [themeMode]);
 
-  function App() {
-    const themeMode = useThemeStore((state) => state.mode);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <CompanyProvider>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-    // Monitorear expiración de token
-    useTokenExpiration();
+                {/* Private routes with Layout */}
+                <Route element={<PrivateRoute />}>
+                  <Route element={
+                    <CompanyProvider>
+                      <MainLayout />
+                    </CompanyProvider>
+                  }>
+                    <Route path="/dashboard" element={<DashboardPage />} />
 
-    // Create MUI theme dynamically based on mode
-    const theme = useMemo(() => getTheme(themeMode), [themeMode]);
+                    {/* Invoices */}
+                    <Route path="/invoices" element={<InvoicesListPage />} />
+                    <Route path="/invoices/create" element={<InvoiceCreatePage />} />
+                    <Route path="/invoices/:id/edit" element={<InvoiceEditPage />} />
+                    <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
 
-    return (
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <BrowserRouter>
-            <CompanyProvider>
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
+                    {/* Companies */}
+                    <Route path="/companies" element={<CompaniesListPage />} />
+                    <Route path="/companies/create" element={<CompanyCreatePage />} />
+                    <Route path="/companies/:id/edit" element={<CompanyEditPage />} />
+                    <Route path="/companies/:id/users" element={<CompanyUsersPage />} />
 
-                  {/* Private routes with Layout */}
-                  <Route element={<PrivateRoute />}>
-                    <Route element={
-                      <CompanyProvider>
-                        <MainLayout />
-                      </CompanyProvider>
-                    }>
-                      <Route path="/dashboard" element={<DashboardPage />} />
+                    {/* Clients */}
+                    <Route path="/clients" element={<ClientsListPage />} />
+                    <Route path="/clients/create" element={<ClientCreatePage />} />
+                    <Route path="/clients/:id/edit" element={<ClientEditPage />} />
 
-                      {/* Invoices */}
-                      <Route path="/invoices" element={<InvoicesListPage />} />
-                      <Route path="/invoices/create" element={<InvoiceCreatePage />} />
-                      <Route path="/invoices/:id/edit" element={<InvoiceEditPage />} />
-                      <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+                    {/* Users (Admin only) */}
+                    <Route path="/users" element={<UsersListPage />} />
+                    <Route path="/users/create" element={<UserCreatePage />} />
+                    <Route path="/users/:id/edit" element={<UserEditPage />} />
 
-                      {/* Companies */}
-                      <Route path="/companies" element={<CompaniesListPage />} />
-                      <Route path="/companies/create" element={<CompanyCreatePage />} />
-                      <Route path="/companies/:id/edit" element={<CompanyEditPage />} />
-                      <Route path="/companies/:id/users" element={<CompanyUsersPage />} />
-
-                      {/* Clients */}
-                      <Route path="/clients" element={<ClientsListPage />} />
-                      <Route path="/clients/create" element={<ClientCreatePage />} />
-                      <Route path="/clients/:id/edit" element={<ClientEditPage />} />
-
-                      {/* Users (Admin only) */}
-                      <Route path="/users" element={<UsersListPage />} />
-                      <Route path="/users/create" element={<UserCreatePage />} />
-                      <Route path="/users/:id/edit" element={<UserEditPage />} />
-
-                      {/* Profile */}
-                      <Route path="/profile" element={<ProfilePage />} />
-                    </Route>
+                    {/* Profile */}
+                    <Route path="/profile" element={<ProfilePage />} />
                   </Route>
+                </Route>
 
-                  {/* Default redirect */}
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                </Routes>
-              </Suspense>
-            </CompanyProvider>
-          </BrowserRouter>
-          <ToastContainer position="top-right" autoClose={3000} />
-        </ThemeProvider>
-      </QueryClientProvider>
-    );
-  }
+                {/* Default redirect */}
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Suspense>
+          </CompanyProvider>
+        </BrowserRouter>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
 
-  export default App;
+export default App;

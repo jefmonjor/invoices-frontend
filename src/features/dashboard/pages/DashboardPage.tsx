@@ -235,7 +235,8 @@ export const DashboardPage = () => {
             </Grid>
           </Grid>
       </Box>
-      );
+    </Box>
+  );
 };
 
-      export default DashboardPage;
+export default DashboardPage;
