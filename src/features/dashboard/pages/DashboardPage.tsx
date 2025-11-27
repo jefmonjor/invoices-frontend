@@ -10,16 +10,8 @@ import {
   Skeleton,
   alpha
 } from '@mui/material';
+
 import {
-  AttachMoney,
-  Receipt,
-  TrendingUp,
-  People,
-  Warning
-} from '@mui/icons-material';
-import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -29,13 +21,14 @@ import {
   Area
 } from 'recharts';
 import { useAuthStore } from '@/store/authStore';
-import { useCompany } from '@/context/CompanyContext';
-import { dashboardApi, DashboardMetrics } from '@/api/dashboard.api';
+import { useCompanyContext } from '@/contexts/CompanyContext';
+import { dashboardApi } from '@/api/dashboard.api';
+import type { DashboardMetrics } from '@/api/dashboard.api';
 import { formatCurrency } from '@/utils/formatters';
 
 export const DashboardPage = () => {
   const { user } = useAuthStore();
-  const { currentCompany } = useCompany();
+  const { currentCompany } = useCompanyContext();
   const theme = useTheme();
 
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
@@ -58,53 +51,6 @@ export const DashboardPage = () => {
 
     fetchMetrics();
   }, [currentCompany?.id]);
-
-  const StatCard = ({ title, value, icon, color, subtext }: any) => (
-    <Card
-      sx={{
-        height: '100%',
-        background: `linear-gradient(135deg, ${alpha(color, 0.1)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
-        border: `1px solid ${alpha(color, 0.2)}`,
-        transition: 'transform 0.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: `0 8px 24px ${alpha(color, 0.15)}`
-        }
-      }}
-    >
-      <CardContent>
-        <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-          <Box>
-            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-              {title}
-            </Typography>
-            {loading ? (
-              <Skeleton variant="text" width={120} height={40} />
-            ) : (
-              <Typography variant="h4" fontWeight="bold" sx={{ color: color }}>
-                {value}
-              </Typography>
-            )}
-            {subtext && (
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                {subtext}
-              </Typography>
-            )}
-          </Box>
-          <Box
-            sx={{
-              p: 1.5,
-              borderRadius: '12px',
-              bgcolor: alpha(color, 0.1),
-              color: color
-            }}
-          >
-            {icon}
-          </Box>
-        </Stack>
-      </CardContent>
-    </Card>
-  );
 
   return (
     <Box sx={{ p: 2 }}>
