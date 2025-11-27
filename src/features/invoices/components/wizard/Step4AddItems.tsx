@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import type { InvoiceItem } from '@/types/invoice.types';
+import { useTranslation } from 'react-i18next';
 
 interface Step4AddItemsProps {
   initialItems?: InvoiceItem[];
@@ -31,6 +32,8 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
   onNext,
   onBack,
 }) => {
+  const { t } = useTranslation(['invoices', 'common']);
+
   const [items, setItems] = useState<InvoiceItem[]>(
     initialItems.length > 0 ? initialItems : []
   );
@@ -55,19 +58,19 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
     const newErrors: { [key: string]: string } = {};
 
     if (!item.description.trim()) {
-      newErrors.description = 'La descripción es requerida';
+      newErrors.description = t('invoices:wizard.step4.errors.descriptionRequired');
     }
     if (item.units < 1) {
-      newErrors.units = 'Las unidades deben ser al menos 1';
+      newErrors.units = t('invoices:wizard.step4.errors.unitsMin');
     }
     if (item.price <= 0) {
-      newErrors.price = 'El precio debe ser mayor a 0';
+      newErrors.price = t('invoices:wizard.step4.errors.priceMin');
     }
     if (item.vatPercentage < 0 || item.vatPercentage > 100) {
-      newErrors.vatPercentage = 'El IVA debe estar entre 0% y 100%';
+      newErrors.vatPercentage = t('invoices:wizard.step4.errors.vatRange');
     }
     if ((item.discountPercentage || 0) < 0 || (item.discountPercentage || 0) > 100) {
-      newErrors.discountPercentage = 'El descuento debe estar entre 0% y 100%';
+      newErrors.discountPercentage = t('invoices:wizard.step4.errors.discountRange');
     }
 
     setErrors(newErrors);
@@ -124,7 +127,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
 
   const handleNext = () => {
     if (items.length === 0) {
-      setErrors({ items: 'Debes agregar al menos un ítem' });
+      setErrors({ items: t('invoices:wizard.step4.errors.noItems') });
       return;
     }
     // Limpiar items de campos vacíos antes de enviar
@@ -143,25 +146,33 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
-        Paso 4: Agregar Items
+        {t('invoices:wizard.step4.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Agrega los productos o servicios de la factura
+        {t('invoices:wizard.step4.subtitle')}
       </Typography>
 
       {/* Add Item Form */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Typography variant="subtitle1" gutterBottom>
-            Nuevo Item
+            {t('invoices:wizard.step4.newItem')}
           </Typography>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={3}>
               <TextField
                 fullWidth
-                label="Descripción"
+                label={t('invoices:wizard.step4.description')}
                 value={newItem.description}
-                onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                onChange={(e) => {
+                  setNewItem({ ...newItem, description: e.target.value });
+                  if (errors.description) setErrors({ ...errors, description: '' });
+                }}
+                onBlur={() => {
+                  if (!newItem.description.trim()) {
+                    setErrors({ ...errors, description: t('invoices:wizard.step4.errors.descriptionRequired') });
+                  }
+                }}
                 error={!!errors.description}
                 helperText={errors.description}
                 size="small"
@@ -171,9 +182,12 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <TextField
                 fullWidth
                 type="number"
-                label="Unidades"
+                label={t('invoices:wizard.step4.units')}
                 value={newItem.units}
-                onChange={(e) => setNewItem({ ...newItem, units: parseFloat(e.target.value) })}
+                onChange={(e) => {
+                  setNewItem({ ...newItem, units: parseFloat(e.target.value) });
+                  if (errors.units) setErrors({ ...errors, units: '' });
+                }}
                 error={!!errors.units}
                 helperText={errors.units}
                 size="small"
@@ -184,9 +198,12 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <TextField
                 fullWidth
                 type="number"
-                label="Precio"
+                label={t('invoices:wizard.step4.price')}
                 value={newItem.price}
-                onChange={(e) => setNewItem({ ...newItem, price: parseFloat(e.target.value) })}
+                onChange={(e) => {
+                  setNewItem({ ...newItem, price: parseFloat(e.target.value) });
+                  if (errors.price) setErrors({ ...errors, price: '' });
+                }}
                 error={!!errors.price}
                 helperText={errors.price}
                 size="small"
@@ -197,9 +214,12 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <TextField
                 fullWidth
                 type="number"
-                label="IVA %"
+                label={t('invoices:wizard.step4.vat')}
                 value={newItem.vatPercentage}
-                onChange={(e) => setNewItem({ ...newItem, vatPercentage: parseFloat(e.target.value) })}
+                onChange={(e) => {
+                  setNewItem({ ...newItem, vatPercentage: parseFloat(e.target.value) });
+                  if (errors.vatPercentage) setErrors({ ...errors, vatPercentage: '' });
+                }}
                 error={!!errors.vatPercentage}
                 helperText={errors.vatPercentage}
                 size="small"
@@ -210,9 +230,12 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <TextField
                 fullWidth
                 type="number"
-                label="Desc. %"
+                label={t('invoices:wizard.step4.discount')}
                 value={newItem.discountPercentage}
-                onChange={(e) => setNewItem({ ...newItem, discountPercentage: parseFloat(e.target.value) })}
+                onChange={(e) => {
+                  setNewItem({ ...newItem, discountPercentage: parseFloat(e.target.value) });
+                  if (errors.discountPercentage) setErrors({ ...errors, discountPercentage: '' });
+                }}
                 error={!!errors.discountPercentage}
                 helperText={errors.discountPercentage}
                 size="small"
@@ -227,21 +250,21 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                 onClick={handleAddItem}
                 sx={{ height: 40 }}
               >
-                Agregar
+                {t('invoices:wizard.step4.add')}
               </Button>
             </Grid>
 
             {/* Campos opcionales para facturas de transporte */}
             <Grid item xs={12}>
               <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                Campos opcionales (para facturas de transporte):
+                {t('invoices:wizard.step4.optionalFields')}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={2}>
               <TextField
                 fullWidth
                 type="date"
-                label="Fecha"
+                label={t('invoices:wizard.step4.date')}
                 value={newItem.itemDate}
                 onChange={(e) => setNewItem({ ...newItem, itemDate: e.target.value })}
                 size="small"
@@ -251,7 +274,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             <Grid item xs={12} sm={2}>
               <TextField
                 fullWidth
-                label="Matrícula"
+                label={t('invoices:wizard.step4.plate')}
                 value={newItem.vehiclePlate}
                 onChange={(e) => setNewItem({ ...newItem, vehiclePlate: e.target.value })}
                 size="small"
@@ -261,7 +284,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             <Grid item xs={12} sm={2}>
               <TextField
                 fullWidth
-                label="Pedido"
+                label={t('invoices:wizard.step4.order')}
                 value={newItem.orderNumber}
                 onChange={(e) => setNewItem({ ...newItem, orderNumber: e.target.value })}
                 size="small"
@@ -271,7 +294,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             <Grid item xs={12} sm={2}>
               <TextField
                 fullWidth
-                label="Zona"
+                label={t('invoices:wizard.step4.zone')}
                 value={newItem.zone}
                 onChange={(e) => setNewItem({ ...newItem, zone: e.target.value })}
                 size="small"
@@ -282,7 +305,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <TextField
                 fullWidth
                 type="number"
-                label="Gas %"
+                label={t('invoices:wizard.step4.gas')}
                 value={newItem.gasPercentage}
                 onChange={(e) => setNewItem({ ...newItem, gasPercentage: parseFloat(e.target.value) })}
                 size="small"
@@ -299,13 +322,13 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Descripción</TableCell>
-                <TableCell align="right">Unidades</TableCell>
-                <TableCell align="right">Precio</TableCell>
-                <TableCell align="right">IVA %</TableCell>
-                <TableCell align="right">Desc. %</TableCell>
-                <TableCell align="right">Total</TableCell>
-                <TableCell align="right">Acciones</TableCell>
+                <TableCell>{t('invoices:wizard.step4.table.description')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.units')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.price')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.vat')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.discount')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.total')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -339,16 +362,16 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
 
       {items.length === 0 && (
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2, textAlign: 'center', py: 4 }}>
-          No hay items agregados. Agrega al menos un item para continuar.
+          {t('invoices:wizard.step4.empty')}
         </Typography>
       )}
 
       <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
         <Button variant="outlined" onClick={onBack}>
-          Anterior
+          {t('common:actions.back')}
         </Button>
         <Button variant="contained" onClick={handleNext} disabled={items.length === 0}>
-          Siguiente
+          {t('common:actions.next', 'Siguiente')}
         </Button>
       </Stack>
     </Box>

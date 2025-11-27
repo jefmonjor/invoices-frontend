@@ -40,20 +40,23 @@ export const invoicesApi = {
 
   // Generar/Descargar PDF
   // Según contrato del backend: GET /api/invoices/{id}/pdf
-  generatePDF: async (id: number): Promise<Blob> => {
+  // Generar/Descargar PDF
+  // Según contrato del backend: GET /api/invoices/{id}/pdf?version=draft|final
+  generatePDF: async (id: number, version: 'draft' | 'final' = 'draft'): Promise<Blob> => {
     const response = await apiClient.get(`/api/invoices/${id}/pdf`, {
+      params: { version },
       responseType: 'blob',
     });
     return response.data;
   },
 
   // Descargar PDF
-  downloadPDF: async (id: number, invoiceNumber: string): Promise<void> => {
-    const blob = await invoicesApi.generatePDF(id);
+  downloadPDF: async (id: number, invoiceNumber: string, version: 'draft' | 'final' = 'draft'): Promise<void> => {
+    const blob = await invoicesApi.generatePDF(id, version);
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `invoice-${invoiceNumber}.pdf`);
+    link.setAttribute('download', `invoice-${invoiceNumber.replace(/\//g, '_')}-${version}.pdf`);
     document.body.appendChild(link);
     link.click();
     link.remove();

@@ -3,8 +3,10 @@ import { Box, Typography, Card, CardContent, CircularProgress, Alert } from '@mu
 import { ClientForm } from '../components/ClientForm';
 import { useClient, useUpdateClient } from '../hooks/useClients';
 import type { CreateClientRequest } from '@/types/client.types';
+import { useTranslation } from 'react-i18next';
 
 export const ClientEditPage: React.FC = () => {
+  const { t } = useTranslation(['clients', 'common']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const clientId = parseInt(id || '0', 10);
@@ -30,7 +32,7 @@ export const ClientEditPage: React.FC = () => {
     return (
       <Box>
         <Typography variant="h4" gutterBottom>
-          Editar Cliente
+          {t('clients:edit')}
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
           <CircularProgress />
@@ -43,10 +45,10 @@ export const ClientEditPage: React.FC = () => {
     return (
       <Box>
         <Typography variant="h4" gutterBottom>
-          Editar Cliente
+          {t('clients:edit')}
         </Typography>
         <Alert severity="error">
-          Error al cargar el cliente: {error?.message || 'Cliente no encontrado'}
+          {t('clients:messages.errorLoadingClient', 'Error al cargar el cliente')}: {error?.message || t('clients:messages.clientNotFound', 'Cliente no encontrado')}
         </Alert>
       </Box>
     );
@@ -55,10 +57,10 @@ export const ClientEditPage: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Editar Cliente: {client.businessName}
+        {t('clients:edit')}: {client.businessName}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Modifica los datos del cliente
+        {t('clients:messages.editSubtitle', 'Modifica los datos del cliente')}
       </Typography>
 
       <Card>

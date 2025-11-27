@@ -8,9 +8,13 @@ import { LoadingSkeleton } from '@/components/common/LoadingSkeleton';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import type { Client } from '@/types/client.types';
+import { usePermissions } from '@/hooks/usePermissions';
+import { useTranslation } from 'react-i18next';
 
 export const ClientsListPage: React.FC = () => {
+  const { t } = useTranslation(['clients', 'common']);
   const navigate = useNavigate();
+  const { canDeleteClients } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; client: Client | null }>({
     open: false,
@@ -47,14 +51,14 @@ export const ClientsListPage: React.FC = () => {
   const filteredClients = clients?.filter((client) =>
     searchTerm
       ? client.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.taxId.toLowerCase().includes(searchTerm.toLowerCase())
+      client.taxId.toLowerCase().includes(searchTerm.toLowerCase())
       : true
   );
 
   if (error) {
     return (
       <Box>
-        <Typography color="error">Error al cargar clientes: {error.message}</Typography>
+        <Typography color="error">{t('clients:messages.errorLoading')}: {error.message}</Typography>
       </Box>
     );
   }
@@ -64,7 +68,7 @@ export const ClientsListPage: React.FC = () => {
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" component="h1">
-          Clientes
+          {t('clients:title')}
         </Typography>
         <Button
           variant="contained"
@@ -72,14 +76,14 @@ export const ClientsListPage: React.FC = () => {
           onClick={handleCreateNew}
           size="large"
         >
-          Nuevo Cliente
+          {t('clients:create')}
         </Button>
       </Box>
 
       {/* Search */}
       <Card sx={{ p: 2, mb: 3 }}>
         <TextField
-          label="Buscar por nombre o CIF/NIF"
+          label={t('clients:search')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           fullWidth
@@ -94,13 +98,13 @@ export const ClientsListPage: React.FC = () => {
         </Card>
       ) : !filteredClients || filteredClients.length === 0 ? (
         <EmptyState
-          title="No hay clientes"
+          title={t('clients:messages.emptyTitle')}
           message={
             searchTerm
-              ? 'No se encontraron clientes con el criterio de búsqueda'
-              : 'Aún no has registrado ningún cliente. Comienza creando tu primer cliente.'
+              ? t('clients:messages.emptyMessageSearch')
+              : t('clients:messages.emptyMessageInit')
           }
-          actionLabel="Crear primer cliente"
+          actionLabel={t('clients:messages.createFirst')}
           onAction={handleCreateNew}
         />
       ) : (
@@ -108,16 +112,17 @@ export const ClientsListPage: React.FC = () => {
           clients={filteredClients}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
+          canDelete={canDeleteClients}
         />
       )}
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         open={deleteDialog.open}
-        title="Eliminar Cliente"
-        message={`¿Estás seguro de que deseas eliminar el cliente ${deleteDialog.client?.businessName}? Esta acción no se puede deshacer.`}
-        confirmLabel="Eliminar"
-        cancelLabel="Cancelar"
+        title={t('clients:messages.deleteConfirmTitle')}
+        message={t('clients:messages.deleteConfirmMessage', { name: deleteDialog.client?.businessName })}
+        confirmLabel={t('common:actions.delete')}
+        cancelLabel={t('common:actions.cancel')}
         onConfirm={handleDeleteConfirm}
         onCancel={handleDeleteCancel}
         severity="error"

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography, CircularProgress, Stack } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { companiesApi } from '@/api/companies.api';
+import { useTranslation } from 'react-i18next';
 
 interface Step1CompanySelectProps {
   initialValue?: number;
@@ -15,6 +16,8 @@ export const Step1CompanySelect: React.FC<Step1CompanySelectProps> = ({
   onCancel,
 }) => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | ''>(initialValue || '');
+
+  const { t } = useTranslation(['invoices', 'common']);
 
   const { data: companies, isLoading } = useQuery({
     queryKey: ['companies'],
@@ -30,10 +33,10 @@ export const Step1CompanySelect: React.FC<Step1CompanySelectProps> = ({
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
-        Paso 1: Selecciona la Empresa Emisora
+        {t('invoices:wizard.step1.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Selecciona la empresa que emitirá la factura
+        {t('invoices:wizard.step1.subtitle')}
       </Typography>
 
       {isLoading ? (
@@ -42,11 +45,11 @@ export const Step1CompanySelect: React.FC<Step1CompanySelectProps> = ({
         </Box>
       ) : (
         <FormControl fullWidth sx={{ mb: 4 }}>
-          <InputLabel>Empresa</InputLabel>
+          <InputLabel>{t('invoices:wizard.step1.label')}</InputLabel>
           <Select
             value={selectedCompanyId}
             onChange={(e) => setSelectedCompanyId(e.target.value as number)}
-            label="Empresa"
+            label={t('invoices:wizard.step1.label')}
           >
             {companies?.map((company) => (
               <MenuItem key={company.id} value={company.id}>
@@ -67,9 +70,9 @@ export const Step1CompanySelect: React.FC<Step1CompanySelectProps> = ({
                   <strong>{company.businessName}</strong>
                 </Typography>
                 <Typography variant="body2">CIF/NIF: {company.taxId}</Typography>
-                <Typography variant="body2">Dirección: {company.address}</Typography>
-                <Typography variant="body2">Email: {company.email}</Typography>
-                {company.phone && <Typography variant="body2">Teléfono: {company.phone}</Typography>}
+                <Typography variant="body2">{t('invoices:wizard.step1.address')} {company.address}</Typography>
+                <Typography variant="body2">{t('invoices:wizard.step1.email')} {company.email}</Typography>
+                {company.phone && <Typography variant="body2">{t('invoices:wizard.step1.phone')} {company.phone}</Typography>}
               </>
             ) : null;
           })()}
@@ -78,10 +81,10 @@ export const Step1CompanySelect: React.FC<Step1CompanySelectProps> = ({
 
       <Stack direction="row" spacing={2}>
         <Button variant="outlined" onClick={onCancel}>
-          Cancelar
+          {t('common:actions.cancel')}
         </Button>
         <Button variant="contained" onClick={handleNext} disabled={!selectedCompanyId}>
-          Siguiente
+          {t('common:actions.next', 'Siguiente')}
         </Button>
       </Stack>
     </Box>

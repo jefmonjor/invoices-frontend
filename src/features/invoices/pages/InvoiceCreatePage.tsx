@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, Card } from '@mui/material';
 import { ArrowBack as BackIcon } from '@mui/icons-material';
 import { InvoiceWizard } from '../components/wizard/InvoiceWizard';
+import { useTranslation } from 'react-i18next';
 
 
 export const InvoiceCreatePage: React.FC = () => {
+  const { t } = useTranslation(['invoices', 'common']);
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -21,9 +23,9 @@ export const InvoiceCreatePage: React.FC = () => {
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
         <Button startIcon={<BackIcon />} onClick={handleBack}>
-          Volver
+          {t('common:actions.back')}
         </Button>
-        <Typography variant="h4">Nueva Factura</Typography>
+        <Typography variant="h4">{t('invoices:create')}</Typography>
       </Box>
 
       {/* Wizard Card */}

@@ -8,6 +8,7 @@ import invoicesEs from '@/locales/es/invoices.json';
 import invoicesEn from '@/locales/en/invoices.json';
 import authEs from '@/locales/es/auth.json';
 import authEn from '@/locales/en/auth.json';
+import clientsEs from '@/locales/es/clients.json';
 
 /**
  * i18next Configuration
@@ -42,6 +43,7 @@ i18n
         common: commonEs,
         invoices: invoicesEs,
         auth: authEs,
+        clients: clientsEs,
       },
       en: {
         common: commonEn,

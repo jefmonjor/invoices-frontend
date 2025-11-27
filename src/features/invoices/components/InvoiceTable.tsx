@@ -14,9 +14,13 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Download as DownloadIcon,
+  ErrorOutline as ErrorIcon,
+  HourglassEmpty as PendingIcon,
 } from '@mui/icons-material';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import type { Invoice } from '@/types/invoice.types';
+import { useTranslation } from 'react-i18next';
+import VerifactuBadge from './VerifactuBadge';
 
 interface InvoiceTableProps {
   invoices: Invoice[];
@@ -24,6 +28,8 @@ interface InvoiceTableProps {
   onEdit: (invoice: Invoice) => void;
   onDelete: (invoice: Invoice) => void;
   onDownloadPDF: (invoice: Invoice) => void;
+  canEdit?: boolean;
+  canDelete?: boolean;
 }
 
 export const InvoiceTable: React.FC<InvoiceTableProps> = ({
@@ -32,20 +38,24 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
   onEdit,
   onDelete,
   onDownloadPDF,
+  canEdit = true,
+  canDelete = true,
 }) => {
+  const { t } = useTranslation(['invoices', 'common']);
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Número</TableCell>
-            <TableCell>Fecha</TableCell>
-            <TableCell align="right">Base Imponible</TableCell>
-            <TableCell align="right">IVA</TableCell>
-            <TableCell align="right">IRPF</TableCell>
-            <TableCell align="right">RE</TableCell>
-            <TableCell align="right">Total</TableCell>
-            <TableCell align="right">Acciones</TableCell>
+            <TableCell>{t('invoices:fields.invoiceNumber')}</TableCell>
+            <TableCell>{t('invoices:fields.issueDate')}</TableCell>
+            <TableCell align="right">{t('invoices:fields.baseAmount')}</TableCell>
+            <TableCell align="right">{t('invoices:fields.vat')}</TableCell>
+            <TableCell align="right">{t('invoices:fields.irpf')}</TableCell>
+            <TableCell align="right">{t('invoices:fields.re', 'RE')}</TableCell>
+            <TableCell align="right">{t('invoices:fields.total')}</TableCell>
+            <TableCell align="center">{t('invoices:fields.status')}</TableCell>
+            <TableCell align="right">{t('common:actions.title', 'Acciones')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -70,31 +80,58 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
                 <TableCell align="right">
                   <strong>{formatCurrency(invoice.totalAmount)}</strong>
                 </TableCell>
-              <TableCell align="right">
-                <Tooltip title="Ver detalle">
-                  <IconButton size="small" onClick={() => onView(invoice)} color="primary">
-                    <ViewIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Editar">
-                  <IconButton size="small" onClick={() => onEdit(invoice)} color="info">
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Descargar PDF">
-                  <IconButton size="small" onClick={() => onDownloadPDF(invoice)} color="secondary">
-                    <DownloadIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Eliminar">
-                  <IconButton size="small" onClick={() => onDelete(invoice)} color="error">
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
+                <TableCell align="center">
+                  <VerifactuBadge
+                    status={invoice.verifactuStatus}
+                    txId={invoice.verifactuTxId}
+                    errorMessage={invoice.verifactuError}
+                  />
+                </TableCell>
+                <TableCell align="right">
+                  <Tooltip title={t('invoices:detail')}>
+                    <IconButton size="small" onClick={() => onView(invoice)} color="primary">
+                      <ViewIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  {canEdit && (
+                    <Tooltip title={t('invoices:actions.edit')}>
+                      <IconButton size="small" onClick={() => onEdit(invoice)} color="primary">
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {canDelete && (
+                    <Tooltip title={t('invoices:actions.delete')}>
+                      <IconButton size="small" onClick={() => onDelete(invoice)} color="error">
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  {/* PDF Download Logic */}
+                  {invoice.verifactuStatus === 'ACCEPTED' ? (
+                    <Tooltip title={t('invoices:actions.downloadPdf')}>
+                      <IconButton size="small" onClick={() => onDownloadPDF(invoice)} color="primary">
+                        <DownloadIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  ) : invoice.verifactuStatus === 'REJECTED' || invoice.verifactuStatus === 'ERROR' ? (
+                    <Tooltip title={invoice.verifactuError || t('invoices:errors.pdfGenerationFailed', 'Error al generar PDF')}>
+                      <span>
+                        <IconButton size="small" disabled color="error">
+                          <ErrorIcon fontSize="small" />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title={t('invoices:status.generatingPdf', 'Generando PDF...')}>
+                      <span>
+                        <IconButton size="small" disabled color="warning">
+                          <PendingIcon fontSize="small" />
+                        </IconButton>
+                      </span>
+                    </Tooltip>
+                  )}
+                </TableCell>
               </TableRow>
             );
           })}

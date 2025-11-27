@@ -8,6 +8,8 @@ import { useProfile, useUpdateProfile } from '../hooks/useUsers';
 import { useState, useEffect } from 'react';
 import { useCompanyContext } from '@/contexts/CompanyContext';
 import { useTranslation } from 'react-i18next';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import InviteUserModal from '@/features/companies/components/InviteUserModal';
 
 const profileSchema = z.object({
   firstName: z.string().min(1, 'El nombre es requerido').max(100, 'Máximo 100 caracteres'),
@@ -27,6 +29,15 @@ export const ProfilePage: React.FC = () => {
   const updateMutation = useUpdateProfile();
   const [isAdmin, setIsAdmin] = useState(false);
   const { currentCompany, userCompanies, switchCompany } = useCompanyContext();
+
+  // Modal State
+  const [inviteModalOpen, setInviteModalOpen] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
+
+  const handleOpenInviteModal = (companyId: number) => {
+    setSelectedCompanyId(companyId);
+    setInviteModalOpen(true);
+  };
 
   useEffect(() => {
     if (user) {
@@ -168,66 +179,77 @@ export const ProfilePage: React.FC = () => {
                   {t('profile.companiesComingSoon')}
                 </Alert>
               ) : (
-                <Stack spacing={2}>
-                  {userCompanies.map((userCompany) => {
-                    const isCurrentCompany = currentCompany?.id === userCompany.companyId;
-
-                    return (
-                      <Box
-                        key={userCompany.companyId}
-                        sx={{
-                          p: 2,
-                          border: isCurrentCompany ? '2px solid' : '1px solid',
-                          borderColor: isCurrentCompany ? 'primary.main' : 'divider',
-                          borderRadius: 1,
-                          bgcolor: isCurrentCompany ? 'action.hover' : 'transparent',
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Box>
-                            <Typography variant="subtitle1" fontWeight={isCurrentCompany ? 'bold' : 'normal'}>
-                              {userCompany.company.businessName}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              CIF: {userCompany.company.taxId}
-                            </Typography>
-                          </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Chip
-                              label={userCompany.role === 'ADMIN' ? t('common:company.role.admin') : t('common:company.role.user')}
-                              color={userCompany.role === 'ADMIN' ? 'primary' : 'default'}
-                              size="small"
-                            />
-                            {!isCurrentCompany && (
-                              <Button
+                <TableContainer component={Paper} variant="outlined">
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>{t('common:company.fields.name', 'Nombre')}</TableCell>
+                        <TableCell>{t('common:company.fields.taxId', 'CIF/NIF')}</TableCell>
+                        <TableCell>{t('common:company.fields.role', 'Rol')}</TableCell>
+                        <TableCell align="right">{t('common:actions.title', 'Acciones')}</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {userCompanies.map((company) => {
+                        const isCurrentCompany = currentCompany?.id === company.id;
+                        return (
+                          <TableRow
+                            key={company.id}
+                            selected={isCurrentCompany}
+                            sx={{ '&.Mui-selected': { bgcolor: 'action.selected' } }}
+                          >
+                            <TableCell>
+                              <Typography variant="body2" fontWeight={isCurrentCompany ? 'bold' : 'normal'}>
+                                {company.businessName}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>{company.taxId}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={company.role === 'ADMIN' ? t('common:company.role.admin') : t('common:company.role.user')}
+                                color={company.role === 'ADMIN' ? 'primary' : 'default'}
                                 size="small"
-                                variant="outlined"
-                                onClick={() => switchCompany(userCompany.companyId)}
-                              >
-                                {t('common:actions.change')}
-                              </Button>
-                            )}
-                          </Box>
-                        </Box>
-                      </Box>
-                    );
-                  })}
-                </Stack>
-              )}
-
-              {isAdmin && userCompanies.length > 0 && (
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 2 }}
-                  startIcon={<GroupAddIcon />}
-                >
-                  {t('profile.inviteUsers')}
-                </Button>
+                              />
+                            </TableCell>
+                            <TableCell align="right">
+                              <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                {!isCurrentCompany && (
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    onClick={() => switchCompany(company.id)}
+                                  >
+                                    {t('common:actions.switch', 'Cambiar')}
+                                  </Button>
+                                )}
+                                {company.role === 'ADMIN' && (
+                                  <Button
+                                    size="small"
+                                    variant="text"
+                                    startIcon={<GroupAddIcon />}
+                                    onClick={() => handleOpenInviteModal(company.id)}
+                                  >
+                                    {t('common:actions.invite', 'Invitar')}
+                                  </Button>
+                                )}
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               )}
             </CardContent>
           </Card>
         </Grid>
+
+        <InviteUserModal
+          open={inviteModalOpen}
+          onClose={() => setInviteModalOpen(false)}
+          companyId={selectedCompanyId || 0}
+        />
 
         {/* Editar Perfil */}
         <Grid item xs={12} md={6}>

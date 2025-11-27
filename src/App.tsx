@@ -27,6 +27,7 @@ const InvoiceEditPage = lazy(() => import('./features/invoices/pages/InvoiceEdit
 const CompaniesListPage = lazy(() => import('./features/companies/pages/CompaniesListPage'));
 const CompanyCreatePage = lazy(() => import('./features/companies/pages/CompanyCreatePage'));
 const CompanyEditPage = lazy(() => import('./features/companies/pages/CompanyEditPage'));
+const CompanyUsersPage = lazy(() => import('./features/companies/pages/CompanyUsersPage'));
 
 // Clients
 const ClientsListPage = lazy(() => import('./features/clients/pages/ClientsListPage'));
@@ -69,133 +70,78 @@ function App() {
   // Monitorear expiración de token
   useTokenExpiration();
 
-  // Create MUI theme dynamically based on mode
-  const theme = useMemo(
-    () =>
-      createTheme({
-        palette: {
-          mode: themeMode,
-          primary: {
-            main: '#1976d2',
-          },
-          secondary: {
-            main: '#dc004e',
-          },
-          ...(themeMode === 'dark' && {
-            background: {
-              default: '#121212',
-              paper: '#1e1e1e',
-            },
-          }),
-        },
-        transitions: {
-          duration: {
-            shortest: 150,
-            shorter: 200,
-            short: 250,
-            standard: 300,
-            complex: 375,
-            enteringScreen: 225,
-            leavingScreen: 195,
-          },
-        },
-        components: {
-          MuiCard: {
-            styleOverrides: {
-              root: {
-                backgroundImage: 'none',
-                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 20px 0 rgba(0,0,0,0.12)',
-                },
-              },
-            },
-          },
-          MuiButton: {
-            styleOverrides: {
-              root: {
-                transition: 'all 0.2s ease-in-out',
-              },
-            },
-          },
-          MuiPaper: {
-            styleOverrides: {
-              root: {
-                transition: 'box-shadow 0.2s ease-in-out',
-              },
-            },
-          },
-          MuiTableRow: {
-            styleOverrides: {
-              root: {
-                transition: 'background-color 0.2s ease-in-out',
-              },
-            },
-          },
-        },
-      }),
-    [themeMode]
-  );
+  import { getTheme } from './theme/theme';
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <BrowserRouter>
-          <CompanyProvider>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+  // ...
 
-                {/* Private routes with Layout */}
-                <Route element={<PrivateRoute />}>
-                  <Route element={
-                    <CompanyProvider>
-                      <MainLayout />
-                    </CompanyProvider>
-                  }>
-                    <Route path="/dashboard" element={<DashboardPage />} />
+  function App() {
+    const themeMode = useThemeStore((state) => state.mode);
 
-                    {/* Invoices */}
-                    <Route path="/invoices" element={<InvoicesListPage />} />
-                    <Route path="/invoices/create" element={<InvoiceCreatePage />} />
-                    <Route path="/invoices/:id/edit" element={<InvoiceEditPage />} />
-                    <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+    // Monitorear expiración de token
+    useTokenExpiration();
 
-                    {/* Companies */}
-                    <Route path="/companies" element={<CompaniesListPage />} />
-                    <Route path="/companies/create" element={<CompanyCreatePage />} />
-                    <Route path="/companies/:id/edit" element={<CompanyEditPage />} />
+    // Create MUI theme dynamically based on mode
+    const theme = useMemo(() => getTheme(themeMode), [themeMode]);
 
-                    {/* Clients */}
-                    <Route path="/clients" element={<ClientsListPage />} />
-                    <Route path="/clients/create" element={<ClientCreatePage />} />
-                    <Route path="/clients/:id/edit" element={<ClientEditPage />} />
+    return (
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <BrowserRouter>
+            <CompanyProvider>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
 
-                    {/* Users (Admin only) */}
-                    <Route path="/users" element={<UsersListPage />} />
-                    <Route path="/users/create" element={<UserCreatePage />} />
-                    <Route path="/users/:id/edit" element={<UserEditPage />} />
+                  {/* Private routes with Layout */}
+                  <Route element={<PrivateRoute />}>
+                    <Route element={
+                      <CompanyProvider>
+                        <MainLayout />
+                      </CompanyProvider>
+                    }>
+                      <Route path="/dashboard" element={<DashboardPage />} />
 
-                    {/* Profile */}
-                    <Route path="/profile" element={<ProfilePage />} />
+                      {/* Invoices */}
+                      <Route path="/invoices" element={<InvoicesListPage />} />
+                      <Route path="/invoices/create" element={<InvoiceCreatePage />} />
+                      <Route path="/invoices/:id/edit" element={<InvoiceEditPage />} />
+                      <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+
+                      {/* Companies */}
+                      <Route path="/companies" element={<CompaniesListPage />} />
+                      <Route path="/companies/create" element={<CompanyCreatePage />} />
+                      <Route path="/companies/:id/edit" element={<CompanyEditPage />} />
+                      <Route path="/companies/:id/users" element={<CompanyUsersPage />} />
+
+                      {/* Clients */}
+                      <Route path="/clients" element={<ClientsListPage />} />
+                      <Route path="/clients/create" element={<ClientCreatePage />} />
+                      <Route path="/clients/:id/edit" element={<ClientEditPage />} />
+
+                      {/* Users (Admin only) */}
+                      <Route path="/users" element={<UsersListPage />} />
+                      <Route path="/users/create" element={<UserCreatePage />} />
+                      <Route path="/users/:id/edit" element={<UserEditPage />} />
+
+                      {/* Profile */}
+                      <Route path="/profile" element={<ProfilePage />} />
+                    </Route>
                   </Route>
-                </Route>
 
-                {/* Default redirect */}
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="*" element={<Navigate to="/dashboard" replace />} />
-              </Routes>
-            </Suspense>
-          </CompanyProvider>
-        </BrowserRouter>
-        <ToastContainer position="top-right" autoClose={3000} />
-      </ThemeProvider>
-    </QueryClientProvider>
-  );
-}
+                  {/* Default redirect */}
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                </Routes>
+              </Suspense>
+            </CompanyProvider>
+          </BrowserRouter>
+          <ToastContainer position="top-right" autoClose={3000} />
+        </ThemeProvider>
+      </QueryClientProvider>
+    );
+  }
 
-export default App;
+  export default App;

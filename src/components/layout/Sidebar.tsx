@@ -12,6 +12,7 @@ import {
   Divider,
   useTheme,
   useMediaQuery,
+  alpha,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -113,23 +114,53 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
           const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
 
           return (
-            <ListItem key={item.title} disablePadding>
+            <ListItem key={item.title} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 selected={isActive}
                 onClick={() => handleNavigation(item.path)}
                 sx={{
+                  mx: 1,
+                  borderRadius: 2,
+                  position: 'relative',
+                  transition: 'all 0.2s ease-in-out',
                   '&.Mui-selected': {
-                    backgroundColor: 'primary.light',
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                    color: 'primary.main',
                     '&:hover': {
-                      backgroundColor: 'primary.light',
+                      backgroundColor: alpha(theme.palette.primary.main, 0.15),
                     },
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: -8,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      height: '60%',
+                      width: 4,
+                      borderRadius: '0 4px 4px 0',
+                      backgroundColor: 'primary.main',
+                    }
                   },
+                  '&:hover': {
+                    backgroundColor: alpha(theme.palette.text.primary, 0.05),
+                  }
                 }}
               >
-                <ListItemIcon sx={{ color: isActive ? 'primary.main' : 'inherit' }}>
+                <ListItemIcon
+                  sx={{
+                    color: isActive ? 'primary.main' : 'text.secondary',
+                    minWidth: 40
+                  }}
+                >
                   {item.icon}
                 </ListItemIcon>
-                <ListItemText primary={item.title} />
+                <ListItemText
+                  primary={item.title}
+                  primaryTypographyProps={{
+                    fontWeight: isActive ? 600 : 500,
+                    fontSize: '0.95rem'
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           );

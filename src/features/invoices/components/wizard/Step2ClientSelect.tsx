@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography, CircularProgress, Stack } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { clientsApi } from '@/api/clients.api';
+import { useTranslation } from 'react-i18next';
 
 interface Step2ClientSelectProps {
   initialValue?: number;
@@ -15,6 +16,8 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
   onBack,
 }) => {
   const [selectedClientId, setSelectedClientId] = useState<number | ''>(initialValue || '');
+
+  const { t } = useTranslation(['invoices', 'common']);
 
   const { data: clients, isLoading } = useQuery({
     queryKey: ['clients'],
@@ -30,10 +33,10 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
-        Paso 2: Selecciona el Cliente
+        {t('invoices:wizard.step2.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Selecciona el cliente que recibirá la factura
+        {t('invoices:wizard.step2.subtitle')}
       </Typography>
 
       {isLoading ? (
@@ -42,11 +45,11 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
         </Box>
       ) : (
         <FormControl fullWidth sx={{ mb: 4 }}>
-          <InputLabel>Cliente</InputLabel>
+          <InputLabel>{t('invoices:wizard.step2.label')}</InputLabel>
           <Select
             value={selectedClientId}
             onChange={(e) => setSelectedClientId(e.target.value as number)}
-            label="Cliente"
+            label={t('invoices:wizard.step2.label')}
           >
             {clients?.map((client) => (
               <MenuItem key={client.id} value={client.id}>
@@ -67,9 +70,9 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
                   <strong>{client.businessName}</strong>
                 </Typography>
                 <Typography variant="body2">CIF/NIF: {client.taxId}</Typography>
-                <Typography variant="body2">Dirección: {client.address}, {client.city} ({client.postalCode})</Typography>
-                <Typography variant="body2">Email: {client.email}</Typography>
-                <Typography variant="body2">Teléfono: {client.phone}</Typography>
+                <Typography variant="body2">{t('invoices:wizard.step2.address')} {client.address}, {client.city} ({client.postalCode})</Typography>
+                <Typography variant="body2">{t('invoices:wizard.step2.email')} {client.email}</Typography>
+                <Typography variant="body2">{t('invoices:wizard.step2.phone')} {client.phone}</Typography>
               </>
             ) : null;
           })()}
@@ -78,10 +81,10 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
 
       <Stack direction="row" spacing={2}>
         <Button variant="outlined" onClick={onBack}>
-          Anterior
+          {t('common:actions.back')}
         </Button>
         <Button variant="contained" onClick={handleNext} disabled={!selectedClientId}>
-          Siguiente
+          {t('common:actions.next', 'Siguiente')}
         </Button>
       </Stack>
     </Box>

@@ -118,6 +118,7 @@ export interface Invoice {
   pdfServerPath?: string; // Ruta del PDF en MinIO
   documentJson?: string; // JSON enviado a VeriFactu
   verifactuTxId?: string; // ID de transacción VeriFactu
+  verifactuError?: string; // Mensaje de error si falló
   pdfIsFinal?: boolean; // Si el PDF es definitivo (con huella)
   notes?: string;
   createdAt: string; // ISO-8601

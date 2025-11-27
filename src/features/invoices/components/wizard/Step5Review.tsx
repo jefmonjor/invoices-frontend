@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { companiesApi } from '@/api/companies.api';
 import { clientsApi } from '@/api/clients.api';
 import type { CreateInvoiceRequest } from '@/types/invoice.types';
+import { useTranslation } from 'react-i18next';
 
 interface Step5ReviewProps {
   formData: CreateInvoiceRequest;
@@ -19,6 +20,8 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
   isSubmitting,
   mode = 'create',
 }) => {
+  const { t } = useTranslation(['invoices', 'common']);
+
   const { data: companies } = useQuery({
     queryKey: ['companies'],
     queryFn: () => companiesApi.list(),
@@ -68,10 +71,10 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
-        Paso 5: Revisar y Confirmar
+        {t('invoices:wizard.step5.title')}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Revisa todos los datos antes de {mode === 'edit' ? 'actualizar' : 'crear'} la factura
+        {t('invoices:wizard.step5.subtitle', { action: mode === 'edit' ? t('common:actions.update').toLowerCase() : t('common:actions.create').toLowerCase() })}
       </Typography>
 
       <Grid container spacing={3}>
@@ -80,13 +83,13 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
           <Card>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                Datos de la Factura
+                {t('invoices:wizard.step5.invoiceData')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Grid container spacing={1}>
                 <Grid item xs={12}>
                   <Typography variant="caption" color="text.secondary">
-                    Número:
+                    {t('invoices:wizard.step5.number')}
                   </Typography>
                   <Typography variant="body2" fontWeight="bold">
                     {formData.invoiceNumber}
@@ -95,7 +98,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 {formData.settlementNumber && (
                   <Grid item xs={12}>
                     <Typography variant="caption" color="text.secondary">
-                      Liquidación Nº:
+                      {t('invoices:wizard.step5.settlement')}
                     </Typography>
                     <Typography variant="body2" fontWeight="bold">
                       {formData.settlementNumber}
@@ -105,7 +108,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 {(formData.irpfPercentage || 0) > 0 && (
                   <Grid item xs={6}>
                     <Typography variant="caption" color="text.secondary">
-                      IRPF:
+                      {t('invoices:wizard.step5.irpf')}
                     </Typography>
                     <Typography variant="body2">{formData.irpfPercentage}%</Typography>
                   </Grid>
@@ -113,7 +116,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 {(formData.rePercentage || 0) > 0 && (
                   <Grid item xs={6}>
                     <Typography variant="caption" color="text.secondary">
-                      RE:
+                      {t('invoices:wizard.step5.re')}
                     </Typography>
                     <Typography variant="body2">{formData.rePercentage}%</Typography>
                   </Grid>
@@ -121,7 +124,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 {formData.notes && (
                   <Grid item xs={12}>
                     <Typography variant="caption" color="text.secondary">
-                      Notas:
+                      {t('invoices:wizard.step5.notes')}
                     </Typography>
                     <Typography variant="body2">{formData.notes}</Typography>
                   </Grid>
@@ -136,7 +139,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
           <Card>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                Empresa Emisora
+                {t('invoices:wizard.step5.company')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               {company ? (
@@ -150,7 +153,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 </>
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  Cargando...
+                  {t('invoices:wizard.step5.loading')}
                 </Typography>
               )}
             </CardContent>
@@ -162,7 +165,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
           <Card>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                Cliente
+                {t('invoices:wizard.step5.client')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               {client ? (
@@ -176,7 +179,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 </>
               ) : (
                 <Typography variant="body2" color="text.secondary">
-                  Cargando...
+                  {t('invoices:wizard.step5.loading')}
                 </Typography>
               )}
             </CardContent>
@@ -188,38 +191,38 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
           <Card>
             <CardContent>
               <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                Totales
+                {t('invoices:wizard.step5.totals')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography>Subtotal:</Typography>
+                <Typography>{t('invoices:wizard.step5.subtotal')}</Typography>
                 <Typography>€{subtotal.toFixed(2)}</Typography>
               </Box>
               {totalDiscount > 0 && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>Descuento:</Typography>
+                  <Typography>{t('invoices:wizard.step5.discount')}</Typography>
                   <Typography color="error">-€{totalDiscount.toFixed(2)}</Typography>
                 </Box>
               )}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Typography>IVA:</Typography>
+                <Typography>{t('invoices:wizard.step5.vat')}</Typography>
                 <Typography>€{totalVAT.toFixed(2)}</Typography>
               </Box>
               {totalIRPF > 0 && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>IRPF:</Typography>
+                  <Typography>{t('invoices:wizard.step5.irpf')}</Typography>
                   <Typography color="error">-€{totalIRPF.toFixed(2)}</Typography>
                 </Box>
               )}
               {totalRE > 0 && (
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <Typography>RE:</Typography>
+                  <Typography>{t('invoices:wizard.step5.re')}</Typography>
                   <Typography>€{totalRE.toFixed(2)}</Typography>
                 </Box>
               )}
               <Divider sx={{ my: 1 }} />
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="h6">Total:</Typography>
+                <Typography variant="h6">{t('invoices:wizard.step5.total')}</Typography>
                 <Typography variant="h6" color="primary">
                   €{totalAmount.toFixed(2)}
                 </Typography>
@@ -231,18 +234,18 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
         {/* Items */}
         <Grid item xs={12}>
           <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-            Items de la Factura ({formData.items.length})
+            {t('invoices:wizard.step5.items')} ({formData.items.length})
           </Typography>
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Descripción</TableCell>
-                  <TableCell align="right">Unidades</TableCell>
-                  <TableCell align="right">Precio</TableCell>
-                  <TableCell align="right">IVA %</TableCell>
-                  <TableCell align="right">Desc. %</TableCell>
-                  <TableCell align="right">Total</TableCell>
+                  <TableCell>{t('invoices:wizard.step4.table.description')}</TableCell>
+                  <TableCell align="right">{t('invoices:wizard.step4.table.units')}</TableCell>
+                  <TableCell align="right">{t('invoices:wizard.step4.table.price')}</TableCell>
+                  <TableCell align="right">{t('invoices:wizard.step4.table.vat')}</TableCell>
+                  <TableCell align="right">{t('invoices:wizard.step4.table.discount')}</TableCell>
+                  <TableCell align="right">{t('invoices:wizard.step4.table.total')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -266,7 +269,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
 
       <Stack direction="row" spacing={2} sx={{ mt: 4 }}>
         <Button variant="outlined" onClick={onBack} disabled={isSubmitting}>
-          Anterior
+          {t('common:actions.back')}
         </Button>
         <Button
           variant="contained"
@@ -275,8 +278,8 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
           startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
         >
           {isSubmitting
-            ? (mode === 'edit' ? 'Actualizando...' : 'Creando...')
-            : (mode === 'edit' ? 'Actualizar Factura' : 'Crear Factura')
+            ? (mode === 'edit' ? t('invoices:wizard.step5.actions.updating') : t('invoices:wizard.step5.actions.creating'))
+            : (mode === 'edit' ? t('invoices:wizard.step5.actions.update') : t('invoices:wizard.step5.actions.create'))
           }
         </Button>
       </Stack>

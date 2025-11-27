@@ -3,8 +3,10 @@ import { Box, Typography, Card, CardContent, CircularProgress, Alert } from '@mu
 import { InvoiceWizard } from '../components/wizard/InvoiceWizard';
 import { useInvoice } from '../hooks/useInvoices';
 import type { CreateInvoiceRequest } from '@/types/invoice.types';
+import { useTranslation } from 'react-i18next';
 
 export const InvoiceEditPage: React.FC = () => {
+  const { t } = useTranslation(['invoices', 'common']);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const invoiceId = parseInt(id || '0', 10);
@@ -61,10 +63,10 @@ export const InvoiceEditPage: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>
-        Editar Factura: {invoice.invoiceNumber}
+        {t('invoices:edit')} : {invoice.invoiceNumber}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        Modifica los datos de la factura utilizando el asistente
+        {t('invoices:wizard.subtitle', 'Modifica los datos de la factura utilizando el asistente')}
       </Typography>
 
       <Card>

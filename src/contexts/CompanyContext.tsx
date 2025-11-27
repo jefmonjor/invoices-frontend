@@ -1,29 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import type { CompanyDTO } from '@/types/invoice.types';
-
-/**
- * User Company Association - Relaciona usuario con empresa y su rol
- */
-export interface UserCompany {
-  companyId: number;
-  company: CompanyDTO;
-  role: 'ADMIN' | 'USER';
-  isDefault: boolean;
-}
+import type { Company } from '@/types/company.types';
+import { companiesApi } from '@/api/companies.api';
 
 /**
  * Company Context State
  */
 interface CompanyContextState {
-  currentCompany: CompanyDTO | null;
-  userCompanies: UserCompany[];
+  currentCompany: Company | null;
+  userCompanies: Company[];
+  userRole: 'ADMIN' | 'USER' | null; // Rol en la empresa actual
   isLoading: boolean;
   error: string | null;
 
   // Methods
   switchCompany: (companyId: number) => Promise<void>;
   refreshCompanies: () => Promise<void>;
-  setDefaultCompany: (companyId: number) => void;
+  setDefaultCompany: (companyId: number) => Promise<void>;
 }
 
 const CompanyContext = createContext<CompanyContextState | undefined>(undefined);
@@ -37,68 +29,21 @@ interface CompanyProviderProps {
 /**
  * Company Context Provider
  * Gestiona la empresa actual del usuario y sus empresas disponibles
- *
- * Features:
- * - Multi-empresa: usuario puede pertenecer a varias empresas
- * - Cambio de contexto: switch entre empresas
- * - Persistencia: guarda empresa actual en localStorage
- * - Sincronización: actualiza datos cuando cambia la empresa
  */
 export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) => {
-  const [currentCompany, setCurrentCompany] = useState<CompanyDTO | null>(null);
-  const [userCompanies, setUserCompanies] = useState<UserCompany[]>([]);
+  const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
+  const [userCompanies, setUserCompanies] = useState<Company[]>([]);
+  const [userRole, setUserRole] = useState<'ADMIN' | 'USER' | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   /**
    * Cargar empresas del usuario desde el backend
-   * TODO: Implementar llamada real al endpoint /api/users/me/companies
    */
-  const fetchUserCompanies = useCallback(async (): Promise<UserCompany[]> => {
+  const fetchUserCompanies = useCallback(async (): Promise<Company[]> => {
     try {
-      // TODO: Reemplazar con llamada real al backend
-      // const response = await apiClient.get<UserCompany[]>('/api/users/me/companies');
-      // return response.data;
-
-      // Mock data temporal
-      const mockCompanies: UserCompany[] = [
-        {
-          companyId: 1,
-          company: {
-            id: 1,
-            businessName: 'Mi Empresa Principal S.L.',
-            taxId: 'A12345678',
-            address: 'Calle Principal 123',
-            city: 'Madrid',
-            postalCode: '28001',
-            province: 'Madrid',
-            phone: '+34 912 345 678',
-            email: 'contacto@miempresa.com',
-            iban: 'ES91 2100 0418 4502 0005 1332',
-          },
-          role: 'ADMIN',
-          isDefault: true,
-        },
-        {
-          companyId: 2,
-          company: {
-            id: 2,
-            businessName: 'Segunda Empresa S.L.',
-            taxId: 'B87654321',
-            address: 'Calle Secundaria 456',
-            city: 'Barcelona',
-            postalCode: '08001',
-            province: 'Barcelona',
-            phone: '+34 932 123 456',
-            email: 'info@segundaempresa.com',
-            iban: 'ES79 2100 0813 6101 2345 6789',
-          },
-          role: 'USER',
-          isDefault: false,
-        },
-      ];
-
-      return mockCompanies;
+      const companies = await companiesApi.getUserCompanies();
+      return companies;
     } catch (err) {
       console.error('Error fetching user companies:', err);
       throw new Error('No se pudieron cargar las empresas del usuario');
@@ -118,31 +63,30 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
       setUserCompanies(companies);
 
       if (companies.length === 0) {
-        setError('No tienes empresas asignadas. Contacta al administrador.');
+        // Si no hay empresas, no es necesariamente un error (usuario nuevo)
         setCurrentCompany(null);
+        setUserRole(null);
         return;
       }
 
       // Intentar cargar empresa guardada en localStorage
       const savedCompanyId = localStorage.getItem(STORAGE_KEY);
-
-      let companyToSet: CompanyDTO | null = null;
+      let companyToSet: Company | null = null;
 
       if (savedCompanyId) {
-        const savedCompany = companies.find(uc => uc.companyId === parseInt(savedCompanyId, 10));
-        if (savedCompany) {
-          companyToSet = savedCompany.company;
-        }
+        companyToSet = companies.find(c => c.id === parseInt(savedCompanyId, 10)) || null;
       }
 
-      // Si no hay empresa guardada o no es válida, usar la empresa por defecto
+      // Si no hay empresa guardada o no es válida, usar la primera (por ahora)
+      // TODO: Usar la marcada como default cuando el backend lo devuelva
       if (!companyToSet) {
-        const defaultCompany = companies.find(uc => uc.isDefault) || companies[0];
-        companyToSet = defaultCompany.company;
-        localStorage.setItem(STORAGE_KEY, defaultCompany.companyId.toString());
+        companyToSet = companies[0];
+        localStorage.setItem(STORAGE_KEY, companyToSet.id.toString());
       }
 
       setCurrentCompany(companyToSet);
+      setUserRole(companyToSet.role || 'USER'); // Default to USER if role missing
+
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al cargar empresas';
       setError(message);
@@ -156,22 +100,22 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
    * Cambiar a otra empresa
    */
   const switchCompany = useCallback(async (companyId: number) => {
-    const targetCompany = userCompanies.find(uc => uc.companyId === companyId);
+    const targetCompany = userCompanies.find(c => c.id === companyId);
 
     if (!targetCompany) {
       console.error(`Company with ID ${companyId} not found in user companies`);
       return;
     }
 
-    setCurrentCompany(targetCompany.company);
+    setCurrentCompany(targetCompany);
     localStorage.setItem(STORAGE_KEY, companyId.toString());
 
-    // Emitir evento personalizado para que otros componentes sepan que cambió la empresa
+    // Emitir evento personalizado
     window.dispatchEvent(new CustomEvent('companyChanged', {
-      detail: { companyId, company: targetCompany.company }
+      detail: { companyId, company: targetCompany }
     }));
 
-    console.log(`Switched to company: ${targetCompany.company.businessName} (${companyId})`);
+    console.log(`Switched to company: ${targetCompany.businessName} (${companyId})`);
   }, [userCompanies]);
 
   /**
@@ -184,18 +128,16 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   /**
    * Establecer empresa por defecto
    */
-  const setDefaultCompany = useCallback((companyId: number) => {
-    // TODO: Implementar llamada al backend para actualizar empresa por defecto
-    // await apiClient.put(`/api/users/me/companies/${companyId}/set-default`);
-
-    const updatedCompanies = userCompanies.map(uc => ({
-      ...uc,
-      isDefault: uc.companyId === companyId,
-    }));
-
-    setUserCompanies(updatedCompanies);
-    console.log(`Set company ${companyId} as default`);
-  }, [userCompanies]);
+  const setDefaultCompany = useCallback(async (companyId: number) => {
+    try {
+      await companiesApi.setDefaultCompany(companyId);
+      console.log(`Set company ${companyId} as default`);
+      // No necesitamos actualizar estado local complejo si solo afecta al login futuro
+    } catch (err) {
+      console.error('Error setting default company:', err);
+      throw err;
+    }
+  }, []);
 
   // Inicializar al montar
   useEffect(() => {
@@ -205,6 +147,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const contextValue: CompanyContextState = {
     currentCompany,
     userCompanies,
+    userRole,
     isLoading,
     error,
     switchCompany,
@@ -221,7 +164,6 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
 
 /**
  * Hook para usar el CompanyContext
- * Lanza error si se usa fuera del provider
  */
 export const useCompanyContext = (): CompanyContextState => {
   const context = useContext(CompanyContext);
@@ -235,16 +177,14 @@ export const useCompanyContext = (): CompanyContextState => {
 
 /**
  * Hook para obtener solo la empresa actual
- * Útil cuando solo necesitas leer la empresa activa
  */
-export const useCurrentCompany = (): CompanyDTO | null => {
+export const useCurrentCompany = (): Company | null => {
   const { currentCompany } = useCompanyContext();
   return currentCompany;
 };
 
 /**
  * Hook para obtener el ID de la empresa actual
- * Útil para hacer queries filtradas por empresa
  */
 export const useCurrentCompanyId = (): number | null => {
   const { currentCompany } = useCompanyContext();

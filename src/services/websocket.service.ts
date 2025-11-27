@@ -148,6 +148,58 @@ class WebSocketService {
     }
 
     /**
+     * Subscribe to company-wide invoice status updates
+     * @param companyId Company ID to monitor
+     * @param callback Function to call when status updates are received
+     */
+    subscribeToCompanyInvoices(
+        companyId: number,
+        callback: (message: InvoiceStatusMessage) => void
+    ): void {
+        if (!this.client?.connected) {
+            console.error('[WebSocket] Cannot subscribe: not connected');
+            throw new Error('WebSocket not connected');
+        }
+
+        const destination = `/topic/company/${companyId}/invoices`;
+
+        // Unsubscribe if already subscribed
+        if (this.subscriptions.has(destination)) {
+            console.log('[WebSocket] Already subscribed to', destination);
+            return;
+        }
+
+        console.log('[WebSocket] Subscribing to', destination);
+
+        const subscription = this.client.subscribe(destination, (message: IMessage) => {
+            try {
+                const data: InvoiceStatusMessage = JSON.parse(message.body);
+                console.log('[WebSocket] Received company message:', data);
+                callback(data);
+            } catch (error) {
+                console.error('[WebSocket] Error parsing message:', error);
+            }
+        });
+
+        this.subscriptions.set(destination, subscription);
+    }
+
+    /**
+     * Unsubscribe from company invoices
+     * @param companyId Company ID to stop monitoring
+     */
+    unsubscribeFromCompanyInvoices(companyId: number): void {
+        const destination = `/topic/company/${companyId}/invoices`;
+        const subscription = this.subscriptions.get(destination);
+
+        if (subscription) {
+            console.log('[WebSocket] Unsubscribing from', destination);
+            subscription.unsubscribe();
+            this.subscriptions.delete(destination);
+        }
+    }
+
+    /**
      * Unsubscribe from invoice status updates
      * @param invoiceId Invoice ID to stop monitoring
      */

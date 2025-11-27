@@ -15,6 +15,9 @@ export interface Company {
   iban: string; // Cuenta bancaria
   createdAt?: string; // ISO-8601
   updatedAt?: string; // ISO-8601
+  // User specific fields (from CompanyDto)
+  role?: 'ADMIN' | 'USER';
+  isDefault?: boolean;
 }
 
 /**
@@ -42,4 +45,12 @@ export interface UpdateCompanyRequest {
   phone?: string;
   email?: string;
   iban?: string;
+}
+
+export interface CompanyUser {
+  userId: number;
+  name: string;
+  email: string;
+  role: string; // 'ADMIN' | 'USER'
+  joinedAt?: string;
 }

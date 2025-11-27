@@ -11,7 +11,9 @@ import { Step3InvoiceData } from './Step3InvoiceData';
 import { Step4AddItems } from './Step4AddItems';
 import { Step5Review } from './Step5Review';
 
-const steps = ['Empresa', 'Cliente', 'Datos', 'Items', 'Revisar'];
+import { useTranslation } from 'react-i18next';
+
+// const steps = ['Empresa', 'Cliente', 'Datos', 'Items', 'Revisar'];
 
 interface InvoiceWizardProps {
   mode?: 'create' | 'edit';
@@ -28,6 +30,15 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
   onSuccess,
   onCancel
 }) => {
+  const { t } = useTranslation(['invoices', 'common']);
+  const steps = [
+    t('invoices:wizard.steps.company', 'Empresa'),
+    t('invoices:wizard.steps.client', 'Cliente'),
+    t('invoices:wizard.steps.data', 'Datos'),
+    t('invoices:wizard.steps.items', 'Items'),
+    t('invoices:wizard.steps.review', 'Revisar')
+  ];
+
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState<Partial<CreateInvoiceRequest>>(
     initialData || { items: [] }
@@ -200,7 +211,27 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
   return (
     <Box>
       {/* Stepper */}
-      <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+      <Stepper
+        activeStep={activeStep}
+        alternativeLabel
+        sx={{
+          mb: 5,
+          '& .MuiStepLabel-label': {
+            mt: 1,
+            fontWeight: 500
+          },
+          '& .MuiStepIcon-root': {
+            width: 28,
+            height: 28,
+            '&.Mui-active': {
+              color: 'primary.main',
+            },
+            '&.Mui-completed': {
+              color: 'success.main',
+            }
+          }
+        }}
+      >
         {steps.map((label) => (
           <Step key={label}>
             <StepLabel>{label}</StepLabel>

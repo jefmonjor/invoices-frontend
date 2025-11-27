@@ -12,12 +12,14 @@ import {
 import { Edit as EditIcon, Delete as DeleteIcon, Visibility as ViewIcon } from '@mui/icons-material';
 import type { Client } from '@/types/client.types';
 import { formatDate } from '@/utils/formatters';
+import { useTranslation } from 'react-i18next';
 
 interface ClientsTableProps {
   clients: Client[];
   onView?: (client: Client) => void;
   onEdit: (client: Client) => void;
   onDelete: (client: Client) => void;
+  canDelete?: boolean;
 }
 
 export const ClientsTable: React.FC<ClientsTableProps> = ({
@@ -25,25 +27,28 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
   onView,
   onEdit,
   onDelete,
+  canDelete = true,
 }) => {
+  const { t } = useTranslation(['clients', 'common']);
+
   return (
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Nombre</TableCell>
-            <TableCell>CIF/NIF</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Teléfono</TableCell>
-            <TableCell>Fecha Creación</TableCell>
-            <TableCell align="center">Acciones</TableCell>
+            <TableCell>{t('clients:table.name')}</TableCell>
+            <TableCell>{t('clients:table.taxId')}</TableCell>
+            <TableCell>{t('clients:table.email')}</TableCell>
+            <TableCell>{t('clients:table.phone')}</TableCell>
+            <TableCell>{t('clients:table.createdAt')}</TableCell>
+            <TableCell align="center">{t('clients:table.actions')}</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {clients.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} align="center">
-                No hay clientes registrados
+                {t('clients:table.empty')}
               </TableCell>
             </TableRow>
           ) : (
@@ -56,22 +61,24 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
                 <TableCell>{client.createdAt ? formatDate(client.createdAt) : "-"}</TableCell>
                 <TableCell align="center">
                   {onView && (
-                    <Tooltip title="Ver detalles">
+                    <Tooltip title={t('clients:actions.view')}>
                       <IconButton size="small" onClick={() => onView(client)} color="primary">
                         <ViewIcon />
                       </IconButton>
                     </Tooltip>
                   )}
-                  <Tooltip title="Editar">
+                  <Tooltip title={t('clients:actions.edit')}>
                     <IconButton size="small" onClick={() => onEdit(client)} color="primary">
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Eliminar">
-                    <IconButton size="small" onClick={() => onDelete(client)} color="error">
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
+                  {canDelete && (
+                    <Tooltip title={t('clients:actions.delete')}>
+                      <IconButton size="small" onClick={() => onDelete(client)} color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                 </TableCell>
               </TableRow>
             ))

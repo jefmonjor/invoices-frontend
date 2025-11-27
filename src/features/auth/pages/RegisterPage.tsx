@@ -15,6 +15,8 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Divider,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import { Receipt as InvoiceIcon, Business as BusinessIcon, GroupAdd as GroupAddIcon } from '@mui/icons-material';
 import axios from 'axios';
@@ -182,226 +184,275 @@ export const RegisterPage: React.FC = () => {
     }
   };
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
-    <Container component="main" maxWidth="sm">
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+      {/* Left Side - Branding (Desktop Only) */}
       <Box
         sx={{
-          minHeight: '100vh',
-          display: 'flex',
+          display: { xs: 'none', md: 'flex' },
+          flex: 1,
           flexDirection: 'column',
-          alignItems: 'center',
           justifyContent: 'center',
-          py: 4,
+          alignItems: 'center',
+          p: 4,
+          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+          color: 'white',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        <Paper
-          elevation={3}
+        {/* Abstract shapes for visual interest */}
+        <Box
           sx={{
-            p: 4,
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+            position: 'absolute',
+            top: -100,
+            left: -100,
+            width: 400,
+            height: 400,
+            borderRadius: '50%',
+            bgcolor: 'rgba(255,255,255,0.1)',
+            filter: 'blur(80px)',
           }}
-        >
-          {/* Logo */}
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: -50,
+            right: -50,
+            width: 300,
+            height: 300,
+            borderRadius: '50%',
+            bgcolor: 'rgba(255,255,255,0.1)',
+            filter: 'blur(60px)',
+          }}
+        />
+
+        <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: 480 }}>
+          <InvoiceIcon sx={{ fontSize: 80, mb: 2, opacity: 0.9 }} />
+          <Typography variant="h3" fontWeight="bold" gutterBottom>
+            Invoices App
+          </Typography>
+          <Typography variant="h6" sx={{ opacity: 0.8, fontWeight: 400 }}>
+            La plataforma de facturación inteligente para empresas modernas.
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Right Side - Form */}
+      <Box
+        sx={{
+          flex: { xs: 1, md: '0 0 550px' },
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          p: { xs: 3, sm: 6 },
+          bgcolor: 'background.paper',
+          overflowY: 'auto',
+        }}
+      >
+        <Container maxWidth="sm">
+          {/* Mobile Logo */}
+          <Box sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', mb: 4, justifyContent: 'center' }}>
             <InvoiceIcon sx={{ fontSize: 40, color: 'primary.main', mr: 1 }} />
-            <Typography component="h1" variant="h4" color="primary">
+            <Typography variant="h5" fontWeight="bold" color="primary">
               Invoices App
             </Typography>
           </Box>
 
-          <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
-            {invitationToken ? 'Unirse a Empresa' : 'Crear Cuenta'}
-          </Typography>
+          <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'left' } }}>
+            <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>
+              {invitationToken ? 'Únete a tu equipo' : 'Crea tu cuenta'}
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              {invitationToken
+                ? 'Has sido invitado a colaborar. Completa tus datos para empezar.'
+                : 'Comienza a gestionar tu facturación en minutos.'}
+            </Typography>
+          </Box>
 
           {/* Toggle: Nueva Empresa / Unirse a Empresa */}
-          <ToggleButtonGroup
-            value={registrationType}
-            exclusive
-            onChange={(_, newValue) => {
-              if (newValue !== null) {
-                setRegistrationType(newValue);
-                setError(null);
-              }
-            }}
-            fullWidth
-            sx={{ mb: 3 }}
-          >
-            <ToggleButton value="new-company" aria-label="Nueva empresa">
-              <BusinessIcon sx={{ mr: 1 }} />
-              Nueva Empresa
-            </ToggleButton>
-            <ToggleButton value="join-company" aria-label="Unirse a empresa">
-              <GroupAddIcon sx={{ mr: 1 }} />
-              Unirse a Empresa
-            </ToggleButton>
-          </ToggleButtonGroup>
+          {!invitationToken && (
+            <ToggleButtonGroup
+              value={registrationType}
+              exclusive
+              onChange={(_, newValue) => {
+                if (newValue !== null) {
+                  setRegistrationType(newValue);
+                  setError(null);
+                }
+              }}
+              fullWidth
+              sx={{ mb: 4 }}
+            >
+              <ToggleButton value="new-company" sx={{ py: 1.5 }}>
+                <BusinessIcon sx={{ mr: 1 }} />
+                Nueva Empresa
+              </ToggleButton>
+              <ToggleButton value="join-company" sx={{ py: 1.5 }}>
+                <GroupAddIcon sx={{ mr: 1 }} />
+                Unirse a Empresa
+              </ToggleButton>
+            </ToggleButtonGroup>
+          )}
 
           {error && (
-            <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
               {error}
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate sx={{ width: '100%' }}>
-            <Stack spacing={2}>
-              <Typography variant="h6" sx={{ mt: 1 }}>Datos Personales</Typography>
+          <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Stack spacing={3}>
+              <Box>
+                <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, color: 'text.primary' }}>
+                  Datos Personales
+                </Typography>
+                <Stack spacing={2}>
+                  <TextField
+                    {...register('email')}
+                    label="Correo Electrónico"
+                    type="email"
+                    fullWidth
+                    required
+                    error={!!errors.email}
+                    helperText={errors.email?.message}
+                    disabled={isSubmitting}
+                  />
 
-              <TextField
-                {...register('email')}
-                label="Email"
-                type="email"
-                fullWidth
-                required
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                disabled={isSubmitting}
-                autoComplete="email"
-              />
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                    <TextField
+                      {...register('firstName')}
+                      label="Nombre"
+                      fullWidth
+                      required
+                      error={!!errors.firstName}
+                      helperText={errors.firstName?.message}
+                      disabled={isSubmitting}
+                    />
+                    <TextField
+                      {...register('lastName')}
+                      label="Apellido"
+                      fullWidth
+                      required
+                      error={!!errors.lastName}
+                      helperText={errors.lastName?.message}
+                      disabled={isSubmitting}
+                    />
+                  </Stack>
 
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <TextField
-                  {...register('firstName')}
-                  label="Nombre"
-                  fullWidth
-                  required
-                  error={!!errors.firstName}
-                  helperText={errors.firstName?.message}
-                  disabled={isSubmitting}
-                  autoComplete="given-name"
-                />
-
-                <TextField
-                  {...register('lastName')}
-                  label="Apellido"
-                  fullWidth
-                  required
-                  error={!!errors.lastName}
-                  helperText={errors.lastName?.message}
-                  disabled={isSubmitting}
-                  autoComplete="family-name"
-                />
-              </Stack>
-
-              <TextField
-                {...register('password')}
-                label="Contraseña"
-                type="password"
-                fullWidth
-                required
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                disabled={isSubmitting}
-                autoComplete="new-password"
-              />
-
-              <TextField
-                {...register('confirmPassword')}
-                label="Confirmar Contraseña"
-                type="password"
-                fullWidth
-                required
-                error={!!errors.confirmPassword}
-                helperText={errors.confirmPassword?.message}
-                disabled={isSubmitting}
-                autoComplete="new-password"
-              />
+                  <TextField
+                    {...register('password')}
+                    label="Contraseña"
+                    type="password"
+                    fullWidth
+                    required
+                    error={!!errors.password}
+                    helperText={errors.password?.message}
+                    disabled={isSubmitting}
+                  />
+                  <TextField
+                    {...register('confirmPassword')}
+                    label="Confirmar Contraseña"
+                    type="password"
+                    fullWidth
+                    required
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword?.message}
+                    disabled={isSubmitting}
+                  />
+                </Stack>
+              </Box>
 
               {!invitationToken && (
-                <>
-                  <Divider sx={{ my: 2 }} />
-
-                  {/* Toggle between switch (original) and toggle buttons (new) - keeping toggle buttons for better UX */}
+                <Box>
+                  <Divider sx={{ my: 1 }} />
 
                   {registrationType === 'new-company' && (
-                    <Stack spacing={2} sx={{ mt: 2, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-                      <Typography variant="subtitle2" color="primary">Datos de la Empresa</Typography>
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, color: 'primary.main' }}>
+                        Datos de la Empresa
+                      </Typography>
+                      <Stack spacing={2}>
+                        <TextField
+                          {...register('companyName')}
+                          label="Razón Social"
+                          fullWidth
+                          required={registrationType === 'new-company'}
+                          error={!!errors.companyName}
+                          helperText={errors.companyName?.message}
+                          disabled={isSubmitting}
+                        />
 
-                      <TextField
-                        {...register('companyName')}
-                        label="Razón Social / Nombre Empresa"
-                        fullWidth
-                        required={registrationType === 'new-company'}
-                        error={!!errors.companyName}
-                        helperText={errors.companyName?.message}
-                        disabled={isSubmitting}
-                      />
+                        <Controller
+                          name="companyTaxId"
+                          control={control}
+                          render={({ field }) => (
+                            <TaxIdField
+                              value={field.value || ''}
+                              onChange={(value) => {
+                                field.onChange(value);
+                                setValue('taxId', value);
+                              }}
+                              label="CIF / NIF"
+                              name="companyTaxId"
+                              required={registrationType === 'new-company'}
+                              onValidation={(valid) => setTaxIdValid(valid)}
+                            />
+                          )}
+                        />
 
-                      <Controller
-                        name="companyTaxId"
-                        control={control}
-                        render={({ field }) => (
-                          <TaxIdField
-                            value={field.value || ''}
-                            onChange={(value) => {
-                              field.onChange(value);
-                              setValue('taxId', value); // Sync with taxId field
-                            }}
-                            label="CIF / NIF"
-                            name="companyTaxId"
-                            required={registrationType === 'new-company'}
-                            onValidation={(valid) => {
-                              setTaxIdValid(valid);
-                            }}
+                        <TextField
+                          {...register('companyAddress')}
+                          label="Dirección Fiscal"
+                          fullWidth
+                          error={!!errors.companyAddress}
+                          helperText={errors.companyAddress?.message}
+                          disabled={isSubmitting}
+                        />
+
+                        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                          <TextField
+                            {...register('companyPhone')}
+                            label="Teléfono"
+                            fullWidth
+                            error={!!errors.companyPhone}
+                            helperText={errors.companyPhone?.message}
+                            disabled={isSubmitting}
                           />
-                        )}
-                      />
-
-                      <TextField
-                        {...register('companyAddress')}
-                        label="Dirección"
-                        fullWidth
-                        error={!!errors.companyAddress}
-                        helperText={errors.companyAddress?.message}
-                        disabled={isSubmitting}
-                      />
-
-                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                        <TextField
-                          {...register('companyPhone')}
-                          label="Teléfono"
-                          fullWidth
-                          error={!!errors.companyPhone}
-                          helperText={errors.companyPhone?.message}
-                          disabled={isSubmitting}
-                        />
-
-                        <TextField
-                          {...register('companyEmail')}
-                          label="Email Empresa"
-                          fullWidth
-                          error={!!errors.companyEmail}
-                          helperText={errors.companyEmail?.message}
-                          disabled={isSubmitting}
-                        />
+                          <TextField
+                            {...register('companyEmail')}
+                            label="Email Empresa"
+                            fullWidth
+                            error={!!errors.companyEmail}
+                            helperText={errors.companyEmail?.message}
+                            disabled={isSubmitting}
+                          />
+                        </Stack>
                       </Stack>
-                    </Stack>
+                    </Box>
                   )}
 
                   {registrationType === 'join-company' && (
-                    <>
-                      <Divider sx={{ my: 2 }}>
-                        <Typography variant="caption" color="text.secondary">
-                          Unirse a una Empresa Existente
-                        </Typography>
-                      </Divider>
-
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2, color: 'primary.main' }}>
+                        Unirse a Equipo
+                      </Typography>
                       <TextField
                         {...register('invitationCode')}
                         label="Código de Invitación"
                         fullWidth
                         required
+                        placeholder="Ej: ABC-123-XYZ"
                         error={!!errors.invitationCode}
-                        helperText={errors.invitationCode?.message || 'Solicita un código de invitación al administrador de tu empresa'}
+                        helperText={errors.invitationCode?.message || 'Pídele el código al administrador de tu empresa'}
                         disabled={isSubmitting}
-                        placeholder="Ej: ABC123XYZ"
                       />
-                    </>
+                    </Box>
                   )}
-
-                </>
+                </Box>
               )}
 
               <Button
@@ -410,29 +461,37 @@ export const RegisterPage: React.FC = () => {
                 variant="contained"
                 size="large"
                 disabled={isSubmitting || (registrationType === 'new-company' && !taxIdValid)}
-                sx={{ mt: 3 }}
+                sx={{
+                  py: 1.5,
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  boxShadow: theme.shadows[4],
+                  '&:hover': {
+                    boxShadow: theme.shadows[8],
+                  }
+                }}
               >
-                {isSubmitting ? 'Registrando...' : (invitationToken ? 'Unirse a Empresa' : (createCompany ? 'Registrar Cuenta y Empresa' : 'Registrarse'))}
+                {isSubmitting ? 'Procesando...' : (invitationToken ? 'Unirse al Equipo' : 'Crear Cuenta')}
               </Button>
 
               <Box sx={{ textAlign: 'center', mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">
-                  ¿Ya tienes cuenta?{' '}
+                  ¿Ya tienes una cuenta?{' '}
                   <Link
                     component="button"
-                    variant="body2"
+                    variant="subtitle2"
                     onClick={() => navigate('/login')}
-                    sx={{ cursor: 'pointer' }}
+                    sx={{ fontWeight: 'bold', textDecoration: 'none' }}
                   >
                     Iniciar Sesión
                   </Link>
                 </Typography>
               </Box>
-            </Stack >
-          </Box >
-        </Paper >
-      </Box >
-    </Container >
+            </Stack>
+          </Box>
+        </Container>
+      </Box>
+    </Box>
   );
 };
 

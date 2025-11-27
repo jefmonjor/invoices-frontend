@@ -1,0 +1,34 @@
+{
+    "title": "Clientes",
+    "create": "Nuevo Cliente",
+    "edit": "Editar Cliente",
+    "list": "Lista de Clientes",
+    "search": "Buscar por nombre o CIF/NIF",
+    "table": {
+        "name": "Nombre",
+        "taxId": "CIF/NIF",
+        "email": "Email",
+        "phone": "Teléfono",
+        "createdAt": "Fecha Creación",
+        "actions": "Acciones",
+        "empty": "No hay clientes registrados"
+    },
+    "actions": {
+        "view": "Ver detalles",
+        "edit": "Editar",
+        "delete": "Eliminar"
+    },
+    "messages": {
+        "errorLoading": "Error al cargar clientes",
+        "deleteConfirmTitle": "Eliminar Cliente",
+        "deleteConfirmMessage": "¿Estás seguro de que deseas eliminar el cliente {{name}}? Esta acción no se puede deshacer.",
+        "emptyTitle": "No hay clientes",
+        "emptyMessageSearch": "No se encontraron clientes con el criterio de búsqueda",
+        "emptyMessageInit": "Aún no has registrado ningún cliente. Comienza creando tu primer cliente.",
+        "createFirst": "Crear primer cliente",
+        "createSubtitle": "Completa los datos para registrar un nuevo cliente",
+        "editSubtitle": "Modifica los datos del cliente",
+        "errorLoadingClient": "Error al cargar el cliente",
+        "clientNotFound": "Cliente no encontrado"
+    }
+}

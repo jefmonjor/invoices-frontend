@@ -140,13 +140,13 @@ const CompanySelector: React.FC = () => {
             </Typography>
           </MenuItem>
         ) : (
-          userCompanies.map((userCompany) => {
-            const isActive = userCompany.companyId === currentCompany.id;
+          userCompanies.map((company) => {
+            const isActive = company.id === currentCompany.id;
 
             return (
               <MenuItem
-                key={userCompany.companyId}
-                onClick={() => handleSelectCompany(userCompany.companyId)}
+                key={company.id}
+                onClick={() => handleSelectCompany(company.id)}
                 selected={isActive}
                 sx={{
                   py: 1.5,
@@ -173,19 +173,19 @@ const CompanySelector: React.FC = () => {
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography variant="body2" fontWeight={isActive ? 'bold' : 'normal'}>
-                        {userCompany.company.businessName}
+                        {company.businessName}
                       </Typography>
                       <Chip
-                        label={userCompany.role}
+                        label={company.role || 'USER'}
                         size="small"
-                        color={userCompany.role === 'ADMIN' ? 'primary' : 'default'}
+                        color={company.role === 'ADMIN' ? 'primary' : 'default'}
                         sx={{ height: 18, fontSize: '0.65rem' }}
                       />
                     </Box>
                   }
                   secondary={
                     <Typography variant="caption" color="text.secondary">
-                      CIF: {userCompany.company.taxId}
+                      CIF: {company.taxId}
                     </Typography>
                   }
                 />

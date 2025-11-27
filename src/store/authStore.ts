@@ -41,6 +41,8 @@ export const useAuthStore = create<AuthState>()(
   )
 );
 
+export const useAuth = useAuthStore;
+
 // Escuchar evento de logout automático desde el interceptor
 if (typeof window !== 'undefined') {
   window.addEventListener('auth:logout', () => {

@@ -25,6 +25,8 @@ import {
   Delete as DeleteIcon,
   Download as DownloadIcon,
   PictureAsPdf as PdfIcon,
+  ErrorOutline as ErrorIcon,
+  HourglassEmpty as PendingIcon,
 } from '@mui/icons-material';
 import { useInvoice, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -35,6 +37,7 @@ import type { InvoiceStatusMessage } from '@/services/websocket.service';
 import VerifactuDashboard from '../../dashboard/components/VerifactuDashboard';
 import { toastService } from '@/services/toast.service';
 import 'react-toastify/dist/ReactToastify.css';
+import { invoicesApi } from '@/api/invoices.api';
 
 // ... existing imports
 
@@ -118,9 +121,19 @@ const InvoiceDetailPage: React.FC = () => {
     }
   };
 
-  const handleDownloadPDF = () => {
-    // Download PDF from backend
-    window.open(`/api/invoices/${invoiceId}/pdf`, '_blank');
+  const handleDownloadPDF = async () => {
+    // Determine version based on status
+    const version = verifactuStatus?.toUpperCase() === 'ACCEPTED' ? 'final' : 'draft';
+
+    try {
+      // Use the API method which handles blob download properly
+      // We don't use window.open directly because we need to pass the auth token (handled by apiClient)
+      // and potentially the version parameter
+      await invoicesApi.downloadPDF(invoiceId, invoice?.invoiceNumber || 'invoice', version);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toastService.error('Error al descargar el PDF');
+    }
   };
 
   const handleDelete = async () => {
@@ -156,6 +169,20 @@ const InvoiceDetailPage: React.FC = () => {
       <Box mb={4}>
         <VerifactuDashboard />
       </Box>
+
+      {/* Status Information Alerts */}
+      {(verifactuStatus?.toUpperCase() === 'PENDING' || verifactuStatus?.toUpperCase() === 'PROCESSING') && (
+        <Alert severity="info" sx={{ mb: 3 }} icon={<PendingIcon />}>
+          <strong>Verificación en curso:</strong> Esta factura se está procesando con VeriFactu. Puedes consultar los detalles abajo, pero la descarga del PDF oficial estará disponible una vez sea aceptada.
+        </Alert>
+      )}
+
+      {(verifactuStatus?.toUpperCase() === 'REJECTED' || verifactuStatus?.toUpperCase() === 'FAILED') && (
+        <Alert severity="error" sx={{ mb: 3 }} icon={<ErrorIcon />}>
+          <strong>Error de Verificación:</strong> La factura ha sido rechazada o ha ocurrido un error. Por favor, revisa los detalles o contacta con soporte.
+        </Alert>
+      )}
+
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -183,30 +210,46 @@ const InvoiceDetailPage: React.FC = () => {
               : 'Generar PDF'}
           </Button>
 
-          {/* Download button - only enabled for ACCEPTED invoices */}
-          <Tooltip
-            title={
-              verifactuStatus?.toUpperCase() !== 'ACCEPTED'
-                ? 'El PDF solo está disponible para facturas verificadas'
-                : 'Descargar PDF verificado'
-            }
-            arrow
-          >
-            <span>
+          {/* PDF Download Logic */}
+          {verifactuStatus?.toUpperCase() === 'ACCEPTED' ? (
+            <Tooltip title="Descargar PDF verificado" arrow>
               <Button
                 variant="outlined"
                 color="primary"
                 startIcon={<DownloadIcon />}
                 onClick={handleDownloadPDF}
-                disabled={
-                  verifactuStatus?.toUpperCase() !== 'ACCEPTED' ||
-                  !invoice.pdfServerPath
-                }
+                disabled={!invoice.pdfServerPath}
               >
                 Descargar PDF
               </Button>
-            </span>
-          </Tooltip>
+            </Tooltip>
+          ) : verifactuStatus?.toUpperCase() === 'REJECTED' || verifactuStatus?.toUpperCase() === 'FAILED' ? (
+            <Tooltip title={invoice.verifactuError || 'Error al generar PDF. No se puede descargar.'} arrow>
+              <span>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<ErrorIcon />}
+                  disabled
+                >
+                  Error PDF
+                </Button>
+              </span>
+            </Tooltip>
+          ) : (
+            <Tooltip title="Generando PDF y validando con VeriFactu..." arrow>
+              <span>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  startIcon={<PendingIcon />}
+                  disabled
+                >
+                  Pendiente
+                </Button>
+              </span>
+            </Tooltip>
+          )}
 
           {canEdit && (
             <Button variant="outlined" startIcon={<EditIcon />} onClick={handleEdit}>
