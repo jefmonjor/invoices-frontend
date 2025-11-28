@@ -81,6 +81,19 @@ export const LoginPage = () => {
               required
               autoComplete="current-password"
             />
+
+            <Box sx={{ textAlign: 'right', mt: 1 }}>
+              <Link
+                component="button"
+                variant="body2"
+                onClick={() => navigate('/forgot-password')}
+                sx={{ cursor: 'pointer' }}
+                type="button"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </Box>
+
             <Button
               type="submit"
               variant="contained"

@@ -14,6 +14,8 @@ import { CompanyProvider } from './contexts/CompanyContext';
 // Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
 const RegisterPage = lazy(() => import('./features/auth/pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./features/auth/pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./features/auth/pages/ResetPasswordPage'));
 const DashboardPage = lazy(() => import('./features/dashboard/pages/DashboardPage'));
 const ProfilePage = lazy(() => import('./features/users/pages/ProfilePage'));
 
@@ -89,6 +91,8 @@ function App() {
                 {/* Public routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
 
                 {/* Private routes with Layout */}
                 <Route element={<PrivateRoute />}>
