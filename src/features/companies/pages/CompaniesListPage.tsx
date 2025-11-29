@@ -13,7 +13,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 export const CompaniesListPage: React.FC = () => {
   const navigate = useNavigate();
-  const { canCreateCompany, canEditCompany } = usePermissions();
+  const { canCreateCompany } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; company: Company | null }>({
     open: false,
