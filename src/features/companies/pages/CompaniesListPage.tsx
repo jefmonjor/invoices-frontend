@@ -9,8 +9,11 @@ import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import type { Company } from '@/types/company.types';
 
+import { usePermissions } from '@/hooks/usePermissions';
+
 export const CompaniesListPage: React.FC = () => {
   const navigate = useNavigate();
+  const { canCreateCompany, canEditCompany } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; company: Company | null }>({
     open: false,
@@ -44,10 +47,11 @@ export const CompaniesListPage: React.FC = () => {
   };
 
   // Filter companies by search term
-  const filteredCompanies = companies?.filter((company) =>
+  const companiesList = Array.isArray(companies) ? companies : [];
+  const filteredCompanies = companiesList.filter((company) =>
     searchTerm
       ? company.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        company.taxId.toLowerCase().includes(searchTerm.toLowerCase())
+      company.taxId.toLowerCase().includes(searchTerm.toLowerCase())
       : true
   );
 
@@ -66,14 +70,16 @@ export const CompaniesListPage: React.FC = () => {
         <Typography variant="h4" component="h1">
           Empresas
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleCreateNew}
-          size="large"
-        >
-          Nueva Empresa
-        </Button>
+        {canCreateCompany && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleCreateNew}
+            size="large"
+          >
+            Nueva Empresa
+          </Button>
+        )}
       </Box>
 
       {/* Search */}

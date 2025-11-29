@@ -101,39 +101,45 @@ export const UsersListPage: React.FC = () => {
         <Card>
           <LoadingSkeleton rows={10} variant="table" />
         </Card>
-      ) : !data || data.content.length === 0 ? (
-        <EmptyState
-          title="No hay usuarios"
-          message={
-            searchTerm
-              ? 'No se encontraron usuarios con el criterio de búsqueda'
-              : 'Aún no hay usuarios registrados. Comienza creando el primer usuario.'
-          }
-          actionLabel="Crear primer usuario"
-          onAction={handleCreateNew}
-        />
-      ) : (
-        <>
-          <UsersTable
-            users={data.content}
-            isAdmin={isAdmin}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
+      ) : (() => {
+        // Defensive check for data structure
+        const users = data?.content || (Array.isArray(data) ? data : []);
+        const totalElements = data?.totalElements || users.length;
+
+        return users.length === 0 ? (
+          <EmptyState
+            title="No hay usuarios"
+            message={
+              searchTerm
+                ? 'No se encontraron usuarios con el criterio de búsqueda'
+                : 'Aún no hay usuarios registrados. Comienza creando el primer usuario.'
+            }
+            actionLabel="Crear primer usuario"
+            onAction={handleCreateNew}
           />
-          <Card sx={{ mt: 2 }}>
-            <TablePagination
-              component="div"
-              count={data.totalElements}
-              page={page}
-              onPageChange={handlePageChange}
-              rowsPerPage={size}
-              onRowsPerPageChange={handleRowsPerPageChange}
-              rowsPerPageOptions={[5, 10, 25, 50]}
-              labelRowsPerPage="Filas por página:"
+        ) : (
+          <>
+            <UsersTable
+              users={users}
+              isAdmin={isAdmin}
+              onEdit={handleEdit}
+              onDelete={handleDeleteClick}
             />
-          </Card>
-        </>
-      )}
+            <Card sx={{ mt: 2 }}>
+              <TablePagination
+                component="div"
+                count={totalElements}
+                page={page}
+                onPageChange={handlePageChange}
+                rowsPerPage={size}
+                onRowsPerPageChange={handleRowsPerPageChange}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                labelRowsPerPage="Filas por página:"
+              />
+            </Card>
+          </>
+        );
+      })()}
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
