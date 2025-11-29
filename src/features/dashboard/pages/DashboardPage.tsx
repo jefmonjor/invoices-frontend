@@ -25,6 +25,7 @@ import { useCompanyContext } from '@/contexts/CompanyContext';
 import { dashboardApi } from '@/api/dashboard.api';
 import type { DashboardMetrics } from '@/api/dashboard.api';
 import { formatCurrency } from '@/utils/formatters';
+import { EmptyState } from '@/components/common/EmptyState';
 
 export const DashboardPage = () => {
   const { user } = useAuthStore();
@@ -76,6 +77,12 @@ export const DashboardPage = () => {
               <Box sx={{ height: 350, mt: 2 }}>
                 {loading ? (
                   <Skeleton variant="rectangular" height="100%" sx={{ borderRadius: 2 }} />
+                ) : !metrics?.monthlyRevenue || metrics.monthlyRevenue.length === 0 ? (
+                  <EmptyState
+                    title="No hay datos de ingresos"
+                    message="Aún no se han registrado ingresos en este periodo."
+                    icon={<Typography variant="h1">📊</Typography>}
+                  />
                 ) : (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={metrics?.monthlyRevenue}>
@@ -140,6 +147,12 @@ export const DashboardPage = () => {
                       </Box>
                     </Box>
                   ))
+                ) : !metrics?.topClients || metrics.topClients.length === 0 ? (
+                  <EmptyState
+                    title="Sin clientes top"
+                    message="Aún no hay suficientes datos de clientes."
+                    icon={<Typography variant="h1">👥</Typography>}
+                  />
                 ) : (
                   metrics?.topClients.map((client, index) => (
                     <Box

@@ -16,7 +16,7 @@ import {
   Divider,
   useTheme,
 } from '@mui/material';
-import { Receipt as InvoiceIcon, Business as BusinessIcon, GroupAdd as GroupAddIcon } from '@mui/icons-material';
+import { Receipt as InvoiceIcon, Business as BusinessIcon, GroupAdd as GroupAddIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import axios from 'axios';
 import { apiClient } from '@/api/client';
 import { useState, useEffect } from 'react';
@@ -248,6 +248,15 @@ export const RegisterPage: React.FC = () => {
               Invoices App
             </Typography>
           </Box>
+
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate('/login')}
+            sx={{ mb: 2, pl: 0, textTransform: 'none', alignSelf: 'flex-start' }}
+            color="inherit"
+          >
+            Volver al Login
+          </Button>
 
           <Box sx={{ mb: 4, textAlign: { xs: 'center', md: 'left' } }}>
             <Typography component="h1" variant="h4" fontWeight="bold" gutterBottom>

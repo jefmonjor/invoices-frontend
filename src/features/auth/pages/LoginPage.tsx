@@ -83,15 +83,14 @@ export const LoginPage = () => {
             />
 
             <Box sx={{ textAlign: 'right', mt: 1 }}>
-              <Link
-                component="button"
-                variant="body2"
+              <Button
+                variant="text"
+                size="small"
                 onClick={() => navigate('/forgot-password')}
-                sx={{ cursor: 'pointer' }}
-                type="button"
+                sx={{ textTransform: 'none' }}
               >
                 ¿Olvidaste tu contraseña?
-              </Link>
+              </Button>
             </Box>
 
             <Button

@@ -34,9 +34,9 @@
     "selector": {
       "title": "Switch Company",
       "current": "Current Company",
-      "available": "companies available",
-      "available_one": "company available",
-      "noCompanies": "You don't have any companies assigned",
+      "available": "available companies",
+      "available_one": "available company",
+      "noCompanies": "You have no assigned companies",
       "loading": "Loading companies...",
       "error": "Error loading companies"
     },
@@ -50,8 +50,8 @@
     "email": "Invalid email",
     "minLength": "Minimum {{count}} characters",
     "maxLength": "Maximum {{count}} characters",
-    "passwordMismatch": "Passwords don't match",
-    "invalidTaxId": "Invalid CIF/NIF/DNI"
+    "passwordMismatch": "Passwords do not match",
+    "invalidTaxId": "Invalid Tax ID (CIF/NIF/DNI)"
   },
   "messages": {
     "confirmDelete": "Are you sure you want to delete this item?",

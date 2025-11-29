@@ -77,10 +77,37 @@ const CompanySelector: React.FC = () => {
 
   // Sin empresa actual
   if (!currentCompany) {
+    // Si no tiene empresas, no mostramos nada (o podríamos mostrar un botón de crear)
+    if (userCompanies.length === 0) {
+      return null;
+    }
+
+    // Si tiene empresas pero ninguna seleccionada, mostramos botón para seleccionar
     return (
-      <Alert severity="warning" sx={{ py: 0.5, px: 1 }}>
-        No hay empresa seleccionada
-      </Alert>
+      <Box>
+        <Button
+          variant="outlined"
+          onClick={handleClick}
+          endIcon={<ArrowDownIcon />}
+          startIcon={<BusinessIcon />}
+          color="warning"
+          sx={{ textTransform: 'none' }}
+        >
+          Seleccionar Empresa
+        </Button>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          PaperProps={{ sx: { minWidth: 300, mt: 1 } }}
+        >
+          {userCompanies.map((company) => (
+            <MenuItem key={company.id} onClick={() => handleSelectCompany(company.id)}>
+              <ListItemText primary={company.businessName} secondary={company.taxId} />
+            </MenuItem>
+          ))}
+        </Menu>
+      </Box>
     );
   }
 

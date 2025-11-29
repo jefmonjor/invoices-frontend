@@ -1,0 +1,34 @@
+{
+    "title": "Clients",
+    "create": "New Client",
+    "edit": "Edit Client",
+    "list": "Clients List",
+    "search": "Search by name or Tax ID",
+    "table": {
+        "name": "Name",
+        "taxId": "Tax ID",
+        "email": "Email",
+        "phone": "Phone",
+        "createdAt": "Created At",
+        "actions": "Actions",
+        "empty": "No clients registered"
+    },
+    "actions": {
+        "view": "View details",
+        "edit": "Edit",
+        "delete": "Delete"
+    },
+    "messages": {
+        "errorLoading": "Error loading clients",
+        "deleteConfirmTitle": "Delete Client",
+        "deleteConfirmMessage": "Are you sure you want to delete client {{name}}? This action cannot be undone.",
+        "emptyTitle": "No clients",
+        "emptyMessageSearch": "No clients found matching the search criteria",
+        "emptyMessageInit": "You haven't registered any clients yet. Start by creating your first client.",
+        "createFirst": "Create first client",
+        "createSubtitle": "Complete the data to register a new client",
+        "editSubtitle": "Modify client data",
+        "errorLoadingClient": "Error loading client",
+        "clientNotFound": "Client not found"
+    }
+}

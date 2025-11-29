@@ -268,6 +268,7 @@ export const ProfilePage: React.FC = () => {
                     error={!!errors.firstName}
                     helperText={errors.firstName?.message}
                     disabled={updateMutation.isPending}
+                    InputLabelProps={{ shrink: true }}
                     InputProps={{
                       endAdornment: <EditIcon color="action" fontSize="small" />,
                     }}
@@ -279,6 +280,7 @@ export const ProfilePage: React.FC = () => {
                     error={!!errors.lastName}
                     helperText={errors.lastName?.message}
                     disabled={updateMutation.isPending}
+                    InputLabelProps={{ shrink: true }}
                     InputProps={{
                       endAdornment: <EditIcon color="action" fontSize="small" />,
                     }}

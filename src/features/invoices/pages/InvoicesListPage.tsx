@@ -114,9 +114,11 @@ export const InvoicesListPage: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box mb={4}>
-        <VerifactuDashboard />
-      </Box>
+      {invoices && invoices.length > 0 && (
+        <Box mb={4}>
+          <VerifactuDashboard />
+        </Box>
+      )}
 
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }} spacing={2} mb={3}>
         <Typography variant="h4" component="h1">
@@ -131,37 +133,39 @@ export const InvoicesListPage: React.FC = () => {
         </Button>
       </Stack>
 
-      <Card sx={{ mb: 3, p: 2 }}>
-        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
-          <TextField
-            fullWidth
-            placeholder={t('invoices:list.searchPlaceholder', 'Buscar por número o cliente...')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
-            }}
-            size="small"
-          />
-          <FormControl size="small" sx={{ minWidth: 200 }}>
-            <InputLabel>{t('invoices:list.statusFilter', 'Estado VeriFactu')}</InputLabel>
-            <Select
-              value={statusFilter}
-              label={t('invoices:list.statusFilter', 'Estado VeriFactu')}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <MenuItem value="all">{t('common:filters.all', 'Todos')}</MenuItem>
-              <MenuItem value="ACCEPTED">{t('invoices:status.accepted', 'Aceptada')}</MenuItem>
-              <MenuItem value="PENDING">{t('invoices:status.pending', 'Pendiente')}</MenuItem>
-              <MenuItem value="REJECTED">{t('invoices:status.rejected', 'Rechazada')}</MenuItem>
-            </Select>
-          </FormControl>
-        </Stack>
-      </Card>
+      {invoices && invoices.length > 0 && (
+        <Card sx={{ mb: 3, p: 2 }}>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+            <TextField
+              fullWidth
+              placeholder={t('invoices:list.searchPlaceholder', 'Buscar por número o cliente...')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              size="small"
+            />
+            <FormControl size="small" sx={{ minWidth: 200 }}>
+              <InputLabel>{t('invoices:list.statusFilter', 'Estado VeriFactu')}</InputLabel>
+              <Select
+                value={statusFilter}
+                label={t('invoices:list.statusFilter', 'Estado VeriFactu')}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <MenuItem value="all">{t('common:filters.all', 'Todos')}</MenuItem>
+                <MenuItem value="ACCEPTED">{t('invoices:status.accepted', 'Aceptada')}</MenuItem>
+                <MenuItem value="PENDING">{t('invoices:status.pending', 'Pendiente')}</MenuItem>
+                <MenuItem value="REJECTED">{t('invoices:status.rejected', 'Rechazada')}</MenuItem>
+              </Select>
+            </FormControl>
+          </Stack>
+        </Card>
+      )}
 
       {/* Table */}
       {isLoading ? (
