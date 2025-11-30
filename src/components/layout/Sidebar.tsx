@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
       title: t('navigation.users'),
       icon: <UsersIcon />,
       path: '/users',
-      roles: ['ROLE_USER', 'ROLE_ADMIN'],
+      roles: ['ROLE_PLATFORM_ADMIN', 'ROLE_ADMIN'],
     },
   ];
 

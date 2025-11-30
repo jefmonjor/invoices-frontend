@@ -18,6 +18,7 @@ export type InvoiceStatus = (typeof INVOICE_STATUS)[keyof typeof INVOICE_STATUS]
  * Roles de usuario (debe coincidir con UserRole enum en Java)
  */
 export const USER_ROLES = {
+  PLATFORM_ADMIN: 'ROLE_PLATFORM_ADMIN',
   ADMIN: 'ROLE_ADMIN',
   USER: 'ROLE_USER',
   CLIENT: 'ROLE_CLIENT',

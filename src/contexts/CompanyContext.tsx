@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { Company } from '@/types/company.types';
 import { companiesApi } from '@/api/companies.api';
+import { authApi } from '@/api/auth.api';
+import { useAuthStore } from '@/store/authStore';
 
 /**
  * Company Context State
@@ -96,6 +98,10 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     }
   }, [fetchUserCompanies]);
 
+
+
+  // ... (imports)
+
   /**
    * Cambiar a otra empresa
    */
@@ -107,15 +113,27 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
       return;
     }
 
-    setCurrentCompany(targetCompany);
-    localStorage.setItem(STORAGE_KEY, companyId.toString());
+    try {
+      // 1. Call backend to switch context and get new token
+      const response = await authApi.switchCompany(companyId);
 
-    // Emitir evento personalizado
-    window.dispatchEvent(new CustomEvent('companyChanged', {
-      detail: { companyId, company: targetCompany }
-    }));
+      // 2. Update Auth Store with new token and user
+      useAuthStore.getState().setAuth(response.token, response.user);
 
-    console.log(`Switched to company: ${targetCompany.businessName} (${companyId})`);
+      // 3. Update local state
+      setCurrentCompany(targetCompany);
+      localStorage.setItem(STORAGE_KEY, companyId.toString());
+
+      // 4. Emit event
+      window.dispatchEvent(new CustomEvent('companyChanged', {
+        detail: { companyId, company: targetCompany }
+      }));
+
+      console.log(`Switched to company: ${targetCompany.businessName} (${companyId})`);
+    } catch (err) {
+      console.error('Error switching company:', err);
+      setError('Error al cambiar de empresa');
+    }
   }, [userCompanies]);
 
   /**

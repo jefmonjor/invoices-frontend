@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { ContentCopy as ContentCopyIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-// import apiClient from '@/lib/apiClient'; // Assuming we have an API client
+import { companiesApi } from '@/api/companies.api';
 
 interface InviteUserModalProps {
     open: boolean;
@@ -34,16 +34,8 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ open, onClose, compan
         setLoading(true);
         setError(null);
         try {
-            // TODO: Replace with real API call using companyId
-            // const response = await apiClient.post(`/api/companies/${companyId}/invitations`, { expiresInHours: expiresIn });
-            // setInvitationCode(response.data.code);
-            console.log('Generating code for company:', companyId); // Suppress unused warning
-
-            // Mock implementation
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            const mockCode = `INV-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-            setInvitationCode(mockCode);
-
+            const response = await companiesApi.generateInvitation(companyId, expiresIn);
+            setInvitationCode(response.code);
         } catch (err) {
             setError('Error generating invitation code');
             console.error(err);

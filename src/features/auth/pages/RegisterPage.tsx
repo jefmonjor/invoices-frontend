@@ -28,6 +28,7 @@ type RegistrationType = 'new-company' | 'join-company';
 
 const registerSchema = z.object({
   email: z.string().email('Email inválido').min(1, 'El email es requerido'),
+  confirmEmail: z.string().min(1, 'Confirmar email es requerido'),
   password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
   confirmPassword: z.string(),
   firstName: z.string().min(1, 'El nombre es requerido'),
@@ -47,6 +48,9 @@ const registerSchema = z.object({
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Las contraseñas no coinciden",
   path: ["confirmPassword"],
+}).refine((data) => data.email === data.confirmEmail, {
+  message: "Los emails no coinciden",
+  path: ["confirmEmail"],
 }).refine((data) => {
   if (data.createCompany) {
     return !!data.companyName && !!data.taxId;
@@ -80,6 +84,7 @@ export const RegisterPage: React.FC = () => {
     defaultValues: {
       createCompany: false,
       email: '',
+      confirmEmail: '',
       password: '',
       confirmPassword: '',
       firstName: '',
@@ -89,6 +94,9 @@ export const RegisterPage: React.FC = () => {
       invitationCode: '',
     },
   });
+
+  // Helper to remove spaces
+  const removeSpaces = (value: string) => value.replace(/\s/g, '');
 
   // If invitation token is present, disable company creation
   useEffect(() => {
@@ -316,6 +324,24 @@ export const RegisterPage: React.FC = () => {
                     error={!!errors.email}
                     helperText={errors.email?.message}
                     disabled={isSubmitting}
+                    onChange={(e) => {
+                      const val = removeSpaces(e.target.value);
+                      setValue('email', val);
+                    }}
+                  />
+                  <TextField
+                    {...register('confirmEmail')}
+                    label="Confirmar Correo Electrónico"
+                    type="email"
+                    fullWidth
+                    required
+                    error={!!errors.confirmEmail}
+                    helperText={errors.confirmEmail?.message}
+                    disabled={isSubmitting}
+                    onChange={(e) => {
+                      const val = removeSpaces(e.target.value);
+                      setValue('confirmEmail', val);
+                    }}
                   />
 
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -389,8 +415,9 @@ export const RegisterPage: React.FC = () => {
                             <TaxIdField
                               value={field.value || ''}
                               onChange={(value) => {
-                                field.onChange(value);
-                                setValue('taxId', value);
+                                const cleanValue = removeSpaces(value);
+                                field.onChange(cleanValue);
+                                setValue('taxId', cleanValue);
                               }}
                               label="CIF / NIF"
                               name="companyTaxId"
@@ -417,6 +444,10 @@ export const RegisterPage: React.FC = () => {
                             error={!!errors.companyPhone}
                             helperText={errors.companyPhone?.message}
                             disabled={isSubmitting}
+                            onChange={(e) => {
+                              const val = removeSpaces(e.target.value);
+                              setValue('companyPhone', val);
+                            }}
                           />
                           <TextField
                             {...register('companyEmail')}
@@ -425,6 +456,10 @@ export const RegisterPage: React.FC = () => {
                             error={!!errors.companyEmail}
                             helperText={errors.companyEmail?.message}
                             disabled={isSubmitting}
+                            onChange={(e) => {
+                              const val = removeSpaces(e.target.value);
+                              setValue('companyEmail', val);
+                            }}
                           />
                         </Stack>
                       </Stack>
@@ -445,6 +480,10 @@ export const RegisterPage: React.FC = () => {
                         error={!!errors.invitationCode}
                         helperText={errors.invitationCode?.message || 'Pídele el código al administrador de tu empresa'}
                         disabled={isSubmitting}
+                        onChange={(e) => {
+                          const val = removeSpaces(e.target.value);
+                          setValue('invitationCode', val);
+                        }}
                       />
                     </Box>
                   )}

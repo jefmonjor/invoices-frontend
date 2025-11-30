@@ -12,10 +12,7 @@ export const dashboardKeys = {
 export const useDashboard = () => {
   return useQuery({
     queryKey: dashboardKeys.data(),
-    queryFn: () => {
-      const companyId = 1; // This should come from context or props
-      return dashboardApi.getMetrics(companyId);
-    },
+    queryFn: () => dashboardApi.getDashboardData(),
     staleTime: 1000 * 60 * 2, // 2 minutes
     refetchInterval: 1000 * 60 * 5, // Refetch every 5 minutes
   });
