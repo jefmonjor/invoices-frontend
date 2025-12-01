@@ -35,7 +35,7 @@ export const CommandPalette: React.FC = () => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const { user } = useAuthStore();
-    const companyId = user?.companyId;
+    const companyId = user?.currentCompanyId;
 
     // Toggle open/close with Cmd+K or Ctrl+K
     useEffect(() => {
