@@ -22,17 +22,19 @@ export interface Company {
 
 /**
  * Request para crear/actualizar empresa
+ * REQUIRED: businessName, taxId, address
+ * OPTIONAL: all other fields
  */
 export interface CreateCompanyRequest {
   businessName: string;
   taxId: string;
   address: string;
-  city: string;
-  postalCode: string;
-  province: string;
-  phone: string;
-  email: string;
-  iban: string;
+  city?: string;
+  postalCode?: string;
+  province?: string;
+  phone?: string;
+  email?: string;
+  iban?: string;
 }
 
 export interface UpdateCompanyRequest {
