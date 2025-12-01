@@ -127,7 +127,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
 
   return (
     <TableContainer component={Paper}>
-      <Table>
+      <Table sx={{ '& .MuiTableCell-root': { py: 2 } }}>
         <TableHead>
           <TableRow>
             <TableCell>Email</TableCell>

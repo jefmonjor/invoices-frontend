@@ -91,7 +91,7 @@ export const UserForm: React.FC<UserFormProps> = ({
 
   return (
     <Box component="form" onSubmit={handleSubmit(handleFormSubmit)} noValidate>
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         <Grid xs={12} md={6}>
           <TextField
             {...register('email')}
