@@ -1,4 +1,4 @@
-import { api } from './axios';
+import { apiClient } from './client';
 
 export interface SearchResult {
     id: string;
@@ -10,28 +10,28 @@ export interface SearchResult {
 
 export const searchApi = {
     global: async (query: string, companyId: number): Promise<SearchResult[]> => {
-        const { data } = await api.get<SearchResult[]>('/search', {
+        const { data } = await apiClient.get<SearchResult[]>('/api/search', {
             params: { query, companyId },
         });
         return data;
     },
 
     invoices: async (query: string, companyId: number): Promise<SearchResult[]> => {
-        const { data } = await api.get<SearchResult[]>('/search/invoices', {
+        const { data } = await apiClient.get<SearchResult[]>('/api/search/invoices', {
             params: { query, companyId },
         });
         return data;
     },
 
     clients: async (query: string, companyId: number): Promise<SearchResult[]> => {
-        const { data } = await api.get<SearchResult[]>('/search/clients', {
+        const { data } = await apiClient.get<SearchResult[]>('/api/search/clients', {
             params: { query, companyId },
         });
         return data;
     },
 
     suggestions: async (query: string, companyId: number): Promise<string[]> => {
-        const { data } = await api.get<string[]>('/search/suggestions', {
+        const { data } = await apiClient.get<string[]>('/api/search/suggestions', {
             params: { query, companyId },
         });
         return data;
