@@ -22,9 +22,10 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useDebounce } from '@/hooks/useDebounce';
-import { searchApi, SearchResult } from '@/api/search.api';
-import { useAuthStore } from '@/stores/auth.store';
+import { useDebounce } from '../../hooks/useDebounce';
+import { searchApi } from '../../api/search.api';
+import type { SearchResult } from '../../api/search.api';
+import { useAuthStore } from '../../store/authStore';
 
 export const CommandPalette: React.FC = () => {
     const [open, setOpen] = useState(false);
