@@ -158,7 +158,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
           <Typography variant="subtitle1" gutterBottom>
             {t('invoices:wizard.step4.newItem')}
           </Typography>
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             <Grid item xs={12} sm={3}>
               <TextField
                 fullWidth

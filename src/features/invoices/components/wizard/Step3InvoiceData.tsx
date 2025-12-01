@@ -88,7 +88,7 @@ export const Step3InvoiceData: React.FC<Step3InvoiceDataProps> = ({
         {t('invoices:wizard.step3.subtitle')}
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         <Grid item xs={12} sm={6}>
           <TextField
             fullWidth

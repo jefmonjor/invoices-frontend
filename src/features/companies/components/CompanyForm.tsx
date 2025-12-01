@@ -9,7 +9,7 @@ import TaxIdField from '@/components/shared/TaxIdField';
 const companySchema = z.object({
   // REQUIRED fields (matching backend @NotBlank)
   businessName: z.string().min(1, 'La razón social es requerida').max(200, 'Máximo 200 caracteres'),
-  taxId: z.string().min(1, 'El CIF/NIF es requerido').max(20, 'Máximo 20 caracteres'),
+  taxId: z.string().min(1, 'El CIF/NIF es requerido').max(50, 'Máximo 50 caracteres'),
   address: z.string().min(1, 'La dirección es requerida').max(500, 'Máximo 500 caracteres'),
 
   // OPTIONAL fields (no backend validation)
@@ -85,7 +85,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <Grid container spacing={3}>
+      <Grid container spacing={4}>
         <Grid xs={12} md={6}>
           <TextField
             {...register('businessName')}
