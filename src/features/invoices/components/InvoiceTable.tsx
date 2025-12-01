@@ -8,6 +8,14 @@ import {
   IconButton,
   Tooltip,
   Paper,
+  useTheme,
+  useMediaQuery,
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  Divider,
 } from '@mui/material';
 import {
   Visibility as ViewIcon,
@@ -42,6 +50,118 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
   canDelete = true,
 }) => {
   const { t } = useTranslation(['invoices', 'common']);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const renderActions = (invoice: Invoice) => (
+    <Box sx={{ display: 'flex', gap: 1 }}>
+      <Tooltip title={t('invoices:detail')}>
+        <IconButton size="small" onClick={() => onView(invoice)} color="primary">
+          <ViewIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      {canEdit && (
+        <Tooltip title={t('invoices:actions.edit')}>
+          <IconButton size="small" onClick={() => onEdit(invoice)} color="primary">
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+      {canDelete && (
+        <Tooltip title={t('invoices:actions.delete')}>
+          <IconButton size="small" onClick={() => onDelete(invoice)} color="error">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+      {/* PDF Download Logic */}
+      {invoice.verifactuStatus === 'ACCEPTED' ? (
+        <Tooltip title={t('invoices:actions.downloadPdf')}>
+          <IconButton size="small" onClick={() => onDownloadPDF(invoice)} color="primary">
+            <DownloadIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      ) : invoice.verifactuStatus === 'REJECTED' || invoice.verifactuStatus === 'ERROR' ? (
+        <Tooltip title={invoice.verifactuError || t('invoices:errors.pdfGenerationFailed', 'Error al generar PDF')}>
+          <span>
+            <IconButton size="small" disabled color="error">
+              <ErrorIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+      ) : (
+        <Tooltip title={t('invoices:status.generatingPdf', 'Generando PDF...')}>
+          <span>
+            <IconButton size="small" disabled color="warning">
+              <PendingIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
+      )}
+    </Box>
+  );
+
+  if (isMobile) {
+    return (
+      <Stack spacing={2}>
+        {invoices.map((invoice) => (
+          <Card key={invoice.id} sx={{ position: 'relative' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                <Box>
+                  <Typography variant="h6" component="div" gutterBottom>
+                    {invoice.invoiceNumber}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {formatDate(invoice.issueDate)}
+                  </Typography>
+                </Box>
+                <VerifactuBadge
+                  status={invoice.verifactuStatus}
+                  txId={invoice.verifactuTxId}
+                  errorMessage={invoice.verifactuError}
+                />
+              </Box>
+
+              <Divider sx={{ my: 1.5 }} />
+
+              <Stack spacing={1} sx={{ mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('invoices:fields.baseAmount')}
+                  </Typography>
+                  <Typography variant="body2">
+                    {formatCurrency(invoice.baseAmount)}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('invoices:fields.vat')} ({invoice.items[0]?.vatPercentage}%)
+                  </Typography>
+                  <Typography variant="body2">
+                    {formatCurrency(invoice.totalAmount - invoice.baseAmount + invoice.irpfAmount - invoice.reAmount)}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {t('invoices:fields.total')}
+                  </Typography>
+                  <Typography variant="subtitle1" fontWeight="bold" color="primary">
+                    {formatCurrency(invoice.totalAmount)}
+                  </Typography>
+                </Box>
+              </Stack>
+
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1 }}>
+                {renderActions(invoice)}
+              </Box>
+            </CardContent>
+          </Card>
+        ))}
+      </Stack>
+    );
+  }
+
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -88,49 +208,7 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
                   />
                 </TableCell>
                 <TableCell align="right">
-                  <Tooltip title={t('invoices:detail')}>
-                    <IconButton size="small" onClick={() => onView(invoice)} color="primary">
-                      <ViewIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  {canEdit && (
-                    <Tooltip title={t('invoices:actions.edit')}>
-                      <IconButton size="small" onClick={() => onEdit(invoice)} color="primary">
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  {canDelete && (
-                    <Tooltip title={t('invoices:actions.delete')}>
-                      <IconButton size="small" onClick={() => onDelete(invoice)} color="error">
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  {/* PDF Download Logic */}
-                  {invoice.verifactuStatus === 'ACCEPTED' ? (
-                    <Tooltip title={t('invoices:actions.downloadPdf')}>
-                      <IconButton size="small" onClick={() => onDownloadPDF(invoice)} color="primary">
-                        <DownloadIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  ) : invoice.verifactuStatus === 'REJECTED' || invoice.verifactuStatus === 'ERROR' ? (
-                    <Tooltip title={invoice.verifactuError || t('invoices:errors.pdfGenerationFailed', 'Error al generar PDF')}>
-                      <span>
-                        <IconButton size="small" disabled color="error">
-                          <ErrorIcon fontSize="small" />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  ) : (
-                    <Tooltip title={t('invoices:status.generatingPdf', 'Generando PDF...')}>
-                      <span>
-                        <IconButton size="small" disabled color="warning">
-                          <PendingIcon fontSize="small" />
-                        </IconButton>
-                      </span>
-                    </Tooltip>
-                  )}
+                  {renderActions(invoice)}
                 </TableCell>
               </TableRow>
             );

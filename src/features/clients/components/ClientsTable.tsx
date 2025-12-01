@@ -8,6 +8,14 @@ import {
   Paper,
   IconButton,
   Tooltip,
+  useTheme,
+  useMediaQuery,
+  Stack,
+  Card,
+  CardContent,
+  Box,
+  Typography,
+  Divider,
 } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, Visibility as ViewIcon } from '@mui/icons-material';
 import type { Client } from '@/types/client.types';
@@ -30,6 +38,87 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
   canDelete = true,
 }) => {
   const { t } = useTranslation(['clients', 'common']);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const renderActions = (client: Client) => (
+    <Box sx={{ display: 'flex', gap: 1 }}>
+      {onView && (
+        <Tooltip title={t('clients:actions.view')}>
+          <IconButton size="small" onClick={() => onView(client)} color="primary">
+            <ViewIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+      <Tooltip title={t('clients:actions.edit')}>
+        <IconButton size="small" onClick={() => onEdit(client)} color="primary">
+          <EditIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      {canDelete && (
+        <Tooltip title={t('clients:actions.delete')}>
+          <IconButton size="small" onClick={() => onDelete(client)} color="error">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+    </Box>
+  );
+
+  if (isMobile) {
+    return (
+      <Stack spacing={2}>
+        {clients.length === 0 ? (
+          <Typography align="center" color="text.secondary" sx={{ py: 4 }}>
+            {t('clients:table.empty')}
+          </Typography>
+        ) : (
+          clients.map((client) => (
+            <Card key={client.id}>
+              <CardContent>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                  <Box>
+                    <Typography variant="h6" component="div">
+                      {client.businessName}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {client.taxId}
+                    </Typography>
+                  </Box>
+                  {client.createdAt && (
+                    <Typography variant="caption" color="text.secondary">
+                      {formatDate(client.createdAt)}
+                    </Typography>
+                  )}
+                </Box>
+
+                <Divider sx={{ my: 1.5 }} />
+
+                <Stack spacing={1} sx={{ mb: 2 }}>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      {t('clients:table.email')}
+                    </Typography>
+                    <Typography variant="body2">{client.email}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      {t('clients:table.phone')}
+                    </Typography>
+                    <Typography variant="body2">{client.phone || '-'}</Typography>
+                  </Box>
+                </Stack>
+
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1 }}>
+                  {renderActions(client)}
+                </Box>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </Stack>
+    );
+  }
 
   return (
     <TableContainer component={Paper}>
@@ -60,25 +149,7 @@ export const ClientsTable: React.FC<ClientsTableProps> = ({
                 <TableCell>{client.phone || '-'}</TableCell>
                 <TableCell>{client.createdAt ? formatDate(client.createdAt) : "-"}</TableCell>
                 <TableCell align="center">
-                  {onView && (
-                    <Tooltip title={t('clients:actions.view')}>
-                      <IconButton size="small" onClick={() => onView(client)} color="primary">
-                        <ViewIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                  <Tooltip title={t('clients:actions.edit')}>
-                    <IconButton size="small" onClick={() => onEdit(client)} color="primary">
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  {canDelete && (
-                    <Tooltip title={t('clients:actions.delete')}>
-                      <IconButton size="small" onClick={() => onDelete(client)} color="error">
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
+                  {renderActions(client)}
                 </TableCell>
               </TableRow>
             ))
