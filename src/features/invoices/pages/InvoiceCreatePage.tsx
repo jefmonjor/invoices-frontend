@@ -1,9 +1,11 @@
-
+import { lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Typography, Card } from '@mui/material';
+import { Box, Button, Typography, Card, CircularProgress } from '@mui/material';
 import { ArrowBack as BackIcon } from '@mui/icons-material';
-import { InvoiceWizard } from '../components/wizard/InvoiceWizard';
 import { useTranslation } from 'react-i18next';
+
+// Lazy load InvoiceWizard to reduce initial bundle size (1.5MB -> split into separate chunk)
+const InvoiceWizard = lazy(() => import('../components/wizard/InvoiceWizard').then(module => ({ default: module.InvoiceWizard })));
 
 
 export const InvoiceCreatePage: React.FC = () => {
@@ -30,7 +32,13 @@ export const InvoiceCreatePage: React.FC = () => {
 
       {/* Wizard Card */}
       <Card sx={{ p: 3 }}>
-        <InvoiceWizard onSuccess={handleSuccess} onCancel={handleBack} />
+        <Suspense fallback={
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+            <CircularProgress />
+          </Box>
+        }>
+          <InvoiceWizard onSuccess={handleSuccess} onCancel={handleBack} />
+        </Suspense>
       </Card>
     </Box>
   );
