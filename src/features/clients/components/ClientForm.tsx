@@ -111,6 +111,7 @@ export const ClientForm: React.FC<ClientFormProps> = ({
                 label="DNI/NIE/CIF"
                 name="taxId"
                 required
+                disabled={isSubmitting}
                 onValidation={(valid, type) => {
                   console.log(`Tax ID validation: ${valid}, type: ${type}`);
                 }}

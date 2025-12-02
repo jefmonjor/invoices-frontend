@@ -23,7 +23,7 @@ describe('ClientForm', () => {
       render(<ClientForm {...defaultProps} />)
 
       expect(screen.getByLabelText(/razón social/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/cif\/nif/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/dni\/nie\/cif/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/dirección/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/ciudad/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/código postal/i)).toBeInTheDocument()
@@ -36,18 +36,28 @@ describe('ClientForm', () => {
       const user = userEvent.setup()
       render(<ClientForm {...defaultProps} />)
 
+      // Trigger validation by clicking submit
       const submitButton = screen.getByRole('button', { name: /crear/i })
       await user.click(submitButton)
 
+      // Wait for react-hook-form validation errors
       await waitFor(() => {
         expect(screen.getByText('La razón social es requerida')).toBeInTheDocument()
-        expect(screen.getByText('El CIF/NIF es requerido')).toBeInTheDocument()
         expect(screen.getByText('La dirección es requerida')).toBeInTheDocument()
         expect(screen.getByText('La ciudad es requerida')).toBeInTheDocument()
         expect(screen.getByText('El código postal es requerido')).toBeInTheDocument()
         expect(screen.getByText('La provincia es requerida')).toBeInTheDocument()
         expect(screen.getByText('El teléfono es requerido')).toBeInTheDocument()
         expect(screen.getByText('El email es requerido')).toBeInTheDocument()
+      })
+
+      // TaxIdField shows its error on blur, not on submit
+      const taxIdInput = screen.getByLabelText(/dni\/nie\/cif/i)
+      await user.click(taxIdInput)
+      await user.tab() // Trigger blur
+
+      await waitFor(() => {
+        expect(screen.getByText('El identificador fiscal es obligatorio')).toBeInTheDocument()
       })
 
       expect(mockOnSubmit).not.toHaveBeenCalled()
@@ -88,7 +98,7 @@ describe('ClientForm', () => {
       render(<ClientForm {...defaultProps} />)
 
       await user.type(screen.getByLabelText(/razón social/i), 'Acme Corp')
-      await user.type(screen.getByLabelText(/cif\/nif/i), 'B12345678')
+      await user.type(screen.getByLabelText(/dni\/nie\/cif/i), 'B12345678')
       await user.type(screen.getByLabelText(/dirección/i), '123 Main St')
       await user.type(screen.getByLabelText(/ciudad/i), 'Madrid')
       await user.type(screen.getByLabelText(/código postal/i), '28001')
@@ -141,7 +151,7 @@ describe('ClientForm', () => {
       render(<ClientForm {...defaultProps} initialData={mockClient} />)
 
       expect(screen.getByLabelText(/razón social/i)).toHaveValue(mockClient.businessName)
-      expect(screen.getByLabelText(/cif\/nif/i)).toHaveValue(mockClient.taxId)
+      expect(screen.getByLabelText(/dni\/nie\/cif/i)).toHaveValue(mockClient.taxId)
       expect(screen.getByLabelText(/dirección/i)).toHaveValue(mockClient.address)
       expect(screen.getByLabelText(/ciudad/i)).toHaveValue(mockClient.city)
       expect(screen.getByLabelText(/código postal/i)).toHaveValue(mockClient.postalCode)
@@ -183,7 +193,7 @@ describe('ClientForm', () => {
       render(<ClientForm {...defaultProps} isSubmitting={true} />)
 
       expect(screen.getByLabelText(/razón social/i)).toBeDisabled()
-      expect(screen.getByLabelText(/cif\/nif/i)).toBeDisabled()
+      expect(screen.getByLabelText(/dni\/nie\/cif/i)).toBeDisabled()
       expect(screen.getByLabelText(/dirección/i)).toBeDisabled()
       expect(screen.getByLabelText(/ciudad/i)).toBeDisabled()
       expect(screen.getByLabelText(/código postal/i)).toBeDisabled()
