@@ -23,11 +23,11 @@ export const CompanyCreatePage: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Typography variant="h4" gutterBottom>
         Nueva Empresa
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      <Typography variant="body2" color="text.secondary">
         Completa los datos para registrar una nueva empresa
       </Typography>
 

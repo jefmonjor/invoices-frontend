@@ -28,7 +28,7 @@ export const MainLayout: React.FC = () => {
         }}
       >
         <Toolbar /> {/* Spacer for fixed AppBar */}
-        <Container maxWidth={false} sx={{ mt: 2, px: { xs: 2, md: 4 } }}>
+        <Container maxWidth={false} sx={{ mt: 2, px: { xs: 4, md: 6 } }}>
           <Breadcrumbs />
           <Outlet />
         </Container>

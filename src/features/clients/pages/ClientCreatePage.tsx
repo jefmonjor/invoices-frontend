@@ -25,11 +25,11 @@ export const ClientCreatePage: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Typography variant="h4" gutterBottom>
         {t('clients:create')}
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      <Typography variant="body2" color="text.secondary">
         {t('clients:messages.createSubtitle', 'Completa los datos para registrar un nuevo cliente')}
       </Typography>
 

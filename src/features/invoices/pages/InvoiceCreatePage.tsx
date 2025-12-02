@@ -21,9 +21,9 @@ export const InvoiceCreatePage: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         <Button startIcon={<BackIcon />} onClick={handleBack}>
           {t('common:actions.back')}
         </Button>
