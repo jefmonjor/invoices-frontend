@@ -10,6 +10,7 @@ interface TaxIdFieldProps {
     label?: string;
     name?: string;
     required?: boolean;
+    disabled?: boolean;
     onValidation?: (valid: boolean, type: string) => void;
 }
 
@@ -23,6 +24,7 @@ const TaxIdField: React.FC<TaxIdFieldProps> = ({
     label = 'CIF/NIF/NIE',
     name = 'taxId',
     required = true,
+    disabled = false,
     onValidation,
 }) => {
     const [error, setError] = useState<string>('');
@@ -63,6 +65,7 @@ const TaxIdField: React.FC<TaxIdFieldProps> = ({
             onChange={handleChange}
             onBlur={handleBlur}
             required={required}
+            disabled={disabled}
             error={touched && !!error}
             helperText={touched ? error : 'Formato: DNI (12345678Z), NIE (X1234567L), CIF (A58818501)'}
             InputProps={{
