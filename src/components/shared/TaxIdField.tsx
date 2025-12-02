@@ -10,6 +10,7 @@ interface TaxIdFieldProps {
     label?: string;
     name?: string;
     required?: boolean;
+    disabled?: boolean;
     onValidation?: (valid: boolean, type: string) => void;
 }
 
