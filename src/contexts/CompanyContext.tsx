@@ -3,6 +3,8 @@ import type { Company } from '@/types/company.types';
 import { companiesApi } from '@/api/companies.api';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
+import { toast } from 'react-toastify';
+import { logger } from '@/utils/logger';
 
 /**
  * Company Context State
@@ -47,7 +49,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
       const companies = await companiesApi.getUserCompanies();
       return companies;
     } catch (err) {
-      console.error('Error fetching user companies:', err);
+      logger.error('Error fetching user companies:', err);
       throw new Error('No se pudieron cargar las empresas del usuario');
     }
   }, []);
@@ -92,7 +94,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al cargar empresas';
       setError(message);
-      console.error('Error initializing company context:', err);
+      logger.error('Error initializing company context:', err);
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +111,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     const targetCompany = userCompanies.find(c => c.id === companyId);
 
     if (!targetCompany) {
-      console.error(`Company with ID ${companyId} not found in user companies`);
+      logger.error(`Company with ID ${companyId} not found in user companies`);
       return;
     }
 
@@ -122,6 +124,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
 
       // 3. Update local state
       setCurrentCompany(targetCompany);
+      setUserRole(targetCompany.role || 'USER');
       localStorage.setItem(STORAGE_KEY, companyId.toString());
 
       // 4. Emit event
@@ -129,10 +132,17 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
         detail: { companyId, company: targetCompany }
       }));
 
-      console.log(`Switched to company: ${targetCompany.businessName} (${companyId})`);
+      // 5. Show success feedback
+      toast.success(`Cambiado a: ${targetCompany.businessName}`, {
+        position: 'top-right',
+        autoClose: 2000,
+      });
+
+      logger.log(`Switched to company: ${targetCompany.businessName} (${companyId})`);
     } catch (err) {
-      console.error('Error switching company:', err);
+      logger.error('Error switching company:', err);
       setError('Error al cambiar de empresa');
+      toast.error('Error al cambiar de empresa. Por favor, intenta de nuevo.');
     }
   }, [userCompanies]);
 
@@ -149,10 +159,10 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
   const setDefaultCompany = useCallback(async (companyId: number) => {
     try {
       await companiesApi.setDefaultCompany(companyId);
-      console.log(`Set company ${companyId} as default`);
+      logger.log(`Set company ${companyId} as default`);
       // No necesitamos actualizar estado local complejo si solo afecta al login futuro
     } catch (err) {
-      console.error('Error setting default company:', err);
+      logger.error('Error setting default company:', err);
       throw err;
     }
   }, []);

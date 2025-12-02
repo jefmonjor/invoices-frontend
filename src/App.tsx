@@ -74,9 +74,6 @@ function App() {
   // Monitorear expiración de token
   useTokenExpiration();
 
-  // Monitorear expiración de token
-  useTokenExpiration();
-
   // Create MUI theme dynamically based on mode
   const theme = useMemo(() => getTheme(themeMode), [themeMode]);
 
@@ -96,11 +93,7 @@ function App() {
 
                 {/* Private routes with Layout */}
                 <Route element={<PrivateRoute />}>
-                  <Route element={
-                    <CompanyProvider>
-                      <MainLayout />
-                    </CompanyProvider>
-                  }>
+                  <Route element={<MainLayout />}>
                     <Route path="/dashboard" element={<DashboardPage />} />
 
                     {/* Invoices */}
