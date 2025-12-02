@@ -26,7 +26,7 @@ describe('UserForm', () => {
       expect(screen.getByLabelText(/contraseña/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/nombre/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/apellido/i)).toBeInTheDocument()
-      expect(screen.getByLabelText(/roles/i)).toBeInTheDocument()
+      expect(screen.getByLabelText(/rol/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/usuario activo/i)).toBeInTheDocument()
     })
 
