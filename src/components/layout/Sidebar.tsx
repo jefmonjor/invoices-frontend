@@ -25,7 +25,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import CompanySelector from '../common/CompanySelector';
 import { useTranslation } from 'react-i18next';
-import { useCurrentCompany } from '@/contexts/CompanyContext';
+import { useCurrentCompany } from '@/contexts/useCompanyContext';
 
 const DRAWER_WIDTH = 240;
 

@@ -32,7 +32,7 @@ export const ResetPasswordPage = () => {
                 if (!response.valid) {
                     setError('El enlace de restablecimiento ha expirado o es inválido');
                 }
-            } catch (err) {
+            } catch {
                 setError('Error al verificar el token');
                 setTokenValid(false);
             } finally {

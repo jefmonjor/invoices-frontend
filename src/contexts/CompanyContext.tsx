@@ -1,28 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import React, { useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { Company } from '@/types/company.types';
 import { companiesApi } from '@/api/companies.api';
 import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'react-toastify';
 import { logger } from '@/utils/logger';
-
-/**
- * Company Context State
- */
-interface CompanyContextState {
-  currentCompany: Company | null;
-  userCompanies: Company[];
-  userRole: 'ADMIN' | 'USER' | null; // Rol en la empresa actual
-  isLoading: boolean;
-  error: string | null;
-
-  // Methods
-  switchCompany: (companyId: number) => Promise<void>;
-  refreshCompanies: () => Promise<void>;
-  setDefaultCompany: (companyId: number) => Promise<void>;
-}
-
-const CompanyContext = createContext<CompanyContextState | undefined>(undefined);
+import { CompanyContext, type CompanyContextState } from './CompanyContextDefinition';
 
 const STORAGE_KEY = 'currentCompanyId';
 
@@ -188,33 +171,4 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
       {children}
     </CompanyContext.Provider>
   );
-};
-
-/**
- * Hook para usar el CompanyContext
- */
-export const useCompanyContext = (): CompanyContextState => {
-  const context = useContext(CompanyContext);
-
-  if (context === undefined) {
-    throw new Error('useCompanyContext must be used within a CompanyProvider');
-  }
-
-  return context;
-};
-
-/**
- * Hook para obtener solo la empresa actual
- */
-export const useCurrentCompany = (): Company | null => {
-  const { currentCompany } = useCompanyContext();
-  return currentCompany;
-};
-
-/**
- * Hook para obtener el ID de la empresa actual
- */
-export const useCurrentCompanyId = (): number | null => {
-  const { currentCompany } = useCompanyContext();
-  return currentCompany?.id ?? null;
 };
