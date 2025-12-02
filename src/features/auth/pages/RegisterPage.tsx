@@ -132,7 +132,7 @@ export const RegisterPage: React.FC = () => {
     setError(null);
 
     try {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         email: data.email,
         password: data.password,
         firstName: data.firstName,
