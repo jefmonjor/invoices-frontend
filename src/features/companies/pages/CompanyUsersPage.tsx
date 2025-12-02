@@ -27,6 +27,7 @@ import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { companyService, type CompanyUser } from '@/api/companyService';
 import { toast } from 'react-toastify';
 import { useUserRole } from '@/hooks/useUserRole';
+import axios from 'axios';
 
 export const CompanyUsersPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -82,7 +83,10 @@ export const CompanyUsersPage = () => {
             setEditingUser(null);
             loadUsers();
         } catch (error: unknown) {
-            toast.error(error.response?.data?.message || 'Error al actualizar rol');
+            const message = axios.isAxiosError(error)
+                ? error.response?.data?.message || 'Error al actualizar rol'
+                : 'Error al actualizar rol';
+            toast.error(message);
         }
     };
 
@@ -96,7 +100,10 @@ export const CompanyUsersPage = () => {
             setUserToDelete(null);
             loadUsers();
         } catch (error: unknown) {
-            toast.error(error.response?.data?.message || 'Error al eliminar usuario');
+            const message = axios.isAxiosError(error)
+                ? error.response?.data?.message || 'Error al eliminar usuario'
+                : 'Error al eliminar usuario';
+            toast.error(message);
         }
     };
 
