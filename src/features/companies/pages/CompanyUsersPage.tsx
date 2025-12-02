@@ -81,7 +81,7 @@ export const CompanyUsersPage = () => {
             toast.success('Rol actualizado exitosamente');
             setEditingUser(null);
             loadUsers();
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error(error.response?.data?.message || 'Error al actualizar rol');
         }
     };
@@ -95,7 +95,7 @@ export const CompanyUsersPage = () => {
             setDeleteDialogOpen(false);
             setUserToDelete(null);
             loadUsers();
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error(error.response?.data?.message || 'Error al eliminar usuario');
         }
     };

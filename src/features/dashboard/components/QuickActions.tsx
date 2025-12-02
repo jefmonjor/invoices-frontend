@@ -24,7 +24,7 @@ export const QuickActions = () => {
                         <Grid item xs={12} sm={4} key={action.label}>
                             <Button
                                 variant="outlined"
-                                color={action.color as any}
+                                color={action.color as 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning'}
                                 fullWidth
                                 startIcon={action.icon}
                                 onClick={() => navigate(action.path)}
