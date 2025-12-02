@@ -150,10 +150,21 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     }
   }, []);
 
-  // Inicializar al montar
+  // Solo inicializar si el usuario está autenticado
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+
   useEffect(() => {
-    initializeContext();
-  }, [initializeContext]);
+    if (isAuthenticated) {
+      initializeContext();
+    } else {
+      // Si no está autenticado, limpiar estado
+      setIsLoading(false);
+      setCurrentCompany(null);
+      setUserCompanies([]);
+      setUserRole(null);
+      setError(null);
+    }
+  }, [isAuthenticated, initializeContext]);
 
   const contextValue: CompanyContextState = {
     currentCompany,
