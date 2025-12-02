@@ -104,10 +104,10 @@ apiClient.interceptors.response.use(
     }
     return response;
   },
-  (error: AxiosError) => {
+  (error: AxiosError<{ message?: string }>) => {
     if (error.response?.status === 401) {
       // Token expirado o inválido - limpiar estado y redirigir
-      const errorMessage = (error.response.data as any)?.message || '';
+      const errorMessage = error.response.data?.message || '';
 
       // Limpiar autenticación
       localStorage.removeItem('token');

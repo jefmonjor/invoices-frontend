@@ -17,7 +17,7 @@ import {
   KeyboardArrowDown as ArrowDownIcon,
   CheckCircle as CheckIcon,
 } from '@mui/icons-material';
-import { useCompanyContext } from '@/contexts/CompanyContext';
+import { useCompanyContext } from '@/contexts/useCompanyContext';
 
 /**
  * CompanySelector Component

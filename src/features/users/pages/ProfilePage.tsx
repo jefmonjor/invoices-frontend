@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { Edit as EditIcon, GroupAdd as GroupAddIcon } from '@mui/icons-material';
 import { TextField, Stack } from '@mui/material';
 import { useProfile, useUpdateProfile } from '../hooks/useUsers';
-import { useState, useEffect } from 'react';
-import { useCompanyContext } from '@/contexts/CompanyContext';
+import { useState, useEffect, useMemo } from 'react';
+import { useCompanyContext } from '@/contexts/useCompanyContext';
 import { useTranslation } from 'react-i18next';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import InviteUserModal from '@/features/companies/components/InviteUserModal';
@@ -27,8 +27,10 @@ export const ProfilePage: React.FC = () => {
   const { t } = useTranslation('auth');
   const { data: user, isLoading, error } = useProfile();
   const updateMutation = useUpdateProfile();
-  const [isAdmin, setIsAdmin] = useState(false);
   const { currentCompany, userCompanies, switchCompany } = useCompanyContext();
+
+  // Derive isAdmin from user instead of using state
+  const isAdmin = useMemo(() => user?.roles?.includes('ROLE_ADMIN') ?? false, [user]);
 
   // Modal State
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -38,12 +40,6 @@ export const ProfilePage: React.FC = () => {
     setSelectedCompanyId(companyId);
     setInviteModalOpen(true);
   };
-
-  useEffect(() => {
-    if (user) {
-      setIsAdmin(user.roles.includes('ROLE_ADMIN'));
-    }
-  }, [user]);
 
   const {
     register,
@@ -63,7 +59,6 @@ export const ProfilePage: React.FC = () => {
   // Update form values when user data is loaded
   useEffect(() => {
     if (user) {
-      setIsAdmin(user.roles.includes('ROLE_ADMIN'));
       reset({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -290,8 +285,7 @@ export const ProfilePage: React.FC = () => {
                     control={
                       <Checkbox
                         checked={isAdmin}
-                        onChange={(e) => setIsAdmin(e.target.checked)}
-                        disabled={updateMutation.isPending}
+                        disabled
                       />
                     }
                     label={t('profile.isAdmin')}

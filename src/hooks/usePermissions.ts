@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/store/authStore';
-import { useCompanyContext } from '@/contexts/CompanyContext';
+import { useCompanyContext } from '@/contexts/useCompanyContext';
 
 /**
  * Interface defining all available permissions in the application

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -47,18 +47,13 @@ const InvoiceDetailPage: React.FC = () => {
   const invoiceId = parseInt(id || '0', 10);
 
   const [deleteDialog, setDeleteDialog] = useState(false);
-  const [verifactuStatus, setVerifactuStatus] = useState<string | undefined>(undefined);
-
   const { data: invoice, isLoading, error } = useInvoice(invoiceId);
   const deleteMutation = useDeleteInvoice();
   const generatePDFMutation = useGeneratePDF();
 
-  // Initialize status when invoice loads
-  useEffect(() => {
-    if (invoice?.verifactuStatus) {
-      setVerifactuStatus(invoice.verifactuStatus);
-    }
-  }, [invoice]);
+  // Use local state for verifactu status updates (can be updated via WebSocket)
+  // Initialize with invoice data to avoid setState in useEffect
+  const [verifactuStatus, setVerifactuStatus] = useState<string | undefined>(() => invoice?.verifactuStatus);
 
   // WebSocket handler for status updates
   const handleStatusUpdate = useCallback((message: InvoiceStatusMessage) => {
