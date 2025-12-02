@@ -85,7 +85,7 @@ export const CompanyForm: React.FC<CompanyFormProps> = ({
 
   return (
     <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <Grid container spacing={4}>
+      <Grid container spacing={6}>
         <Grid xs={12} md={6}>
           <TextField
             {...register('businessName')}
