@@ -6,13 +6,25 @@ import type {
   InvoiceListParams,
 } from '@/types/invoice.types';
 
+export interface PaginatedInvoiceResponse {
+  data: Invoice[];
+  totalCount: number;
+}
+
 export const invoicesApi = {
-  // Listar facturas (retorna array simple, no paginado según OpenAPI)
-  list: async (params?: InvoiceListParams): Promise<Invoice[]> => {
+  // Listar facturas (paginado con X-Total-Count header según backend contract)
+  list: async (params?: InvoiceListParams): Promise<PaginatedInvoiceResponse> => {
     const response = await apiClient.get<Invoice[]>('/api/invoices', {
       params,
     });
-    return response.data;
+
+    // Extraer X-Total-Count del header según contrato backend
+    const totalCount = parseInt(response.headers['x-total-count'] || '0', 10);
+
+    return {
+      data: response.data,
+      totalCount,
+    };
   },
 
   // Obtener factura por ID
