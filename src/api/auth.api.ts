@@ -40,9 +40,7 @@ export const authApi = {
     return response.data;
   },
 
-  // Switch Company
-  switchCompany: async (companyId: number): Promise<LoginResponse> => {
-    const response = await apiClient.post<LoginResponse>(`/api/auth/switch-company/${companyId}`);
-    return response.data;
-  },
+  // NOTE: switchCompany moved to companiesApi
+  // Use: companiesApi.switchCompany(companyId)
+  // Endpoint: POST /api/companies/switch/{companyId}
 };

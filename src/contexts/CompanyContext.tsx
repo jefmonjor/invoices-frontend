@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { Company } from '@/types/company.types';
 import { companiesApi } from '@/api/companies.api';
-import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'react-toastify';
 import { logger } from '@/utils/logger';
@@ -100,7 +99,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
 
     try {
       // 1. Call backend to switch context and get new token
-      const response = await authApi.switchCompany(companyId);
+      const response = await companiesApi.switchCompany(companyId);
 
       // 2. Update Auth Store with new token and user
       useAuthStore.getState().setAuth(response.token, response.user);

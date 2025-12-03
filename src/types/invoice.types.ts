@@ -52,14 +52,18 @@ export interface CompanyDTO {
 
 /**
  * Item de factura según InvoiceItemDTO
+ * IMPORTANT: Nombres de campos alineados con contrato del backend:
+ * - quantity (no "units")
+ * - unitPrice (no "price")
+ * - taxRate (no "vatPercentage")
  */
 export interface InvoiceItem {
   id?: number; // Opcional al crear
   invoiceId?: number;
   description: string;
-  units: number;
-  price: number; // Precio unitario
-  vatPercentage: number;
+  quantity: number; // Cantidad (antes: units)
+  unitPrice: number; // Precio unitario (antes: price)
+  taxRate: number; // Porcentaje de IVA (antes: vatPercentage)
   discountPercentage?: number;
   subtotal?: number; // Calculado por backend
   total?: number; // Calculado por backend
@@ -78,9 +82,9 @@ export interface InvoiceItem {
  */
 export interface CreateInvoiceItemRequest {
   description: string;
-  units: number;
-  price: number;
-  vatPercentage: number;
+  quantity: number; // Cantidad (antes: units)
+  unitPrice: number; // Precio unitario (antes: price)
+  taxRate: number; // Porcentaje de IVA (antes: vatPercentage)
   discountPercentage?: number;
   // Campos adicionales para facturas de transporte
   itemDate?: string; // ISO-8601 date (YYYY-MM-DD)

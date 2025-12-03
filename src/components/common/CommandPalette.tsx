@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -23,9 +23,60 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '../../hooks/useDebounce';
-import { searchApi } from '../../api/search.api';
-import type { SearchResult } from '../../api/search.api';
-import { useAuthStore } from '../../store/authStore';
+import { searchApi, type SearchResponse } from '../../api/search.api';
+import type { Invoice } from '@/types/invoice.types';
+import type { Client } from '@/types/client.types';
+import type { Company } from '@/types/company.types';
+
+interface SearchResultItem {
+    id: string;
+    title: string;
+    subtitle: string;
+    type: 'INVOICE' | 'CLIENT' | 'COMPANY';
+    url: string;
+}
+
+/**
+ * Adapter function to convert new SearchResponse to old SearchResult[] format
+ */
+function adaptSearchResponse(data: SearchResponse): SearchResultItem[] {
+    const results: SearchResultItem[] = [];
+
+    // Convert invoices
+    data.invoices.forEach((invoice: Invoice) => {
+        results.push({
+            id: `invoice-${invoice.id}`,
+            title: `Factura ${invoice.invoiceNumber}`,
+            subtitle: invoice.client?.businessName || 'Sin cliente',
+            type: 'INVOICE',
+            url: `/invoices/${invoice.id}`,
+        });
+    });
+
+    // Convert clients
+    data.clients.forEach((client: Client) => {
+        results.push({
+            id: `client-${client.id}`,
+            title: client.businessName,
+            subtitle: client.taxId || '',
+            type: 'CLIENT',
+            url: `/clients/${client.id}`,
+        });
+    });
+
+    // Convert companies
+    data.companies.forEach((company: Company) => {
+        results.push({
+            id: `company-${company.id}`,
+            title: company.businessName,
+            subtitle: company.taxId || '',
+            type: 'COMPANY',
+            url: `/companies/${company.id}`,
+        });
+    });
+
+    return results;
+}
 
 export const CommandPalette: React.FC = () => {
     const [open, setOpen] = useState(false);
@@ -34,8 +85,6 @@ export const CommandPalette: React.FC = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const { user } = useAuthStore();
-    const companyId = user?.currentCompanyId;
 
     // Toggle open/close with Cmd+K or Ctrl+K
     useEffect(() => {
@@ -50,23 +99,31 @@ export const CommandPalette: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Search Query
-    const { data: results = [], isLoading } = useQuery({
-        queryKey: ['search', debouncedQuery, companyId],
+    // Search Query - using new API with 'q' parameter
+    const { data: searchData, isLoading } = useQuery({
+        queryKey: ['search', debouncedQuery],
         queryFn: () => {
-            if (!debouncedQuery || !companyId) return [];
-            return searchApi.global(debouncedQuery, companyId);
+            if (!debouncedQuery) {
+                return { invoices: [], clients: [], companies: [], totalResults: 0 };
+            }
+            return searchApi.global({ q: debouncedQuery, type: 'all' });
         },
-        enabled: open && debouncedQuery.length > 1 && !!companyId,
+        enabled: open && debouncedQuery.length > 1,
         staleTime: 1000 * 60, // 1 minute
     });
+
+    // Convert new API response to old format for backwards compatibility
+    const results = useMemo(() => {
+        if (!searchData) return [];
+        return adaptSearchResponse(searchData);
+    }, [searchData]);
 
     const handleClose = () => {
         setOpen(false);
         setQuery('');
     };
 
-    const handleSelect = (result: SearchResult) => {
+    const handleSelect = (result: SearchResultItem) => {
         navigate(result.url);
         handleClose();
     };
@@ -140,7 +197,7 @@ export const CommandPalette: React.FC = () => {
                 <List sx={{ overflow: 'auto', flex: 1, py: 0 }}>
                     {results.map((result) => (
                         <ListItemButton
-                            key={`${result.type}-${result.id}`}
+                            key={result.id}
                             onClick={() => handleSelect(result)}
                             divider
                         >

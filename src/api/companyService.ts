@@ -38,9 +38,10 @@ export const companyService = {
 
     /**
      * Update user role in company (ADMIN only)
+     * PATCH /api/companies/{companyId}/users/{userId}/role
      */
     updateUserRole: async (companyId: number, userId: number, role: 'ADMIN' | 'USER') => {
-        await apiClient.put(`/api/companies/${companyId}/users/${userId}/role`, { role });
+        await apiClient.patch(`/api/companies/${companyId}/users/${userId}/role`, { role });
     },
 
     /**

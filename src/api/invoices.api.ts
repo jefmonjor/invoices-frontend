@@ -6,13 +6,41 @@ import type {
   InvoiceListParams,
 } from '@/types/invoice.types';
 
+export interface InvoiceListResponse {
+  invoices: Invoice[];
+  totalCount: number;
+}
+
+export interface CanonicalJsonResponse {
+  canonicalJson: string;
+  documentHash: string;
+}
+
+export interface VerificationStatusResponse {
+  invoiceId: number;
+  verifactuStatus: string;
+  verifactuTxId: string | null;
+  qrPayload: string | null;
+  documentHash: string | null;
+  lastVerificationAttempt: string | null;
+  error: string | null;
+}
+
 export const invoicesApi = {
-  // Listar facturas (retorna array simple, no paginado según OpenAPI)
-  list: async (params?: InvoiceListParams): Promise<Invoice[]> => {
+  // Listar facturas (paginado según contrato del backend)
+  // Backend devuelve array en body + X-Total-Count en headers
+  list: async (params?: InvoiceListParams): Promise<InvoiceListResponse> => {
     const response = await apiClient.get<Invoice[]>('/api/invoices', {
       params,
     });
-    return response.data;
+
+    // Extraer total count del header X-Total-Count
+    const totalCount = parseInt(response.headers['x-total-count'] || '0', 10);
+
+    return {
+      invoices: response.data,
+      totalCount,
+    };
   },
 
   // Obtener factura por ID
@@ -61,5 +89,19 @@ export const invoicesApi = {
     link.click();
     link.remove();
     window.URL.revokeObjectURL(url);
+  },
+
+  // Obtener JSON canónico de la factura
+  // GET /api/invoices/{id}/canonical
+  getCanonical: async (id: number): Promise<CanonicalJsonResponse> => {
+    const response = await apiClient.get<CanonicalJsonResponse>(`/api/invoices/${id}/canonical`);
+    return response.data;
+  },
+
+  // Obtener estado de verificación de Verifactu
+  // GET /api/invoices/{id}/verification-status
+  getVerificationStatus: async (id: number): Promise<VerificationStatusResponse> => {
+    const response = await apiClient.get<VerificationStatusResponse>(`/api/invoices/${id}/verification-status`);
+    return response.data;
   },
 };

@@ -1,5 +1,6 @@
 import { apiClient } from './client';
 import type { Company, CreateCompanyRequest, CompanyUser } from '@/types/company.types';
+import type { LoginResponse } from '@/types/auth.types';
 
 export interface InvitationResponse {
   code: string;
@@ -14,9 +15,20 @@ export interface CompanyUsersResponse {
 export const companiesApi = {
   /**
    * Get current user's companies with their roles
+   * GET /api/companies/my
    */
   getUserCompanies: async (): Promise<Company[]> => {
-    const response = await apiClient.get<Company[]>('/api/users/me/companies');
+    const response = await apiClient.get<Company[]>('/api/companies/my');
+    return response.data;
+  },
+
+  /**
+   * Switch to a different company
+   * POST /api/companies/switch/{companyId}
+   * Note: Backend returns new JWT token with updated companyId in claims
+   */
+  switchCompany: async (companyId: number): Promise<LoginResponse> => {
+    const response = await apiClient.post<LoginResponse>(`/api/companies/switch/${companyId}`);
     return response.data;
   },
 

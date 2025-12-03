@@ -41,7 +41,9 @@ export const InvoicesListPage: React.FC = () => {
   });
 
   // Queries & Mutations
-  const { data: invoices, isLoading } = useInvoices();
+  const { data: invoicesData, isLoading } = useInvoices();
+  const invoices = invoicesData?.invoices || [];
+  // Note: totalCount available at invoicesData?.totalCount if needed for pagination
   const deleteMutation = useDeleteInvoice();
   const generatePDFMutation = useGeneratePDF();
 

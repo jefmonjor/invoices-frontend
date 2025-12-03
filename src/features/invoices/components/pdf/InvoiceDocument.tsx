@@ -219,7 +219,7 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
         }
         // Fallback: calcular en frontend
         return invoice.items.reduce((acc, item) => {
-            const itemTotal = item.units * item.price;
+            const itemTotal = item.quantity * item.unitPrice;
             const discount = itemTotal * ((item.discountPercentage || 0) / 100);
             return acc + (itemTotal - discount);
         }, 0);
@@ -228,10 +228,10 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
     const calculateVatAmount = () => {
         // Calcular desde los items (el backend no almacena IVA total directamente)
         return invoice.items.reduce((acc, item) => {
-            const itemTotal = item.units * item.price;
+            const itemTotal = item.quantity * item.unitPrice;
             const discount = itemTotal * ((item.discountPercentage || 0) / 100);
             const taxable = itemTotal - discount;
-            return acc + (taxable * (item.vatPercentage / 100));
+            return acc + (taxable * (item.taxRate / 100));
         }, 0);
     };
 
@@ -343,7 +343,7 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                     </View>
 
                     {invoice.items.map((item, index) => {
-                        const itemSubtotal = item.units * item.price;
+                        const itemSubtotal = item.quantity * item.unitPrice;
                         const itemDiscount = itemSubtotal * ((item.discountPercentage || 0) / 100);
                         const itemTotal = itemSubtotal - itemDiscount;
 
@@ -356,17 +356,17 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                                         <Text style={styles.colDescTransport}>{item.description}</Text>
                                         <Text style={styles.colZone}>{item.zone || '-'}</Text>
                                         <Text style={styles.colOrder}>{item.orderNumber || '-'}</Text>
-                                        <Text style={styles.colQty}>{item.units}</Text>
-                                        <Text style={styles.colPrice}>{formatCurrency(item.price)}</Text>
+                                        <Text style={styles.colQty}>{item.quantity}</Text>
+                                        <Text style={styles.colPrice}>{formatCurrency(item.unitPrice)}</Text>
                                         <Text style={styles.colTotal}>{formatCurrency(itemTotal)}</Text>
                                     </>
                                 ) : (
                                     <>
                                         <Text style={styles.colDesc}>{item.description}</Text>
-                                        <Text style={styles.colQty}>{item.units}</Text>
-                                        <Text style={styles.colPrice}>{formatCurrency(item.price)}</Text>
+                                        <Text style={styles.colQty}>{item.quantity}</Text>
+                                        <Text style={styles.colPrice}>{formatCurrency(item.unitPrice)}</Text>
                                         <Text style={styles.colDiscount}>{item.discountPercentage ? `${item.discountPercentage}%` : '-'}</Text>
-                                        <Text style={styles.colVat}>{item.vatPercentage}%</Text>
+                                        <Text style={styles.colVat}>{item.taxRate}%</Text>
                                         <Text style={styles.colTotal}>{formatCurrency(itemTotal)}</Text>
                                     </>
                                 )}
