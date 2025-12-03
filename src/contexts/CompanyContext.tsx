@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, type ReactNode } from 'react';
 import type { Company } from '@/types/company.types';
 import { companiesApi } from '@/api/companies.api';
-import { authApi } from '@/api/auth.api';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'react-toastify';
 import { logger } from '@/utils/logger';
@@ -89,6 +88,8 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
 
   /**
    * Cambiar a otra empresa
+   * Backend endpoint: POST /companies/switch/{companyId}
+   * Note: JWT token remains valid, backend internally switches context
    */
   const switchCompany = useCallback(async (companyId: number) => {
     const targetCompany = userCompanies.find(c => c.id === companyId);
@@ -99,23 +100,20 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     }
 
     try {
-      // 1. Call backend to switch context and get new token
-      const response = await authApi.switchCompany(companyId);
+      // 1. Call backend to switch context (token remains valid, context switches)
+      await companiesApi.switchCompany(companyId);
 
-      // 2. Update Auth Store with new token and user
-      useAuthStore.getState().setAuth(response.token, response.user);
-
-      // 3. Update local state
+      // 2. Update local state
       setCurrentCompany(targetCompany);
       setUserRole(targetCompany.role || 'USER');
       localStorage.setItem(STORAGE_KEY, companyId.toString());
 
-      // 4. Emit event
+      // 3. Emit event
       window.dispatchEvent(new CustomEvent('companyChanged', {
         detail: { companyId, company: targetCompany }
       }));
 
-      // 5. Show success feedback
+      // 4. Show success feedback
       toast.success(`Cambiado a: ${targetCompany.businessName}`, {
         position: 'top-right',
         autoClose: 2000,

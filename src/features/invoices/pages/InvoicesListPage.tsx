@@ -41,9 +41,12 @@ export const InvoicesListPage: React.FC = () => {
   });
 
   // Queries & Mutations
-  const { data: invoices, isLoading } = useInvoices();
+  const { data: invoicesResponse, isLoading } = useInvoices();
   const deleteMutation = useDeleteInvoice();
   const generatePDFMutation = useGeneratePDF();
+
+  // Extract invoices array from paginated response
+  const invoices = invoicesResponse?.data || [];
 
   // Handlers
   const handleCreateNew = () => navigate('/invoices/create');
@@ -91,7 +94,7 @@ export const InvoicesListPage: React.FC = () => {
 
   // Filtering & Pagination
   const filteredInvoices = useMemo(() => {
-    if (!invoices) return [];
+    if (!invoices || invoices.length === 0) return [];
 
     return invoices.filter((invoice) => {
       const matchesSearch =

@@ -11,17 +11,36 @@ export interface CompanyUsersResponse {
   totalCount: number;
 }
 
+export interface SwitchCompanyResponse {
+  message: string;
+  newCompanyId: number;
+}
+
 export const companiesApi = {
   /**
    * Get current user's companies with their roles
+   * Backend endpoint: GET /companies/my
    */
   getUserCompanies: async (): Promise<Company[]> => {
-    const response = await apiClient.get<Company[]>('/api/users/me/companies');
+    const response = await apiClient.get<Company[]>('/api/companies/my');
+    return response.data;
+  },
+
+  /**
+   * Switch to a different company
+   * Backend endpoint: POST /companies/switch/{companyId}
+   * Note: JWT token remains valid, backend internally switches context
+   */
+  switchCompany: async (companyId: number): Promise<SwitchCompanyResponse> => {
+    const response = await apiClient.post<SwitchCompanyResponse>(
+      `/api/companies/switch/${companyId}`
+    );
     return response.data;
   },
 
   /**
    * Set a company as the user's default/active company
+   * Note: This endpoint is not documented in backend contract - may need verification
    */
   setDefaultCompany: async (companyId: number): Promise<void> => {
     await apiClient.put(`/api/users/me/companies/${companyId}/set-default`);
