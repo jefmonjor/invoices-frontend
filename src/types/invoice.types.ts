@@ -184,6 +184,7 @@ export interface InvoiceListParams {
   sortDir?: 'asc' | 'desc';
   status?: string;
   clientId?: number;
+  search?: string; // Búsqueda por número de factura o nombre de cliente
 }
 
 /**
