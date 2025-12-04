@@ -8,18 +8,6 @@ export interface CompanyUser {
     joinedAt?: string;
 }
 
-export interface CompanyMetrics {
-    totalInvoices: number;
-    paidInvoices: number;
-    pendingInvoices: number;
-    totalRevenue: number;
-    pendingRevenue: number;
-    totalClients: number;
-    activeUsers: number;
-    periodStart: string;
-    periodEnd: string;
-}
-
 export const companyService = {
     /**
      * Get all users in a company (ADMIN only)
@@ -45,14 +33,6 @@ export const companyService = {
     },
 
     /**
-     * Get company metrics (ADMIN only)
-     */
-    getMetrics: async (companyId: number): Promise<CompanyMetrics> => {
-        const response = await apiClient.get(`/api/companies/${companyId}/metrics`);
-        return response.data;
-    },
-
-    /**
      * Delete company (ADMIN only)
      */
     deleteCompany: async (companyId: number) => {
@@ -61,3 +41,4 @@ export const companyService = {
 };
 
 export default companyService;
+
