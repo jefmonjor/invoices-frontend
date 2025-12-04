@@ -4,12 +4,13 @@ import type { ReactNode } from 'react';
 interface KPICardProps {
     title: string;
     value: string | number;
+    subtitle?: string;
     icon?: ReactNode;
     trend?: number; // Percentage change
     color?: 'primary' | 'secondary' | 'error' | 'warning' | 'success' | 'info';
 }
 
-export const KPICard = ({ title, value, icon, trend, color = 'primary' }: KPICardProps) => {
+export const KPICard = ({ title, value, subtitle, icon, trend, color = 'primary' }: KPICardProps) => {
     const theme = useTheme();
     const mainColor = theme.palette[color].main;
 
@@ -30,7 +31,7 @@ export const KPICard = ({ title, value, icon, trend, color = 'primary' }: KPICar
                     >
                         {icon}
                     </Box>
-                    {trend !== undefined && (
+                    {trend !== undefined && trend !== 0 && (
                         <Box
                             sx={{
                                 display: 'flex',
@@ -55,6 +56,11 @@ export const KPICard = ({ title, value, icon, trend, color = 'primary' }: KPICar
                 <Typography variant="body2" color="text.secondary">
                     {title}
                 </Typography>
+                {subtitle && (
+                    <Typography variant="caption" color="text.disabled" sx={{ mt: 0.5, display: 'block' }}>
+                        {subtitle}
+                    </Typography>
+                )}
             </CardContent>
         </Card>
     );

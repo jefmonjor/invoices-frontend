@@ -239,10 +239,11 @@ export const RegisterPage: React.FC = () => {
       {/* Right Side - Form */}
       <Box
         sx={{
-          flex: { xs: 1, md: '0 0 550px' },
+          flex: 1,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
+          alignItems: 'center',
           p: { xs: 3, sm: 6 },
           bgcolor: 'background.paper',
           overflowY: 'auto',
