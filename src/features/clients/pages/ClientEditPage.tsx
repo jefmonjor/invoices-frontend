@@ -63,8 +63,8 @@ export const ClientEditPage: React.FC = () => {
         {t('clients:messages.editSubtitle', 'Modifica los datos del cliente')}
       </Typography>
 
-      <Card>
-        <CardContent sx={{ p: 4 }}>
+      <Card elevation={2}>
+        <CardContent>
           <ClientForm
             initialData={client}
             onSubmit={handleSubmit}

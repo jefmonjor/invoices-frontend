@@ -61,8 +61,8 @@ export const CompanyEditPage: React.FC = () => {
         Modifica los datos de la empresa
       </Typography>
 
-      <Card>
-        <CardContent sx={{ p: 4 }}>
+      <Card elevation={2}>
+        <CardContent>
           <CompanyForm
             initialData={company}
             onSubmit={handleSubmit}

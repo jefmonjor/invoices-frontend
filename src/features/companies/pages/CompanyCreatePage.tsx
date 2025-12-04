@@ -31,8 +31,8 @@ export const CompanyCreatePage: React.FC = () => {
         Completa los datos para registrar una nueva empresa
       </Typography>
 
-      <Card>
-        <CardContent sx={{ p: 4 }}>
+      <Card elevation={2}>
+        <CardContent>
           <CompanyForm
             onSubmit={handleSubmit}
             onCancel={handleCancel}

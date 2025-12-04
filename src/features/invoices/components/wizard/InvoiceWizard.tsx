@@ -209,20 +209,21 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* Stepper */}
       <Stepper
         activeStep={activeStep}
         alternativeLabel
         sx={{
-          mb: 5,
+          mb: 6,
           '& .MuiStepLabel-label': {
-            mt: 1,
-            fontWeight: 500
+            mt: 1.5,
+            fontWeight: 500,
+            fontSize: { xs: '0.875rem', md: '1rem' }
           },
           '& .MuiStepIcon-root': {
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             '&.Mui-active': {
               color: 'primary.main',
             },
@@ -240,7 +241,9 @@ export const InvoiceWizard: React.FC<InvoiceWizardProps> = ({
       </Stepper>
 
       {/* Step Content */}
-      <Box sx={{ minHeight: 400 }}>{renderStepContent(activeStep)}</Box>
+      <Box sx={{ minHeight: { xs: 400, md: 500 }, px: { xs: 1, md: 3 } }}>
+        {renderStepContent(activeStep)}
+      </Box>
     </Box>
   );
 };

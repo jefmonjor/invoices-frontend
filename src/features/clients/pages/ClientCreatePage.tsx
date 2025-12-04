@@ -33,8 +33,8 @@ export const ClientCreatePage: React.FC = () => {
         {t('clients:messages.createSubtitle', 'Completa los datos para registrar un nuevo cliente')}
       </Typography>
 
-      <Card>
-        <CardContent sx={{ p: 4 }}>
+      <Card elevation={2}>
+        <CardContent>
           <ClientForm
             onSubmit={handleSubmit}
             onCancel={handleCancel}
