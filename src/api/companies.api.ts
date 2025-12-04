@@ -12,6 +12,11 @@ export interface CompanyUsersResponse {
   totalCount: number;
 }
 
+export interface SwitchCompanyResponse {
+  message: string;
+  newCompanyId: number;
+}
+
 export const companiesApi = {
   /**
    * Get current user's companies with their roles
@@ -34,6 +39,7 @@ export const companiesApi = {
 
   /**
    * Set a company as the user's default/active company
+   * Note: This endpoint is not documented in backend contract - may need verification
    */
   setDefaultCompany: async (companyId: number): Promise<void> => {
     await apiClient.put(`/api/users/me/companies/${companyId}/set-default`);
