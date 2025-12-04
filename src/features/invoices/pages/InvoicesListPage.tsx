@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useInvoices, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
 import { InvoiceTable } from '../components/InvoiceTable';
 import { TableSkeleton } from '@/components/common/Skeletons';
@@ -27,10 +28,9 @@ import type { Invoice } from '@/types/invoice.types';
 
 export const InvoicesListPage: React.FC = () => {
   const { t } = useTranslation(['invoices', 'common']);
-
   const navigate = useNavigate();
 
-  // State
+  // State - Pagination and filters
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,13 +40,26 @@ export const InvoicesListPage: React.FC = () => {
     invoice: null
   });
 
-  // Queries & Mutations
-  const { data: invoicesResponse, isLoading } = useInvoices();
+  // Debounce search term to avoid too many API calls
+  const debouncedSearch = useDebounce(searchTerm, 500);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch, statusFilter]);
+
+  // Queries & Mutations - Server-side pagination
+  const { data: invoicesData, isLoading } = useInvoices({
+    page,
+    size,
+    search: debouncedSearch || undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
+  });
+
+  const invoices = invoicesData?.invoices || [];
+  const totalCount = invoicesData?.totalCount || 0;
   const deleteMutation = useDeleteInvoice();
   const generatePDFMutation = useGeneratePDF();
-
-  // Extract invoices array from paginated response
-  const invoices = invoicesResponse?.data || [];
 
   // Handlers
   const handleCreateNew = () => navigate('/invoices/create');
@@ -92,32 +105,13 @@ export const InvoicesListPage: React.FC = () => {
     setPage(0);
   };
 
-  // Filtering & Pagination
-  const filteredInvoices = useMemo(() => {
-    if (!invoices || invoices.length === 0) return [];
-
-    return invoices.filter((invoice) => {
-      const matchesSearch =
-        invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        invoice.client?.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        false;
-
-      const matchesStatus = statusFilter === 'all' || invoice.verifactuStatus === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [invoices, searchTerm, statusFilter]);
-
-  const paginatedInvoices = useMemo(() => {
-    const startIndex = page * size;
-    return filteredInvoices.slice(startIndex, startIndex + size);
-  }, [filteredInvoices, page, size]);
-
-
+  // Check if there are any filters active
+  const hasFilters = searchTerm !== '' || statusFilter !== 'all';
+  const isEmpty = !isLoading && totalCount === 0;
 
   return (
     <Box sx={{ p: 3 }}>
-      {invoices && invoices.length > 0 && (
+      {totalCount > 0 && !isLoading && (
         <Box mb={4}>
           <VerifactuDashboard />
         </Box>
@@ -136,7 +130,8 @@ export const InvoicesListPage: React.FC = () => {
         </Button>
       </Stack>
 
-      {invoices && invoices.length > 0 && (
+      {/* Filters - Only show if there are invoices or filters are active */}
+      {(!isEmpty || hasFilters) && (
         <Card sx={{ mb: 3, p: 2 }}>
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
             <TextField
@@ -173,14 +168,14 @@ export const InvoicesListPage: React.FC = () => {
       {/* Table */}
       {isLoading ? (
         <Card>
-          <TableSkeleton rows={10} columns={7} />
+          <TableSkeleton rows={size} columns={7} />
         </Card>
-      ) : !filteredInvoices || filteredInvoices.length === 0 ? (
+      ) : isEmpty ? (
         <Paper>
           <EmptyState
             title={t('invoices:messages.emptyTitle', 'No hay facturas')}
             message={
-              searchTerm || statusFilter !== 'all'
+              hasFilters
                 ? t('invoices:messages.emptyMessage', 'No se encontraron facturas con los filtros aplicados.')
                 : t('invoices:messages.emptyMessageInit', 'Crea tu primera factura para empezar.')
             }
@@ -191,7 +186,7 @@ export const InvoicesListPage: React.FC = () => {
       ) : (
         <>
           <InvoiceTable
-            invoices={paginatedInvoices || []}
+            invoices={invoices}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
@@ -200,10 +195,10 @@ export const InvoicesListPage: React.FC = () => {
             canDelete={true}
           />
 
-          {/* Pagination (client-side) */}
+          {/* Pagination - Server-side */}
           <TablePagination
             component="div"
-            count={filteredInvoices.length}
+            count={totalCount}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={size}

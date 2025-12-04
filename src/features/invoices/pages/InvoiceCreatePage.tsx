@@ -31,7 +31,7 @@ export const InvoiceCreatePage: React.FC = () => {
       </Box>
 
       {/* Wizard Card */}
-      <Card sx={{ p: 3 }}>
+      <Card elevation={2}>
         <Suspense fallback={
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
             <CircularProgress />

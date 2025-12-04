@@ -343,16 +343,16 @@ const InvoiceDetailPage: React.FC = () => {
                   </TableHead>
                   <TableBody>
                     {invoice.items.map((item, index) => {
-                      const itemTotal = item.units * item.price *
-                        (1 + item.vatPercentage / 100) *
+                      const itemTotal = item.quantity * item.unitPrice *
+                        (1 + item.taxRate / 100) *
                         (1 - (item.discountPercentage || 0) / 100);
 
                       return (
                         <TableRow key={item.id || index}>
                           <TableCell>{item.description}</TableCell>
-                          <TableCell align="right">{item.units}</TableCell>
-                          <TableCell align="right">{formatCurrency(item.price)}</TableCell>
-                          <TableCell align="right">{item.vatPercentage}%</TableCell>
+                          <TableCell align="right">{item.quantity}</TableCell>
+                          <TableCell align="right">{formatCurrency(item.unitPrice)}</TableCell>
+                          <TableCell align="right">{item.taxRate}%</TableCell>
                           <TableCell align="right">{item.discountPercentage || 0}%</TableCell>
                           <TableCell align="right">
                             <strong>{formatCurrency(itemTotal)}</strong>

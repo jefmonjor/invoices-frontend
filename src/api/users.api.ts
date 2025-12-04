@@ -43,17 +43,19 @@ export const usersApi = {
 
   /**
    * Obtiene el perfil del usuario actual
+   * GET /api/users/me
    */
   async getProfile(): Promise<User> {
-    const response = await apiClient.get<User>('/api/users/profile');
+    const response = await apiClient.get<User>('/api/users/me');
     return response.data;
   },
 
   /**
    * Actualiza el perfil del usuario actual
+   * PUT /api/users/me
    */
   async updateProfile(data: Partial<UpdateUserRequest>): Promise<User> {
-    const response = await apiClient.put<User>('/api/users/profile', data);
+    const response = await apiClient.put<User>('/api/users/me', data);
     return response.data;
   },
 };

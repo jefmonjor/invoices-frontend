@@ -39,4 +39,8 @@ export const authApi = {
     });
     return response.data;
   },
+
+  // NOTE: switchCompany moved to companiesApi
+  // Use: companiesApi.switchCompany(companyId)
+  // Endpoint: POST /api/companies/switch/{companyId}
 };

@@ -100,20 +100,25 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     }
 
     try {
-      // 1. Call backend to switch context (token remains valid, context switches)
-      await companiesApi.switchCompany(companyId);
+      // 1. Call backend to switch context and get new token
+      const response = await companiesApi.switchCompany(companyId);
 
-      // 2. Update local state
+      // 2. Store new JWT token (backend returns updated token with new companyId in claims)
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+
+      // 3. Update local state
       setCurrentCompany(targetCompany);
       setUserRole(targetCompany.role || 'USER');
       localStorage.setItem(STORAGE_KEY, companyId.toString());
 
-      // 3. Emit event
+      // 4. Emit event
       window.dispatchEvent(new CustomEvent('companyChanged', {
         detail: { companyId, company: targetCompany }
       }));
 
-      // 4. Show success feedback
+      // 5. Show success feedback
       toast.success(`Cambiado a: ${targetCompany.businessName}`, {
         position: 'top-right',
         autoClose: 2000,

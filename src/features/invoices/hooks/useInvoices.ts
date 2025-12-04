@@ -190,4 +190,28 @@ export const useUploadDocument = () => {
   });
 };
 
+/**
+ * Hook para obtener JSON canónico de una factura
+ */
+export const useInvoiceCanonical = (id: number) => {
+  return useQuery({
+    queryKey: [...invoiceKeys.detail(id), 'canonical'] as const,
+    queryFn: () => invoicesApi.getCanonical(id),
+    enabled: !!id && id > 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+/**
+ * Hook para obtener estado de verificación de Verifactu
+ */
+export const useInvoiceVerificationStatus = (id: number) => {
+  return useQuery({
+    queryKey: [...invoiceKeys.detail(id), 'verification-status'] as const,
+    queryFn: () => invoicesApi.getVerificationStatus(id),
+    enabled: !!id && id > 0,
+    staleTime: 1000 * 60, // 1 minute (refresh more often for status checks)
+  });
+};
+
 

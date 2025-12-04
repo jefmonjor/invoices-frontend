@@ -69,8 +69,8 @@ export const InvoiceEditPage: React.FC = () => {
         {t('invoices:wizard.subtitle', 'Modifica los datos de la factura utilizando el asistente')}
       </Typography>
 
-      <Card>
-        <CardContent sx={{ p: 4 }}>
+      <Card elevation={2}>
+        <CardContent>
           <InvoiceWizard
             mode="edit"
             invoiceId={invoiceId}

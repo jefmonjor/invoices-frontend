@@ -1,5 +1,6 @@
 import { apiClient } from './client';
 import type { Company, CreateCompanyRequest, CompanyUser } from '@/types/company.types';
+import type { LoginResponse } from '@/types/auth.types';
 
 export interface InvitationResponse {
   code: string;
@@ -19,7 +20,7 @@ export interface SwitchCompanyResponse {
 export const companiesApi = {
   /**
    * Get current user's companies with their roles
-   * Backend endpoint: GET /companies/my
+   * GET /api/companies/my
    */
   getUserCompanies: async (): Promise<Company[]> => {
     const response = await apiClient.get<Company[]>('/api/companies/my');
@@ -28,13 +29,11 @@ export const companiesApi = {
 
   /**
    * Switch to a different company
-   * Backend endpoint: POST /companies/switch/{companyId}
-   * Note: JWT token remains valid, backend internally switches context
+   * POST /api/companies/switch/{companyId}
+   * Note: Backend returns new JWT token with updated companyId in claims
    */
-  switchCompany: async (companyId: number): Promise<SwitchCompanyResponse> => {
-    const response = await apiClient.post<SwitchCompanyResponse>(
-      `/api/companies/switch/${companyId}`
-    );
+  switchCompany: async (companyId: number): Promise<LoginResponse> => {
+    const response = await apiClient.post<LoginResponse>(`/api/companies/switch/${companyId}`);
     return response.data;
   },
 
