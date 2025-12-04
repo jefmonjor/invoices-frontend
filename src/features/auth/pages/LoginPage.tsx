@@ -21,7 +21,10 @@ export const LoginPage = () => {
     try {
       const response = await authApi.login({ username: email, password });
       setAuth(response.token, response.user);
-      navigate('/dashboard');
+
+      // Platform admin goes to users, others to dashboard
+      const isPlatformAdmin = response.user.roles?.includes('ROLE_PLATFORM_ADMIN');
+      navigate(isPlatformAdmin ? '/users' : '/dashboard');
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || 'Error al iniciar sesión');
