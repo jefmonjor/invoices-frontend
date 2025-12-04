@@ -10,8 +10,10 @@ export interface Client {
   city: string;
   postalCode: string;
   province: string;
+  country?: string; // País (opcional)
   phone: string;
   email: string;
+  companyId?: number; // ID de la empresa asociada
   createdAt?: string; // ISO-8601
   updatedAt?: string; // ISO-8601
 }
