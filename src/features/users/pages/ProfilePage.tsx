@@ -69,19 +69,27 @@ export const ProfilePage: React.FC = () => {
   }, [user, reset]);
 
   const onSubmit = async (data: ProfileFormData) => {
+    // Check if there are actual changes
+    const hasNameChanges = data.firstName !== user?.firstName || data.lastName !== user?.lastName;
+    const hasPasswordChange = !!data.password && data.password.length > 0;
+
+    if (!hasNameChanges && !hasPasswordChange) {
+      // No changes detected, skip API call
+      return;
+    }
+
     const updateData: {
       firstName: string;
       lastName: string;
       password?: string;
-      roles?: string[];
     } = {
       firstName: data.firstName,
       lastName: data.lastName,
-      roles: isAdmin ? ['ROLE_ADMIN'] : ['ROLE_USER'],
+      // Note: roles are NOT sent - backend preserves existing roles
     };
 
     // Solo enviar password si se ha ingresado
-    if (data.password) {
+    if (hasPasswordChange) {
       updateData.password = data.password;
     }
 
