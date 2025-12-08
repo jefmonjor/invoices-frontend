@@ -48,31 +48,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
       title: t('navigation.dashboard'),
       icon: <DashboardIcon />,
       path: '/dashboard',
-      roles: ['ROLE_USER', 'ROLE_ADMIN'],
+      roles: ['ROLE_USER', 'ROLE_ADMIN'], // PLATFORM_ADMIN cannot access - company-specific
     },
     {
       title: t('navigation.invoices'),
       icon: <InvoiceIcon />,
       path: '/invoices',
-      roles: ['ROLE_USER', 'ROLE_ADMIN'],
+      roles: ['ROLE_USER', 'ROLE_ADMIN'], // PLATFORM_ADMIN cannot access - company-specific
     },
     {
       title: t('navigation.companies'),
       icon: <CompanyIcon />,
       path: '/companies',
-      roles: ['ROLE_USER', 'ROLE_ADMIN'],
+      roles: ['ROLE_USER', 'ROLE_ADMIN', 'ROLE_PLATFORM_ADMIN'], // Platform admin can manage companies
     },
     {
       title: t('navigation.clients'),
       icon: <ClientIcon />,
       path: '/clients',
-      roles: ['ROLE_USER', 'ROLE_ADMIN'],
+      roles: ['ROLE_USER', 'ROLE_ADMIN'], // PLATFORM_ADMIN cannot access - company-specific
     },
     {
       title: t('navigation.users'),
       icon: <UsersIcon />,
       path: '/users',
-      roles: ['ROLE_PLATFORM_ADMIN', 'ROLE_ADMIN'],
+      roles: ['ROLE_PLATFORM_ADMIN', 'ROLE_ADMIN'], // Platform and company admins
     },
   ];
 

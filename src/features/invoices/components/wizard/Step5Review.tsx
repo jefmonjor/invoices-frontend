@@ -37,7 +37,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
 
   // Calculate totals
   const calculateItemSubtotal = (item: typeof formData.items[0]) => {
-    return item.quantity * item.unitPrice;
+    return item.units * item.price;
   };
 
   const calculateItemDiscount = (item: typeof formData.items[0]) => {
@@ -49,7 +49,7 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
     const subtotal = calculateItemSubtotal(item);
     const discount = calculateItemDiscount(item);
     const subtotalAfterDiscount = subtotal - discount;
-    return subtotalAfterDiscount * (item.taxRate / 100);
+    return subtotalAfterDiscount * (item.vatPercentage / 100);
   };
 
   const calculateItemTotal = (item: typeof formData.items[0]) => {
@@ -241,8 +241,8 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
               <TableHead>
                 <TableRow>
                   <TableCell>{t('invoices:wizard.step4.table.description')}</TableCell>
-                  <TableCell align="right">{t('invoices:wizard.step4.table.quantity')}</TableCell>
-                  <TableCell align="right">{t('invoices:wizard.step4.table.unitPrice')}</TableCell>
+                  <TableCell align="right">{t('invoices:wizard.step4.table.units')}</TableCell>
+                  <TableCell align="right">{t('invoices:wizard.step4.table.price')}</TableCell>
                   <TableCell align="right">{t('invoices:wizard.step4.table.vat')}</TableCell>
                   <TableCell align="right">{t('invoices:wizard.step4.table.discount')}</TableCell>
                   <TableCell align="right">{t('invoices:wizard.step4.table.total')}</TableCell>
@@ -252,9 +252,9 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                 {formData.items.map((item, index) => (
                   <TableRow key={index}>
                     <TableCell>{item.description}</TableCell>
-                    <TableCell align="right">{item.quantity}</TableCell>
-                    <TableCell align="right">€{item.unitPrice.toFixed(2)}</TableCell>
-                    <TableCell align="right">{item.taxRate}%</TableCell>
+                    <TableCell align="right">{item.units}</TableCell>
+                    <TableCell align="right">€{item.price.toFixed(2)}</TableCell>
+                    <TableCell align="right">{item.vatPercentage}%</TableCell>
                     <TableCell align="right">{item.discountPercentage}%</TableCell>
                     <TableCell align="right">
                       <strong>€{calculateItemTotal(item).toFixed(2)}</strong>

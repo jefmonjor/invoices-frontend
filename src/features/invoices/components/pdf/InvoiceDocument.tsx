@@ -6,178 +6,216 @@ import type { Invoice, CompanyDTO, ClientDTO } from '@/types/invoice.types';
 Font.register({
     family: 'Roboto',
     fonts: [
-        { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-light-webfont.ttf', fontWeight: 300 },
         { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-regular-webfont.ttf', fontWeight: 400 },
-        { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-medium-webfont.ttf', fontWeight: 500 },
         { src: 'https://cdnjs.cloudflare.com/ajax/libs/ink/3.1.10/fonts/Roboto/roboto-bold-webfont.ttf', fontWeight: 700 },
     ],
 });
 
+// Simple color palette
+const colors = {
+    border: '#999',
+    headerBg: '#f5f5f5',
+    text: '#333',
+    textLight: '#666',
+    accent: '#c00000',
+};
+
 const styles = StyleSheet.create({
     page: {
         fontFamily: 'Roboto',
-        fontSize: 10,
-        padding: 40,
-        color: '#333',
-        lineHeight: 1.5,
-    },
-    topBar: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-        paddingBottom: 10,
-    },
-    invoiceTitle: {
-        fontSize: 20,
-        fontWeight: 700,
-        color: '#2c3e50',
-        textTransform: 'uppercase',
-    },
-    invoiceMeta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    metaItem: {
-        marginLeft: 20,
-    },
-    metaLabel: {
         fontSize: 8,
-        color: '#999',
-        textTransform: 'uppercase',
+        padding: 25,
+        paddingBottom: 50,
+        color: colors.text,
     },
-    metaValue: {
-        fontSize: 10,
-        fontWeight: 700,
-    },
-    addressSection: {
+    // Header - NO BORDERS
+    headerSection: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 30,
+        marginBottom: 15,
     },
-    addressCol: {
+    logoSpace: {
+        width: '25%',
+        height: 45,
+    },
+    companyInfo: {
         width: '45%',
+        textAlign: 'center',
     },
-    colTitle: {
-        fontSize: 9,
-        fontWeight: 700,
-        color: '#999',
-        marginBottom: 5,
-        textTransform: 'uppercase',
-    },
-    entityName: {
+    companyName: {
         fontSize: 12,
         fontWeight: 700,
-        color: '#2c3e50',
         marginBottom: 2,
     },
-    entityInfo: {
+    companyNif: {
         fontSize: 9,
-        color: '#555',
+        fontWeight: 700,
+        marginBottom: 2,
     },
+    companyAddress: {
+        fontSize: 7,
+        color: colors.textLight,
+    },
+    qrSpace: {
+        width: '25%',
+        height: 45,
+        alignItems: 'flex-end',
+    },
+    // Meta - Simple inline text
+    metaSection: {
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    metaItem: {
+        marginRight: 20,
+    },
+    metaLabel: {
+        fontSize: 7,
+        color: colors.textLight,
+    },
+    metaValue: {
+        fontSize: 9,
+        fontWeight: 700,
+    },
+    // Client - Simple box
+    clientSection: {
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: colors.border,
+    },
+    clientTitle: {
+        fontSize: 8,
+        fontWeight: 700,
+        backgroundColor: colors.headerBg,
+        padding: 3,
+    },
+    clientContent: {
+        padding: 5,
+    },
+    clientName: {
+        fontSize: 9,
+        fontWeight: 700,
+    },
+    clientText: {
+        fontSize: 7,
+        color: colors.textLight,
+    },
+    // Table
     table: {
-        marginTop: 10,
-        marginBottom: 20,
+        flexGrow: 1,
     },
     tableHeader: {
         flexDirection: 'row',
-        borderBottomWidth: 1,
-        borderBottomColor: '#2c3e50',
-        paddingBottom: 5,
-        marginBottom: 5,
-    },
-    headerText: {
-        fontSize: 8,
-        fontWeight: 700,
-        color: '#999',
-        textTransform: 'uppercase',
+        backgroundColor: colors.headerBg,
+        borderWidth: 1,
+        borderColor: colors.border,
+        paddingVertical: 3,
     },
     tableRow: {
         flexDirection: 'row',
-        paddingVertical: 8,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderColor: colors.border,
+        paddingVertical: 2,
+        minHeight: 11,
     },
-    // Column widths
-    colDesc: { width: '40%' },
-    colQty: { width: '10%', textAlign: 'center' },
-    colPrice: { width: '15%', textAlign: 'right' },
-    colDiscount: { width: '10%', textAlign: 'right' },
-    colVat: { width: '10%', textAlign: 'right' },
-    colTotal: { width: '15%', textAlign: 'right' },
-
-    // Transport specific columns
-    colDate: { width: '10%' },
-    colPlate: { width: '10%' },
-    colDescTransport: { width: '25%' },
-    colZone: { width: '10%' },
-    colOrder: { width: '10%' },
-
-    totalsSection: {
+    cellHeader: {
+        fontSize: 7,
+        fontWeight: 700,
+        textAlign: 'center',
+    },
+    cell: {
+        fontSize: 7,
+        paddingHorizontal: 2,
+    },
+    // Standard invoice columns
+    colDescStd: { width: '42%', textAlign: 'left', paddingLeft: 3 },
+    colUdsStd: { width: '8%', textAlign: 'center' },
+    colDtoStd: { width: '8%', textAlign: 'center' },
+    colPriceStd: { width: '14%', textAlign: 'right' },
+    colIvaStd: { width: '8%', textAlign: 'center' },
+    colImporteStd: { width: '20%', textAlign: 'right', paddingRight: 3 },
+    // Transport invoice columns
+    colDateTr: { width: '10%', textAlign: 'center' },
+    colPlateTr: { width: '10%', textAlign: 'center' },
+    colDescTr: { width: '32%', textAlign: 'left', paddingLeft: 3 },
+    colZoneTr: { width: '10%', textAlign: 'center' },
+    colPriceTr: { width: '14%', textAlign: 'right' },
+    colGasTr: { width: '8%', textAlign: 'center' },
+    colImporteTr: { width: '16%', textAlign: 'right', paddingRight: 3 },
+    // Footer Section - Only on page 1
+    footerSection: {
         flexDirection: 'row',
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         marginTop: 10,
     },
-    totalsTable: {
-        width: '35%',
+    observaciones: {
+        width: '55%',
+    },
+    observacionesLabel: {
+        fontSize: 7,
+        fontWeight: 700,
+        color: colors.textLight,
+        marginBottom: 2,
+    },
+    observacionesText: {
+        fontSize: 7,
+    },
+    totalsBox: {
+        width: '40%',
     },
     totalRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: 3,
+        paddingVertical: 2,
     },
     totalLabel: {
-        fontSize: 9,
-        color: '#666',
+        fontSize: 10,
     },
     totalValue: {
-        fontSize: 9,
-        fontWeight: 500,
+        fontSize: 10,
         textAlign: 'right',
     },
-    grandTotal: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingVertical: 8,
+    totalDivider: {
         borderTopWidth: 1,
-        borderTopColor: '#eee',
-        marginTop: 5,
+        borderTopColor: colors.border,
+        marginTop: 4,
+        paddingTop: 4,
     },
     grandTotalLabel: {
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 700,
-        color: '#2c3e50',
+        color: colors.accent,
     },
     grandTotalValue: {
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: 700,
-        color: '#2c3e50',
+        color: colors.accent,
     },
-    bottomSection: {
-        marginTop: 40,
-        paddingTop: 20,
+    // VeriFactu - Fixed at bottom
+    verifactuFooter: {
+        position: 'absolute',
+        bottom: 25,
+        left: 25,
+        right: 25,
+        textAlign: 'center',
+        paddingTop: 5,
         borderTopWidth: 1,
-        borderTopColor: '#eee',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        borderTopColor: '#ddd',
     },
-    notesSection: {
-        width: '60%',
+    verifactuText: {
+        fontSize: 10,
+        color: '#333',
     },
-    ibanSection: {
-        width: '35%',
-    },
-    bottomLabel: {
-        fontSize: 8,
-        fontWeight: 700,
+    pageNumber: {
+        position: 'absolute',
+        bottom: 15,
+        left: 0,
+        right: 0,
+        textAlign: 'center',
+        fontSize: 7,
         color: '#999',
-        marginBottom: 4,
-        textTransform: 'uppercase',
-    },
-    bottomText: {
-        fontSize: 9,
-        color: '#555',
     },
 });
 
@@ -187,244 +225,199 @@ interface InvoiceDocumentProps {
     client?: ClientDTO;
 }
 
-const formatCurrency = (amount: number) => {
+const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('es-ES', {
-        style: 'currency',
-        currency: 'EUR',
         minimumFractionDigits: 2,
-    }).format(amount);
+        maximumFractionDigits: 2,
+    }).format(amount) + ' €';
 };
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string): string => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('es-ES');
 };
 
 export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, company, client }) => {
-    // Detect if this is a transport invoice based on item fields
+    // Detect invoice type
     const isTransportInvoice = invoice.items.some(
-        item => item.vehiclePlate || item.zone || item.orderNumber || item.itemDate
+        item => item.vehiclePlate || item.zone || item.itemDate
     );
 
-    /**
-     * IMPORTANTE: Priorizar valores calculados por el backend
-     * El backend usa BigDecimal (Java) para cálculos precisos
-     * Solo calculamos en frontend como fallback si los valores no existen
-     */
+    // Calculations
+    const baseAmount = invoice.baseAmount ?? invoice.items.reduce((acc, item) => {
+        const itemTotal = item.units * item.price;
+        const discount = itemTotal * ((item.discountPercentage || 0) / 100);
+        return acc + (itemTotal - discount);
+    }, 0);
 
-    const calculateSubtotal = () => {
-        // Usar baseAmount del backend si está disponible
-        if (invoice.baseAmount != null) {
-            return invoice.baseAmount;
-        }
-        // Fallback: calcular en frontend
-        return invoice.items.reduce((acc, item) => {
-            const itemTotal = item.quantity * item.unitPrice;
-            const discount = itemTotal * ((item.discountPercentage || 0) / 100);
-            return acc + (itemTotal - discount);
-        }, 0);
+    const vatAmount = invoice.items.reduce((acc, item) => {
+        const itemTotal = item.units * item.price;
+        const discount = itemTotal * ((item.discountPercentage || 0) / 100);
+        return acc + ((itemTotal - discount) * (item.vatPercentage / 100));
+    }, 0);
+
+    const totalAmount = invoice.totalAmount ?? (baseAmount + vatAmount);
+    const vatPercentage = invoice.items[0]?.vatPercentage || 21;
+
+    // Render table header
+    const renderTableHeader = () => (
+        <View style={styles.tableHeader} fixed>
+            {isTransportInvoice ? (
+                <>
+                    <Text style={[styles.cellHeader, styles.colDateTr]}>FECHA</Text>
+                    <Text style={[styles.cellHeader, styles.colPlateTr]}>MATRÍCULA</Text>
+                    <Text style={[styles.cellHeader, styles.colDescTr]}>CONCEPTO</Text>
+                    <Text style={[styles.cellHeader, styles.colZoneTr]}>ZONA</Text>
+                    <Text style={[styles.cellHeader, styles.colPriceTr]}>PRECIO</Text>
+                    <Text style={[styles.cellHeader, styles.colGasTr]}>% GAS</Text>
+                    <Text style={[styles.cellHeader, styles.colImporteTr]}>IMPORTE</Text>
+                </>
+            ) : (
+                <>
+                    <Text style={[styles.cellHeader, styles.colDescStd]}>Descripción producto/servicio</Text>
+                    <Text style={[styles.cellHeader, styles.colUdsStd]}>Uds</Text>
+                    <Text style={[styles.cellHeader, styles.colDtoStd]}>Dto%</Text>
+                    <Text style={[styles.cellHeader, styles.colPriceStd]}>Precio</Text>
+                    <Text style={[styles.cellHeader, styles.colIvaStd]}>IVA%</Text>
+                    <Text style={[styles.cellHeader, styles.colImporteStd]}>Importe</Text>
+                </>
+            )}
+        </View>
+    );
+
+    // Render table row
+    const renderTableRow = (item: typeof invoice.items[0], index: number) => {
+        const itemSubtotal = item.units * item.price;
+        const itemDiscount = itemSubtotal * ((item.discountPercentage || 0) / 100);
+        const itemTotal = itemSubtotal - itemDiscount;
+
+        return (
+            <View key={index} style={styles.tableRow} wrap={false}>
+                {isTransportInvoice ? (
+                    <>
+                        <Text style={[styles.cell, styles.colDateTr]}>{item.itemDate ? formatDate(item.itemDate) : ''}</Text>
+                        <Text style={[styles.cell, styles.colPlateTr]}>{item.vehiclePlate || ''}</Text>
+                        <Text style={[styles.cell, styles.colDescTr]}>{item.description}</Text>
+                        <Text style={[styles.cell, styles.colZoneTr]}>{item.zone || ''}</Text>
+                        <Text style={[styles.cell, styles.colPriceTr]}>{formatCurrency(item.price)}</Text>
+                        <Text style={[styles.cell, styles.colGasTr]}>{item.gasPercentage || ''}</Text>
+                        <Text style={[styles.cell, styles.colImporteTr]}>{formatCurrency(itemTotal)}</Text>
+                    </>
+                ) : (
+                    <>
+                        <Text style={[styles.cell, styles.colDescStd]}>{item.description}</Text>
+                        <Text style={[styles.cell, styles.colUdsStd]}>{item.units}</Text>
+                        <Text style={[styles.cell, styles.colDtoStd]}>{item.discountPercentage || ''}</Text>
+                        <Text style={[styles.cell, styles.colPriceStd]}>{formatCurrency(item.price)}</Text>
+                        <Text style={[styles.cell, styles.colIvaStd]}>{item.vatPercentage}</Text>
+                        <Text style={[styles.cell, styles.colImporteStd]}>{formatCurrency(itemTotal)}</Text>
+                    </>
+                )}
+            </View>
+        );
     };
 
-    const calculateVatAmount = () => {
-        // Calcular desde los items (el backend no almacena IVA total directamente)
-        return invoice.items.reduce((acc, item) => {
-            const itemTotal = item.quantity * item.unitPrice;
-            const discount = itemTotal * ((item.discountPercentage || 0) / 100);
-            const taxable = itemTotal - discount;
-            return acc + (taxable * (item.taxRate / 100));
-        }, 0);
-    };
+    // Render footer with observaciones and totals
+    const renderFooter = () => (
+        <View style={styles.footerSection} wrap={false}>
+            <View style={styles.observaciones}>
+                <Text style={styles.observacionesLabel}>Observaciones / Datos de pago:</Text>
+                {company?.iban && <Text style={styles.observacionesText}>IBAN: {company.iban}</Text>}
+                {invoice.notes && <Text style={styles.observacionesText}>{invoice.notes}</Text>}
+            </View>
 
-    const calculateIrpfAmount = () => {
-        // Usar irpfAmount del backend si está disponible
-        if (invoice.irpfAmount != null) {
-            return invoice.irpfAmount;
-        }
-        // Fallback: calcular en frontend
-        const subtotal = calculateSubtotal();
-        return subtotal * ((invoice.irpfPercentage || 0) / 100);
-    };
-
-    const calculateReAmount = () => {
-        // Usar reAmount del backend si está disponible
-        if (invoice.reAmount != null) {
-            return invoice.reAmount;
-        }
-        // Fallback: calcular en frontend
-        const subtotal = calculateSubtotal();
-        return subtotal * ((invoice.rePercentage || 0) / 100);
-    };
-
-    const calculateTotal = () => {
-        // Usar totalAmount del backend si está disponible (más preciso)
-        if (invoice.totalAmount != null) {
-            return invoice.totalAmount;
-        }
-        // Fallback: calcular en frontend
-        const subtotal = calculateSubtotal();
-        const vat = calculateVatAmount();
-        const irpf = calculateIrpfAmount();
-        const re = calculateReAmount();
-        return subtotal + vat + re - irpf;
-    };
-
-    const formatAddress = (dto?: CompanyDTO | ClientDTO) => {
-        if (!dto) return '';
-        return `${dto.address}, ${dto.postalCode} ${dto.city} (${dto.province})`;
-    };
+            <View style={styles.totalsBox}>
+                <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>Base imponible:</Text>
+                    <Text style={styles.totalValue}>{formatCurrency(baseAmount)}</Text>
+                </View>
+                <View style={styles.totalRow}>
+                    <Text style={styles.totalLabel}>IVA ({vatPercentage}%):</Text>
+                    <Text style={styles.totalValue}>{formatCurrency(vatAmount)}</Text>
+                </View>
+                <View style={[styles.totalRow, styles.totalDivider]}>
+                    <Text style={styles.grandTotalLabel}>TOTAL:</Text>
+                    <Text style={styles.grandTotalValue}>{formatCurrency(totalAmount)}</Text>
+                </View>
+            </View>
+        </View>
+    );
 
     return (
         <Document>
             <Page size="A4" style={styles.page}>
-                {/* Top Bar: Title & Meta */}
-                <View style={styles.topBar}>
-                    <Text style={styles.invoiceTitle}>FACTURA</Text>
-                    <View style={styles.invoiceMeta}>
+                {/* Header - Fixed on all pages */}
+                <View style={styles.headerSection} fixed>
+                    <View style={styles.logoSpace}>
+                        {/* Future: <Image src={company?.logoUrl} /> */}
+                    </View>
+                    <View style={styles.companyInfo}>
+                        <Text style={styles.companyName}>{company?.businessName || 'EMPRESA'}</Text>
+                        {company?.taxId && <Text style={styles.companyNif}>{company.taxId}</Text>}
+                        {company?.address && (
+                            <Text style={styles.companyAddress}>
+                                {company.address}, {company.postalCode} {company.city} ({company.province})
+                            </Text>
+                        )}
+                        {company?.phone && <Text style={styles.companyAddress}>{company.phone}</Text>}
+                    </View>
+                    <View style={styles.qrSpace}>
+                        {/* Future: <Image src={qrCodeUrl} /> */}
+                    </View>
+                </View>
+
+                {/* Meta - Simple inline */}
+                <View style={styles.metaSection}>
+                    <View style={styles.metaItem}>
+                        <Text style={styles.metaLabel}>FACTURA Nº:</Text>
+                        <Text style={styles.metaValue}>{invoice.invoiceNumber}</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                        <Text style={styles.metaLabel}>FECHA:</Text>
+                        <Text style={styles.metaValue}>{formatDate(invoice.issueDate)}</Text>
+                    </View>
+                    {invoice.settlementNumber && (
                         <View style={styles.metaItem}>
-                            <Text style={styles.metaLabel}>Nº Factura</Text>
-                            <Text style={styles.metaValue}>{invoice.invoiceNumber}</Text>
+                            <Text style={styles.metaLabel}>LIQUIDACIÓN Nº:</Text>
+                            <Text style={styles.metaValue}>{invoice.settlementNumber}</Text>
                         </View>
-                        <View style={styles.metaItem}>
-                            <Text style={styles.metaLabel}>Fecha</Text>
-                            <Text style={styles.metaValue}>{formatDate(invoice.issueDate)}</Text>
-                        </View>
-                        {invoice.settlementNumber && (
-                            <View style={styles.metaItem}>
-                                <Text style={styles.metaLabel}>Expediente</Text>
-                                <Text style={styles.metaValue}>{invoice.settlementNumber}</Text>
-                            </View>
+                    )}
+                </View>
+
+                {/* Client */}
+                <View style={styles.clientSection}>
+                    <Text style={styles.clientTitle}>Datos del cliente</Text>
+                    <View style={styles.clientContent}>
+                        <Text style={styles.clientName}>{client?.businessName}</Text>
+                        {client?.taxId && <Text style={styles.clientText}>{client.taxId}</Text>}
+                        {client?.address && (
+                            <Text style={styles.clientText}>
+                                {client.address}, {client.postalCode} {client.city} - {client.province}
+                            </Text>
                         )}
                     </View>
                 </View>
 
-                {/* Address Section: Company (Left) & Client (Right) */}
-                <View style={styles.addressSection}>
-                    <View style={styles.addressCol}>
-                        <Text style={styles.colTitle}>De:</Text>
-                        <Text style={styles.entityName}>{company?.businessName || 'EMPRESA'}</Text>
-                        <Text style={styles.entityInfo}>{formatAddress(company)}</Text>
-                        <Text style={styles.entityInfo}>NIF: {company?.taxId}</Text>
-                        <Text style={styles.entityInfo}>{company?.email}</Text>
-                        <Text style={styles.entityInfo}>{company?.phone}</Text>
-                    </View>
-
-                    <View style={styles.addressCol}>
-                        <Text style={styles.colTitle}>Para:</Text>
-                        <Text style={styles.entityName}>{client?.businessName}</Text>
-                        <Text style={styles.entityInfo}>{formatAddress(client)}</Text>
-                        <Text style={styles.entityInfo}>NIF: {client?.taxId}</Text>
-                    </View>
-                </View>
-
-                {/* Items Table */}
+                {/* Items Table - wraps across pages as needed */}
                 <View style={styles.table}>
-                    <View style={styles.tableHeader}>
-                        {isTransportInvoice ? (
-                            <>
-                                <Text style={[styles.headerText, styles.colDate]}>FECHA</Text>
-                                <Text style={[styles.headerText, styles.colPlate]}>MATRÍCULA</Text>
-                                <Text style={[styles.headerText, styles.colDescTransport]}>DESCRIPCIÓN</Text>
-                                <Text style={[styles.headerText, styles.colZone]}>ZONA</Text>
-                                <Text style={[styles.headerText, styles.colOrder]}>PEDIDO</Text>
-                                <Text style={[styles.headerText, styles.colQty]}>CANT.</Text>
-                                <Text style={[styles.headerText, styles.colPrice]}>PRECIO</Text>
-                                <Text style={[styles.headerText, styles.colTotal]}>TOTAL</Text>
-                            </>
-                        ) : (
-                            <>
-                                <Text style={[styles.headerText, styles.colDesc]}>DESCRIPCIÓN</Text>
-                                <Text style={[styles.headerText, styles.colQty]}>CANT.</Text>
-                                <Text style={[styles.headerText, styles.colPrice]}>PRECIO</Text>
-                                <Text style={[styles.headerText, styles.colDiscount]}>DESC.</Text>
-                                <Text style={[styles.headerText, styles.colVat]}>IVA</Text>
-                                <Text style={[styles.headerText, styles.colTotal]}>TOTAL</Text>
-                            </>
-                        )}
-                    </View>
-
-                    {invoice.items.map((item, index) => {
-                        const itemSubtotal = item.quantity * item.unitPrice;
-                        const itemDiscount = itemSubtotal * ((item.discountPercentage || 0) / 100);
-                        const itemTotal = itemSubtotal - itemDiscount;
-
-                        return (
-                            <View key={index} style={styles.tableRow}>
-                                {isTransportInvoice ? (
-                                    <>
-                                        <Text style={styles.colDate}>{item.itemDate ? formatDate(item.itemDate) : '-'}</Text>
-                                        <Text style={styles.colPlate}>{item.vehiclePlate || '-'}</Text>
-                                        <Text style={styles.colDescTransport}>{item.description}</Text>
-                                        <Text style={styles.colZone}>{item.zone || '-'}</Text>
-                                        <Text style={styles.colOrder}>{item.orderNumber || '-'}</Text>
-                                        <Text style={styles.colQty}>{item.quantity}</Text>
-                                        <Text style={styles.colPrice}>{formatCurrency(item.unitPrice)}</Text>
-                                        <Text style={styles.colTotal}>{formatCurrency(itemTotal)}</Text>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Text style={styles.colDesc}>{item.description}</Text>
-                                        <Text style={styles.colQty}>{item.quantity}</Text>
-                                        <Text style={styles.colPrice}>{formatCurrency(item.unitPrice)}</Text>
-                                        <Text style={styles.colDiscount}>{item.discountPercentage ? `${item.discountPercentage}%` : '-'}</Text>
-                                        <Text style={styles.colVat}>{item.taxRate}%</Text>
-                                        <Text style={styles.colTotal}>{formatCurrency(itemTotal)}</Text>
-                                    </>
-                                )}
-                            </View>
-                        );
-                    })}
+                    {renderTableHeader()}
+                    {invoice.items.map((item, index) => renderTableRow(item, index))}
                 </View>
 
-                {/* Totals */}
-                <View style={styles.totalsSection}>
-                    <View style={styles.totalsTable}>
-                        <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>Base Imponible</Text>
-                            <Text style={styles.totalValue}>{formatCurrency(calculateSubtotal())}</Text>
-                        </View>
-                        <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>IVA</Text>
-                            <Text style={styles.totalValue}>{formatCurrency(calculateVatAmount())}</Text>
-                        </View>
-                        {invoice.rePercentage > 0 && (
-                            <View style={styles.totalRow}>
-                                <Text style={styles.totalLabel}>Recargo Equiv. ({invoice.rePercentage}%)</Text>
-                                <Text style={styles.totalValue}>{formatCurrency(calculateReAmount())}</Text>
-                            </View>
-                        )}
-                        {invoice.irpfPercentage > 0 && (
-                            <View style={styles.totalRow}>
-                                <Text style={styles.totalLabel}>IRPF ({invoice.irpfPercentage}%)</Text>
-                                <Text style={styles.totalValue}>-{formatCurrency(calculateIrpfAmount())}</Text>
-                            </View>
-                        )}
-                        <View style={styles.grandTotal}>
-                            <Text style={styles.grandTotalLabel}>TOTAL</Text>
-                            <Text style={styles.grandTotalValue}>{formatCurrency(calculateTotal())}</Text>
-                        </View>
-                    </View>
+                {/* Footer with Observaciones + Totals - ONLY ONCE after all items (last page) */}
+                {/* wrap={false} keeps this block together, placed after table ends */}
+                {renderFooter()}
+
+                {/* VeriFactu - Fixed at bottom of all pages */}
+                <View style={styles.verifactuFooter} fixed>
+                    <Text style={styles.verifactuText}>
+                        Factura verificable en la sede electrónica de la AEAT - VERI*FACTU
+                    </Text>
                 </View>
 
-                {/* Bottom Section: Notes & IBAN */}
-                <View style={styles.bottomSection}>
-                    <View style={styles.notesSection}>
-                        {invoice.notes && (
-                            <>
-                                <Text style={styles.bottomLabel}>Observaciones</Text>
-                                <Text style={styles.bottomText}>{invoice.notes}</Text>
-                            </>
-                        )}
-                    </View>
-
-                    <View style={styles.ibanSection}>
-                        {company?.iban && (
-                            <>
-                                <Text style={styles.bottomLabel}>Datos de Pago</Text>
-                                <Text style={styles.bottomText}>IBAN: {company.iban}</Text>
-                            </>
-                        )}
-                    </View>
-                </View>
+                <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) =>
+                    `Página ${pageNumber} / ${totalPages}`
+                } fixed />
             </Page>
         </Document>
     );

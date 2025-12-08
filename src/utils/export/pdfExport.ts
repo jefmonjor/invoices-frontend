@@ -31,10 +31,10 @@ export interface InvoiceWithDetails {
 
 // Helper to calculate item total
 const calculateItemTotal = (item: InvoiceItem): number => {
-  const subtotal = item.quantity * item.unitPrice;
+  const subtotal = item.units * item.price;
   const discount = subtotal * ((item.discountPercentage || 0) / 100);
   const afterDiscount = subtotal - discount;
-  const vat = afterDiscount * (item.taxRate / 100);
+  const vat = afterDiscount * (item.vatPercentage / 100);
   return afterDiscount + vat;
 };
 
@@ -82,9 +82,9 @@ export const exportInvoiceToPDF = (invoice: InvoiceWithDetails) => {
   // Items table
   const tableData = invoice.items.map(item => [
     item.description,
-    item.quantity,
-    formatCurrency(item.unitPrice),
-    `${item.taxRate}%`,
+    item.units,
+    formatCurrency(item.price),
+    `${item.vatPercentage}%`,
     `${item.discountPercentage}%`,
     formatCurrency(calculateItemTotal(item)),
   ]);

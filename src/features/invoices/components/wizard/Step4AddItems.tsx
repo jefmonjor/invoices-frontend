@@ -40,9 +40,9 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
 
   const [newItem, setNewItem] = useState<InvoiceItem>({
     description: '',
-    quantity: 1,
-    unitPrice: 0,
-    taxRate: 21, // Default IVA in Spain
+    units: 1,
+    price: 0,
+    vatPercentage: 21, // Default IVA in Spain
     discountPercentage: 0,
     // Campos opcionales para facturas de transporte
     itemDate: '',
@@ -60,14 +60,14 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
     if (!item.description.trim()) {
       newErrors.description = t('invoices:wizard.step4.errors.descriptionRequired');
     }
-    if (item.quantity < 1) {
-      newErrors.quantity = t('invoices:wizard.step4.errors.quantityMin');
+    if (item.units < 1) {
+      newErrors.units = t('invoices:wizard.step4.errors.unitsMin');
     }
-    if (item.unitPrice <= 0) {
-      newErrors.unitPrice = t('invoices:wizard.step4.errors.unitPriceMin');
+    if (item.price <= 0) {
+      newErrors.price = t('invoices:wizard.step4.errors.priceMin');
     }
-    if (item.taxRate < 0 || item.taxRate > 100) {
-      newErrors.taxRate = t('invoices:wizard.step4.errors.vatRange');
+    if (item.vatPercentage < 0 || item.vatPercentage > 100) {
+      newErrors.vatPercentage = t('invoices:wizard.step4.errors.vatRange');
     }
     if ((item.discountPercentage || 0) < 0 || (item.discountPercentage || 0) > 100) {
       newErrors.discountPercentage = t('invoices:wizard.step4.errors.discountRange');
@@ -82,9 +82,9 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
       setItems([...items, { ...newItem }]);
       setNewItem({
         description: '',
-        quantity: 1,
-        unitPrice: 0,
-        taxRate: 21,
+        units: 1,
+        price: 0,
+        vatPercentage: 21,
         discountPercentage: 0,
         itemDate: '',
         vehiclePlate: '',
@@ -136,10 +136,10 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
   };
 
   const calculateItemTotal = (item: InvoiceItem) => {
-    const subtotal = item.quantity * item.unitPrice;
+    const subtotal = item.units * item.price;
     const discount = subtotal * ((item.discountPercentage || 0) / 100);
     const subtotalAfterDiscount = subtotal - discount;
-    const vat = subtotalAfterDiscount * (item.taxRate / 100);
+    const vat = subtotalAfterDiscount * (item.vatPercentage / 100);
     return subtotalAfterDiscount + vat;
   };
 
@@ -182,14 +182,14 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <TextField
                 fullWidth
                 type="number"
-                label={t('invoices:wizard.step4.quantity')}
-                value={newItem.quantity}
+                label={t('invoices:wizard.step4.units')}
+                value={newItem.units}
                 onChange={(e) => {
-                  setNewItem({ ...newItem, quantity: parseFloat(e.target.value) });
-                  if (errors.quantity) setErrors({ ...errors, quantity: '' });
+                  setNewItem({ ...newItem, units: parseFloat(e.target.value) });
+                  if (errors.units) setErrors({ ...errors, units: '' });
                 }}
-                error={!!errors.quantity}
-                helperText={errors.quantity}
+                error={!!errors.units}
+                helperText={errors.units}
                 size="small"
                 inputProps={{ min: 1, step: 1 }}
               />
@@ -198,14 +198,14 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <TextField
                 fullWidth
                 type="number"
-                label={t('invoices:wizard.step4.unitPrice')}
-                value={newItem.unitPrice}
+                label={t('invoices:wizard.step4.price')}
+                value={newItem.price}
                 onChange={(e) => {
-                  setNewItem({ ...newItem, unitPrice: parseFloat(e.target.value) });
-                  if (errors.unitPrice) setErrors({ ...errors, unitPrice: '' });
+                  setNewItem({ ...newItem, price: parseFloat(e.target.value) });
+                  if (errors.price) setErrors({ ...errors, price: '' });
                 }}
-                error={!!errors.unitPrice}
-                helperText={errors.unitPrice}
+                error={!!errors.price}
+                helperText={errors.price}
                 size="small"
                 inputProps={{ min: 0, step: 0.01 }}
               />
@@ -215,13 +215,13 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                 fullWidth
                 type="number"
                 label={t('invoices:wizard.step4.vat')}
-                value={newItem.taxRate}
+                value={newItem.vatPercentage}
                 onChange={(e) => {
-                  setNewItem({ ...newItem, taxRate: parseFloat(e.target.value) });
-                  if (errors.taxRate) setErrors({ ...errors, taxRate: '' });
+                  setNewItem({ ...newItem, vatPercentage: parseFloat(e.target.value) });
+                  if (errors.vatPercentage) setErrors({ ...errors, vatPercentage: '' });
                 }}
-                error={!!errors.taxRate}
-                helperText={errors.taxRate}
+                error={!!errors.vatPercentage}
+                helperText={errors.vatPercentage}
                 size="small"
                 inputProps={{ min: 0, max: 100, step: 0.01 }}
               />
@@ -323,8 +323,8 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             <TableHead>
               <TableRow>
                 <TableCell>{t('invoices:wizard.step4.table.description')}</TableCell>
-                <TableCell align="right">{t('invoices:wizard.step4.table.quantity')}</TableCell>
-                <TableCell align="right">{t('invoices:wizard.step4.table.unitPrice')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.units')}</TableCell>
+                <TableCell align="right">{t('invoices:wizard.step4.table.price')}</TableCell>
                 <TableCell align="right">{t('invoices:wizard.step4.table.vat')}</TableCell>
                 <TableCell align="right">{t('invoices:wizard.step4.table.discount')}</TableCell>
                 <TableCell align="right">{t('invoices:wizard.step4.table.total')}</TableCell>
@@ -335,9 +335,9 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               {items.map((item, index) => (
                 <TableRow key={index}>
                   <TableCell>{item.description}</TableCell>
-                  <TableCell align="right">{item.quantity}</TableCell>
-                  <TableCell align="right">€{item.unitPrice.toFixed(2)}</TableCell>
-                  <TableCell align="right">{item.taxRate}%</TableCell>
+                  <TableCell align="right">{item.units}</TableCell>
+                  <TableCell align="right">€{item.price.toFixed(2)}</TableCell>
+                  <TableCell align="right">{item.vatPercentage}%</TableCell>
                   <TableCell align="right">{item.discountPercentage}%</TableCell>
                   <TableCell align="right">
                     <strong>€{calculateItemTotal(item).toFixed(2)}</strong>
