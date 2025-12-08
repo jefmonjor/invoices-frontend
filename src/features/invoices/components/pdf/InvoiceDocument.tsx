@@ -21,11 +21,20 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
-    page: {
+    // Page 1: Has space reserved for footer at bottom
+    page1: {
         fontFamily: 'Roboto',
         fontSize: 8,
         padding: 25,
-        paddingBottom: 50,
+        paddingBottom: 180, // Reserve space for footer (observaciones + totals + verifactu)
+        color: colors.text,
+    },
+    // Page 2+: Full space for table
+    pageN: {
+        fontFamily: 'Roboto',
+        fontSize: 8,
+        padding: 25,
+        paddingBottom: 50, // Only space for verifactu + page number
         color: colors.text,
     },
     // Header - NO BORDERS
@@ -103,6 +112,7 @@ const styles = StyleSheet.create({
     // Table
     table: {
         flexGrow: 1,
+        minHeight: 100, // Minimum table height on page 1
     },
     tableHeader: {
         flexDirection: 'row',
@@ -144,11 +154,14 @@ const styles = StyleSheet.create({
     colPriceTr: { width: '14%', textAlign: 'right' },
     colGasTr: { width: '8%', textAlign: 'center' },
     colImporteTr: { width: '16%', textAlign: 'right', paddingRight: 3 },
-    // Footer Section - Only on page 1
+    // Footer Section - FIXED at bottom of page 1 only
     footerSection: {
+        position: 'absolute',
+        bottom: 60,
+        left: 25,
+        right: 25,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10,
     },
     observaciones: {
         width: '55%',
@@ -193,7 +206,7 @@ const styles = StyleSheet.create({
         fontWeight: 700,
         color: colors.accent,
     },
-    // VeriFactu - Fixed at bottom
+    // VeriFactu - Fixed at bottom of ALL pages
     verifactuFooter: {
         position: 'absolute',
         bottom: 25,
@@ -317,35 +330,9 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
         );
     };
 
-    // Render footer with observaciones and totals
-    const renderFooter = () => (
-        <View style={styles.footerSection} wrap={false}>
-            <View style={styles.observaciones}>
-                <Text style={styles.observacionesLabel}>Observaciones / Datos de pago:</Text>
-                {company?.iban && <Text style={styles.observacionesText}>IBAN: {company.iban}</Text>}
-                {invoice.notes && <Text style={styles.observacionesText}>{invoice.notes}</Text>}
-            </View>
-
-            <View style={styles.totalsBox}>
-                <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>Base imponible:</Text>
-                    <Text style={styles.totalValue}>{formatCurrency(baseAmount)}</Text>
-                </View>
-                <View style={styles.totalRow}>
-                    <Text style={styles.totalLabel}>IVA ({vatPercentage}%):</Text>
-                    <Text style={styles.totalValue}>{formatCurrency(vatAmount)}</Text>
-                </View>
-                <View style={[styles.totalRow, styles.totalDivider]}>
-                    <Text style={styles.grandTotalLabel}>TOTAL:</Text>
-                    <Text style={styles.grandTotalValue}>{formatCurrency(totalAmount)}</Text>
-                </View>
-            </View>
-        </View>
-    );
-
     return (
         <Document>
-            <Page size="A4" style={styles.page}>
+            <Page size="A4" style={styles.page1}>
                 {/* Header - Fixed on all pages */}
                 <View style={styles.headerSection} fixed>
                     <View style={styles.logoSpace}>
@@ -366,7 +353,7 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                     </View>
                 </View>
 
-                {/* Meta - Simple inline */}
+                {/* Meta - Simple inline (only page 1) */}
                 <View style={styles.metaSection}>
                     <View style={styles.metaItem}>
                         <Text style={styles.metaLabel}>FACTURA Nº:</Text>
@@ -384,7 +371,7 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                     )}
                 </View>
 
-                {/* Client */}
+                {/* Client (only page 1) */}
                 <View style={styles.clientSection}>
                     <Text style={styles.clientTitle}>Datos del cliente</Text>
                     <View style={styles.clientContent}>
@@ -398,17 +385,41 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                     </View>
                 </View>
 
-                {/* Items Table - wraps across pages as needed */}
+                {/* Items Table - wraps across pages */}
                 <View style={styles.table}>
                     {renderTableHeader()}
                     {invoice.items.map((item, index) => renderTableRow(item, index))}
                 </View>
 
-                {/* Footer with Observaciones + Totals - ONLY ONCE after all items (last page) */}
-                {/* wrap={false} keeps this block together, placed after table ends */}
-                {renderFooter()}
+                {/* Footer with Observaciones + Totals - FIXED on PAGE 1 ONLY */}
+                <View style={styles.footerSection} render={({ pageNumber }) => (
+                    pageNumber === 1 ? (
+                        <>
+                            <View style={styles.observaciones}>
+                                <Text style={styles.observacionesLabel}>Observaciones / Datos de pago:</Text>
+                                {company?.iban && <Text style={styles.observacionesText}>IBAN: {company.iban}</Text>}
+                                {invoice.notes && <Text style={styles.observacionesText}>{invoice.notes}</Text>}
+                            </View>
 
-                {/* VeriFactu - Fixed at bottom of all pages */}
+                            <View style={styles.totalsBox}>
+                                <View style={styles.totalRow}>
+                                    <Text style={styles.totalLabel}>Base imponible:</Text>
+                                    <Text style={styles.totalValue}>{formatCurrency(baseAmount)}</Text>
+                                </View>
+                                <View style={styles.totalRow}>
+                                    <Text style={styles.totalLabel}>IVA ({vatPercentage}%):</Text>
+                                    <Text style={styles.totalValue}>{formatCurrency(vatAmount)}</Text>
+                                </View>
+                                <View style={[styles.totalRow, styles.totalDivider]}>
+                                    <Text style={styles.grandTotalLabel}>TOTAL:</Text>
+                                    <Text style={styles.grandTotalValue}>{formatCurrency(totalAmount)}</Text>
+                                </View>
+                            </View>
+                        </>
+                    ) : null
+                )} fixed />
+
+                {/* VeriFactu - Fixed at bottom of ALL pages */}
                 <View style={styles.verifactuFooter} fixed>
                     <Text style={styles.verifactuText}>
                         Factura verificable en la sede electrónica de la AEAT - VERI*FACTU
