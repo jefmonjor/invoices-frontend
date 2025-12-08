@@ -28,6 +28,7 @@
     "axios": "^1.13.2",
     "currency.js": "^2.0.4",
     "date-fns": "^4.1.0",
+    "exceljs": "^4.4.0",
     "i18next": "^25.6.3",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
@@ -41,7 +42,6 @@
     "react-window": "^2.2.3",
     "recharts": "^3.4.1",
     "sockjs-client": "^1.6.1",
-    "xlsx": "^0.18.5",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"
   },
