@@ -18,12 +18,16 @@ import {
   CheckCircle as CheckIcon,
 } from '@mui/icons-material';
 import { useCompanyContext } from '@/contexts/useCompanyContext';
+import { useAuthStore } from '@/store/authStore';
 
 /**
  * CompanySelector Component
  *
  * Dropdown selector para cambiar entre empresas del usuario
  * Se muestra en el Navbar/Header
+ * 
+ * NOTA: No se muestra para PLATFORM_ADMIN ya que ellos no operan
+ * dentro de una empresa específica, sino que gestionan la plataforma.
  *
  * Features:
  * - Lista de empresas con indicador de empresa actual
@@ -33,8 +37,15 @@ import { useCompanyContext } from '@/contexts/useCompanyContext';
  */
 const CompanySelector: React.FC = () => {
   const { currentCompany, userCompanies, isLoading, error, switchCompany } = useCompanyContext();
+  const { user } = useAuthStore();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
+  // PLATFORM_ADMIN no necesita selector de empresas
+  const isPlatformAdmin = user?.roles?.includes('ROLE_PLATFORM_ADMIN');
+  if (isPlatformAdmin) {
+    return null;
+  }
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
