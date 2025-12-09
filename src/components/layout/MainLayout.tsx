@@ -21,14 +21,25 @@ export const MainLayout: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          // Responsive padding: smaller on mobile
+          p: { xs: 1.5, sm: 2, md: 3 },
           width: { md: `calc(100% - ${DRAWER_WIDTH_EXPORT}px)` },
-          minHeight: '100vh',
+          // Dynamic viewport height for mobile, fallback to 100vh
+          minHeight: { xs: '100dvh', md: '100vh' },
           backgroundColor: 'background.default',
+          // Safe area for bottom gesture bar on mobile
+          pb: { xs: 'calc(16px + env(safe-area-inset-bottom, 0px))', md: 3 },
         }}
       >
         <Toolbar /> {/* Spacer for fixed AppBar */}
-        <Container maxWidth={false} sx={{ mt: 2, px: { xs: 4, md: 6 } }}>
+        <Container
+          maxWidth={false}
+          sx={{
+            mt: { xs: 1, md: 2 },
+            // Responsive horizontal padding
+            px: { xs: 1, sm: 2, md: 4, lg: 6 }
+          }}
+        >
           <Breadcrumbs />
           <Outlet />
         </Container>

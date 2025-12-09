@@ -9,10 +9,18 @@ interface ThemeState {
   setTheme: (mode: ThemeMode) => void;
 }
 
+// Detect system preference
+const getSystemPreference = (): ThemeMode => {
+  if (typeof window !== 'undefined' && window.matchMedia) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return 'light';
+};
+
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      mode: 'light',
+      mode: getSystemPreference(),
       toggleTheme: () =>
         set((state) => ({
           mode: state.mode === 'light' ? 'dark' : 'light',
@@ -21,6 +29,8 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: 'theme-storage',
+      // Only hydrate mode if it was previously saved
+      partialize: (state) => ({ mode: state.mode }),
     }
   )
 );

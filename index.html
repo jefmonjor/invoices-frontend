@@ -1,16 +1,195 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8" />
+
+  <!-- Mobile & PWA Meta Tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Transólido" />
+  <meta name="application-name" content="Transólido" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <!-- Theme Colors - synced with theme.ts -->
+  <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+  <meta name="msapplication-TileColor" content="#2563eb" />
+  <meta name="msapplication-navbutton-color" content="#2563eb" />
+
+  <!-- SEO & Social -->
+  <meta name="description" content="Sistema de gestión de facturas con integración VeriFactu para empresas españolas" />
+  <meta name="robots" content="noindex, nofollow" />
+
+  <!-- Favicon & Icons -->
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="apple-touch-icon" href="/logo192.png" />
   <link rel="manifest" href="/manifest.json" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Transolido SL</title>
+
+  <!-- Preconnect to external resources -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+  <!-- Google Fonts: Inter for professional typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <title>Transólido SL</title>
+
+  <!-- Critical CSS - Prevents black screen on load -->
+  <style>
+    /* CSS Variables synced with MUI theme */
+    :root {
+      --bg-default: #f8fafc;
+      --bg-paper: #ffffff;
+      --text-primary: #0f172a;
+      --text-secondary: #64748b;
+      --primary: #2563eb;
+      --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-default: #0b1120;
+        --bg-paper: #1e293b;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+      }
+    }
+
+    /* Base reset */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      /* Prevent pull-to-refresh on mobile */
+      overscroll-behavior-y: none;
+      /* Prevent horizontal scroll */
+      overflow-x: hidden;
+      /* Smooth scrolling */
+      scroll-behavior: smooth;
+    }
+
+    html,
+    body,
+    #root {
+      min-height: 100vh;
+      min-height: 100dvh;
+      /* Dynamic viewport height for mobile */
+      background-color: var(--bg-default);
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      /* Prevent tap highlight on mobile */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      /* Safe area for notch/gesture bar */
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    #root {
+      width: 100%;
+      isolation: isolate;
+    }
+
+    /* Initial loader - visible before React hydrates */
+    .app-loader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      background-color: var(--bg-default);
+      z-index: 9999;
+    }
+
+    .app-loader-spinner {
+      width: 44px;
+      height: 44px;
+      border: 3px solid var(--primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .app-loader-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Hide loader when React renders content */
+    #root:not(:empty) .app-loader {
+      display: none;
+    }
+
+    /* Ensure touch targets are accessible */
+    button,
+    a,
+    [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <!-- Prevent FOUC (Flash Of Unstyled Content) -->
+  <script>
+    // Immediately apply dark mode if user prefers it
+    (function () {
+      try {
+        const stored = localStorage.getItem('theme-storage');
+        if (stored) {
+          const { state } = JSON.parse(stored);
+          if (state && state.mode === 'dark') {
+            document.documentElement.style.setProperty('--bg-default', '#0b1120');
+            document.documentElement.style.setProperty('--bg-paper', '#1e293b');
+            document.documentElement.style.setProperty('--text-primary', '#f8fafc');
+            document.documentElement.style.setProperty('--text-secondary', '#94a3b8');
+          }
+        }
+      } catch (e) { }
+    })();
+  </script>
+
+  <div id="root">
+    <!-- Initial loader - replaced by React when app loads -->
+    <div class="app-loader" role="status" aria-label="Cargando aplicación">
+      <div class="app-loader-spinner" aria-hidden="true"></div>
+      <div class="app-loader-text">Cargando...</div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
