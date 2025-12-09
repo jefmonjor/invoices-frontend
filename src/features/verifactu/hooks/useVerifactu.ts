@@ -29,7 +29,8 @@ export function useSubmitInvoice() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: verifactuApi.submitInvoice,
+    mutationFn: ({ invoiceId, companyId }: { invoiceId: number; companyId: number }) =>
+      verifactuApi.submitInvoice(invoiceId, companyId),
     onSuccess: (data) => {
       toast.success(data.message || 'Factura enviada para verificación');
 
@@ -38,11 +39,11 @@ export function useSubmitInvoice() {
       queryClient.invalidateQueries({ queryKey: ['invoices', data.invoiceId] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
     },
-    onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message ||
-        'Error al enviar factura para verificación'
-      );
+    onError: (error: unknown) => {
+      const errorMessage = error instanceof Error
+        ? error.message
+        : 'Error al enviar factura para verificación';
+      toast.error(errorMessage);
     },
   });
 }

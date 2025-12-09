@@ -20,6 +20,7 @@ import {
   People as UsersIcon,
   Business as CompanyIcon,
   PersonOutline as ClientIcon,
+  Security as SecurityIcon,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
@@ -73,6 +74,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
       icon: <UsersIcon />,
       path: '/users',
       roles: ['ROLE_PLATFORM_ADMIN', 'ROLE_ADMIN'], // Platform and company admins
+    },
+    {
+      title: 'Certificado VeriFactu',
+      icon: <SecurityIcon />,
+      path: '/settings/certificate',
+      roles: ['ROLE_ADMIN'], // Only company admins
     },
   ];
 

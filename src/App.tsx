@@ -41,6 +41,9 @@ const UsersListPage = lazy(() => import('./features/users/pages/UsersListPage'))
 const UserCreatePage = lazy(() => import('./features/users/pages/UserCreatePage'));
 const UserEditPage = lazy(() => import('./features/users/pages/UserEditPage'));
 
+// VeriFactu
+const CertificateSettingsPage = lazy(() => import('./features/verifactu/pages/CertificateSettingsPage'));
+
 // Loading component
 const PageLoader = () => (
   <Box
@@ -120,6 +123,9 @@ function App() {
 
                     {/* Profile */}
                     <Route path="/profile" element={<ProfilePage />} />
+
+                    {/* VeriFactu Settings */}
+                    <Route path="/settings/certificate" element={<CertificateSettingsPage />} />
                   </Route>
                 </Route>
 

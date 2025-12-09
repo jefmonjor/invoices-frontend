@@ -49,14 +49,70 @@ export const getTheme = (mode: 'light' | 'dark') => {
             },
         },
         typography: {
-            fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-            h1: { fontWeight: 700 },
-            h2: { fontWeight: 700 },
-            h3: { fontWeight: 600 },
-            h4: { fontWeight: 600 },
-            h5: { fontWeight: 600 },
-            h6: { fontWeight: 600 },
-            button: { fontWeight: 600, textTransform: 'none' },
+            // Professional invoice typography - Inter is clean and highly readable
+            fontFamily: '"Inter", "SF Pro Display", "Roboto", "Helvetica Neue", sans-serif',
+            // Responsive heading sizes
+            h1: {
+                fontWeight: 700,
+                fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+                lineHeight: 1.2,
+                letterSpacing: '-0.02em',
+            },
+            h2: {
+                fontWeight: 700,
+                fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+                lineHeight: 1.3,
+                letterSpacing: '-0.01em',
+            },
+            h3: {
+                fontWeight: 600,
+                fontSize: 'clamp(1.25rem, 2.5vw, 1.5rem)',
+                lineHeight: 1.4,
+            },
+            h4: {
+                fontWeight: 600,
+                fontSize: 'clamp(1.125rem, 2vw, 1.25rem)',
+                lineHeight: 1.4,
+            },
+            h5: { fontWeight: 600, fontSize: '1rem' },
+            h6: { fontWeight: 600, fontSize: '0.875rem' },
+            // Invoice numbers and important data
+            subtitle1: {
+                fontWeight: 500,
+                fontSize: '1rem',
+                letterSpacing: '0.01em',
+            },
+            // Money amounts
+            subtitle2: {
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                fontFeatureSettings: '"tnum"', // Tabular numbers for alignment
+            },
+            body1: {
+                fontSize: '0.9375rem', // 15px - optimal for readability
+                lineHeight: 1.6,
+            },
+            body2: {
+                fontSize: '0.8125rem', // 13px
+                lineHeight: 1.5,
+            },
+            button: {
+                fontWeight: 600,
+                textTransform: 'none',
+                letterSpacing: '0.02em',
+            },
+            caption: {
+                fontSize: '0.75rem',
+                color: 'inherit',
+                opacity: 0.7,
+            },
+            // For invoice numbers, reference codes
+            overline: {
+                fontWeight: 600,
+                fontSize: '0.75rem',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+            },
         },
         shape: {
             borderRadius: 12, // Modern rounded corners
