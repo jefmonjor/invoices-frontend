@@ -158,8 +158,9 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
           <Typography variant="subtitle1" gutterBottom>
             {t('invoices:wizard.step4.newItem')}
           </Typography>
-          <Grid container spacing={6}>
-            <Grid item xs={12} sm={3}>
+          <Grid container spacing={2}>
+            {/* Descripción - campo principal más grande */}
+            <Grid item xs={12} sm={5}>
               <TextField
                 fullWidth
                 label={t('invoices:wizard.step4.description')}
@@ -176,9 +177,10 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                 error={!!errors.description}
                 helperText={errors.description}
                 size="small"
+                placeholder="Ej: Viaje Barcelona - Madrid"
               />
             </Grid>
-            <Grid item xs={6} sm={1.5}>
+            <Grid item xs={6} sm={1.25}>
               <TextField
                 fullWidth
                 type="number"
@@ -194,7 +196,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                 inputProps={{ min: 1, step: 1 }}
               />
             </Grid>
-            <Grid item xs={6} sm={1.5}>
+            <Grid item xs={6} sm={1.25}>
               <TextField
                 fullWidth
                 type="number"
@@ -210,7 +212,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                 inputProps={{ min: 0, step: 0.01 }}
               />
             </Grid>
-            <Grid item xs={6} sm={1.5}>
+            <Grid item xs={6} sm={1.25}>
               <TextField
                 fullWidth
                 type="number"
@@ -226,7 +228,7 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                 inputProps={{ min: 0, max: 100, step: 0.01 }}
               />
             </Grid>
-            <Grid item xs={6} sm={1.5}>
+            <Grid item xs={6} sm={1.25}>
               <TextField
                 fullWidth
                 type="number"
