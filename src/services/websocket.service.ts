@@ -24,10 +24,25 @@ class WebSocketService {
     private maxReconnectAttempts = 5;
 
     /**
-     * Get WebSocket URL from environment or use default
+     * Get WebSocket URL from environment or derive from API base URL
+     * Ensures protocol matches page protocol (https pages require https/wss)
      */
     private getWebSocketUrl(): string {
-        return import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws';
+        // First check for explicit WebSocket URL
+        if (import.meta.env.VITE_WS_URL) {
+            return import.meta.env.VITE_WS_URL;
+        }
+
+        // Derive from API base URL
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+        let wsUrl = apiBaseUrl + '/ws';
+
+        // Ensure protocol matches page protocol to avoid mixed content errors
+        if (typeof window !== 'undefined' && window.location.protocol === 'https:') {
+            wsUrl = wsUrl.replace(/^http:/, 'https:');
+        }
+
+        return wsUrl;
     }
 
     /**
