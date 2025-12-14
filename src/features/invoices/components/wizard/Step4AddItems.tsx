@@ -27,6 +27,18 @@ interface Step4AddItemsProps {
   onBack: () => void;
 }
 
+/**
+ * Parsea un valor decimal aceptando tanto coma como punto como separador.
+ * Retorna el número parseado o el valor por defecto si no es válido.
+ */
+const parseDecimal = (value: string, defaultValue: number = 0): number => {
+  if (!value || value === '') return defaultValue;
+  // Reemplaza coma por punto para el parsing
+  const normalized = value.replace(',', '.');
+  const parsed = parseFloat(normalized);
+  return isNaN(parsed) ? defaultValue : parsed;
+};
+
 export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
   initialItems = [],
   onNext,
@@ -51,6 +63,11 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
     zone: '',
     gasPercentage: 0,
   });
+
+  // State para inputs de texto (para aceptar coma como separador decimal)
+  const [priceInput, setPriceInput] = useState<string>('');
+  const [discountInput, setDiscountInput] = useState<string>('0');
+  const [gasInput, setGasInput] = useState<string>('');
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -78,8 +95,16 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
   };
 
   const handleAddItem = () => {
-    if (validateItem(newItem)) {
-      setItems([...items, { ...newItem }]);
+    // Actualizar valores numéricos desde los inputs de texto
+    const itemToAdd = {
+      ...newItem,
+      price: parseDecimal(priceInput, 0),
+      discountPercentage: parseDecimal(discountInput, 0),
+      gasPercentage: parseDecimal(gasInput, 0),
+    };
+
+    if (validateItem(itemToAdd)) {
+      setItems([...items, { ...itemToAdd }]);
       setNewItem({
         description: '',
         units: 1,
@@ -92,6 +117,10 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
         zone: '',
         gasPercentage: 0,
       });
+      // Reset text inputs
+      setPriceInput('');
+      setDiscountInput('0');
+      setGasInput('');
       setErrors({});
     }
   };
@@ -204,16 +233,18 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             <Grid item xs={6} sm={3} md={2}>
               <TextField
                 fullWidth
-                type="number"
                 label={t('invoices:wizard.step4.price')}
-                value={newItem.price}
+                value={priceInput}
                 onChange={(e) => {
-                  setNewItem({ ...newItem, price: parseFloat(e.target.value) });
+                  // Acepta números, coma y punto
+                  const val = e.target.value.replace(/[^0-9.,]/g, '');
+                  setPriceInput(val);
                   if (errors.price) setErrors({ ...errors, price: '' });
                 }}
                 error={!!errors.price}
-                helperText={errors.price || 'Precio/ud'}
-                inputProps={{ min: 0, step: 0.01 }}
+                helperText={errors.price || 'Precio/ud (€)'}
+                placeholder="0,00"
+                inputProps={{ inputMode: 'decimal' }}
               />
             </Grid>
             <Grid item xs={6} sm={3} md={2}>
@@ -234,16 +265,18 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
             <Grid item xs={6} sm={3} md={2}>
               <TextField
                 fullWidth
-                type="number"
                 label={t('invoices:wizard.step4.discount')}
-                value={newItem.discountPercentage}
+                value={discountInput}
                 onChange={(e) => {
-                  setNewItem({ ...newItem, discountPercentage: parseFloat(e.target.value) });
+                  // Acepta números, coma y punto
+                  const val = e.target.value.replace(/[^0-9.,]/g, '');
+                  setDiscountInput(val);
                   if (errors.discountPercentage) setErrors({ ...errors, discountPercentage: '' });
                 }}
                 error={!!errors.discountPercentage}
-                helperText={errors.discountPercentage || 'Descuento %'}
-                inputProps={{ min: 0, max: 100, step: 0.01 }}
+                helperText={errors.discountPercentage || 'Dto. %'}
+                placeholder="0"
+                inputProps={{ inputMode: 'decimal' }}
               />
             </Grid>
             <Grid item xs={12} sm={12} md={4}>
@@ -315,11 +348,14 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
               <Grid item xs={6} sm={4} md={2}>
                 <TextField
                   fullWidth
-                  type="number"
                   label={t('invoices:wizard.step4.gas')}
-                  value={newItem.gasPercentage}
-                  onChange={(e) => setNewItem({ ...newItem, gasPercentage: parseFloat(e.target.value) })}
-                  inputProps={{ min: 0, max: 100, step: 0.01 }}
+                  value={gasInput}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.,]/g, '');
+                    setGasInput(val);
+                  }}
+                  placeholder="0"
+                  inputProps={{ inputMode: 'decimal' }}
                   helperText="% Gasoil"
                 />
               </Grid>
