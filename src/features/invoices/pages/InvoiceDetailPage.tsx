@@ -168,7 +168,7 @@ const InvoiceDetailPage: React.FC = () => {
   };
 
   const canEdit = !!invoice;
-  const canDelete = !!invoice;
+  const canDelete = !!invoice && invoice.verifactuStatus !== 'ACCEPTED';
 
   if (isLoading) {
     return (
@@ -349,16 +349,30 @@ const InvoiceDetailPage: React.FC = () => {
 
                 <Grid item xs={6}>
                   <Typography variant="caption" color="text.secondary">
-                    ID Empresa
+                    Empresa
                   </Typography>
-                  <Typography variant="body1">{invoice.companyId}</Typography>
+                  <Typography variant="body1">
+                    {invoice.company?.businessName || `ID: ${invoice.companyId}`}
+                  </Typography>
+                  {invoice.company?.taxId && (
+                    <Typography variant="body2" color="text.secondary">
+                      CIF: {invoice.company.taxId}
+                    </Typography>
+                  )}
                 </Grid>
 
                 <Grid item xs={6}>
                   <Typography variant="caption" color="text.secondary">
-                    ID Cliente
+                    Cliente
                   </Typography>
-                  <Typography variant="body1">{invoice.clientId}</Typography>
+                  <Typography variant="body1">
+                    {invoice.client?.businessName || `ID: ${invoice.clientId}`}
+                  </Typography>
+                  {invoice.client?.taxId && (
+                    <Typography variant="body2" color="text.secondary">
+                      CIF: {invoice.client.taxId}
+                    </Typography>
+                  )}
                 </Grid>
 
                 {invoice.documentHash && (
@@ -429,6 +443,23 @@ const InvoiceDetailPage: React.FC = () => {
                 Totales
               </Typography>
               <Divider sx={{ mb: 2 }} />
+
+              {(() => {
+                const totalDiscount = invoice.items.reduce((acc, item) => {
+                  const basePrice = item.price * item.units;
+                  const discountAmount = basePrice * ((item.discountPercentage || 0) / 100);
+                  return acc + discountAmount;
+                }, 0);
+
+                if (totalDiscount <= 0) return null;
+
+                return (
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, color: 'success.main' }}>
+                    <Typography>Descuento:</Typography>
+                    <Typography>-{formatCurrency(totalDiscount)}</Typography>
+                  </Box>
+                );
+              })()}
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Typography>Base Imponible:</Typography>
