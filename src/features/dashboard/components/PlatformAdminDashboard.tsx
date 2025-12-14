@@ -40,7 +40,6 @@ export const PlatformAdminDashboard = ({ data }: Props) => {
                         value={data.dailyInvoicesCount}
                         icon={<ReceiptRoundedIcon />}
                         color="info"
-                        trend={5} // Mock trend
                     />
                 </Grid>
                 <Grid item xs={12} md={4}>

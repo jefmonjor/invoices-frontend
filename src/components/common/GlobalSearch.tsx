@@ -71,7 +71,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
     debouncedSetSearch(searchTerm);
   }, [searchTerm, debouncedSetSearch]);
 
-  // Mock search function - replace with real API call
+  // Search functionality - disabled until API is implemented
   const { data: results, isLoading } = useQuery<SearchResult[]>({
     queryKey: ['global-search', debouncedSearch],
     queryFn: async (): Promise<SearchResult[]> => {
@@ -79,32 +79,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
         return [];
       }
 
-      // TODO: Replace with real API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Mock results
-      const mockResults: SearchResult[] = [
-        {
-          type: 'invoice' as const,
-          id: 1,
-          title: 'INV-001',
-          subtitle: 'Cliente: Acme Corp - €1,234.56',
-          url: '/invoices/1',
-        },
-        {
-          type: 'company' as const,
-          id: 1,
-          title: 'Mi Empresa S.L.',
-          subtitle: 'CIF: B12345678',
-          url: '/companies/1/edit',
-        },
-      ];
-
-      return mockResults.filter(
-        result =>
-          result.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-          result.subtitle.toLowerCase().includes(debouncedSearch.toLowerCase())
-      );
+      // Search API not implemented yet - return empty results
+      // TODO: Connect to /api/search when backend endpoint is ready
+      return [];
     },
     enabled: debouncedSearch.length >= 2,
   });
