@@ -4,15 +4,15 @@
  */
 export interface Company {
   id: number;
-  businessName: string; // Razón social (antes 'name')
-  taxId: string; // CIF
-  address: string;
-  city: string;
-  postalCode: string;
-  province: string;
-  phone: string;
-  email: string;
-  iban: string; // Cuenta bancaria
+  businessName: string; // Razón social - OBLIGATORIO
+  taxId: string; // CIF - OBLIGATORIO
+  address: string; // OBLIGATORIO
+  city?: string; // Opcional
+  postalCode?: string; // Opcional
+  province?: string; // Opcional
+  phone?: string; // Opcional
+  email?: string; // Opcional
+  iban?: string; // Cuenta bancaria - Opcional
   createdAt?: string; // ISO-8601
   updatedAt?: string; // ISO-8601
   // User specific fields (from CompanyDto)
