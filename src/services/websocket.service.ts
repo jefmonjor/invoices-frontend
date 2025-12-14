@@ -1,5 +1,6 @@
 import { Client, type StompSubscription, type IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { logger } from '@/utils/logger';
 
 /**
  * Invoice status message received via WebSocket
@@ -52,12 +53,12 @@ class WebSocketService {
      */
     connect(token: string): Promise<void> {
         if (this.client?.connected) {
-            console.log('[WebSocket] Already connected');
+            logger.log('[WebSocket] Already connected');
             return Promise.resolve();
         }
 
         if (this.isConnecting) {
-            console.log('[WebSocket] Connection already in progress');
+            logger.log('[WebSocket] Connection already in progress');
             return Promise.reject(new Error('Connection already in progress'));
         }
 
@@ -65,7 +66,7 @@ class WebSocketService {
 
         return new Promise((resolve, reject) => {
             const wsUrl = this.getWebSocketUrl();
-            console.log('[WebSocket] Connecting to', wsUrl);
+            logger.log('[WebSocket] Connecting to', wsUrl);
 
             this.client = new Client({
                 webSocketFactory: () => new SockJS(wsUrl),
@@ -76,28 +77,26 @@ class WebSocketService {
                 heartbeatIncoming: 4000,
                 heartbeatOutgoing: 4000,
                 debug: (msg: string) => {
-                    if (import.meta.env.DEV) {
-                        console.log('[WebSocket Debug]', msg);
-                    }
+                    logger.debug('[WebSocket Debug]', msg);
                 },
                 onConnect: () => {
-                    console.log('[WebSocket] Connected successfully');
+                    logger.log('[WebSocket] Connected successfully');
                     this.isConnecting = false;
                     this.reconnectAttempts = 0;
                     resolve();
                 },
                 onStompError: (frame) => {
-                    console.error('[WebSocket] STOMP Error:', frame);
+                    logger.error('[WebSocket] STOMP Error:', frame);
                     this.isConnecting = false;
                     reject(new Error(frame.headers['message'] || 'STOMP connection error'));
                 },
                 onWebSocketError: (error) => {
-                    console.error('[WebSocket] Transport Error:', error);
+                    logger.error('[WebSocket] Transport Error:', error);
                     this.isConnecting = false;
                     reject(error);
                 },
                 onWebSocketClose: () => {
-                    console.log('[WebSocket] Connection closed');
+                    logger.log('[WebSocket] Connection closed');
                     this.handleReconnect(token);
                 },
             });
@@ -111,16 +110,16 @@ class WebSocketService {
      */
     private handleReconnect(token: string): void {
         if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error('[WebSocket] Max reconnection attempts reached');
+            logger.error('[WebSocket] Max reconnection attempts reached');
             return;
         }
 
         this.reconnectAttempts++;
-        console.log(`[WebSocket] Reconnecting... Attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
+        logger.log(`[WebSocket] Reconnecting... Attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts}`);
 
         setTimeout(() => {
             this.connect(token).catch((error) => {
-                console.error('[WebSocket] Reconnection failed:', error);
+                logger.error('[WebSocket] Reconnection failed:', error);
             });
         }, 5000 * this.reconnectAttempts); // Exponential backoff
     }
@@ -135,7 +134,7 @@ class WebSocketService {
         callback: (message: InvoiceStatusMessage) => void
     ): void {
         if (!this.client?.connected) {
-            console.error('[WebSocket] Cannot subscribe: not connected');
+            logger.error('[WebSocket] Cannot subscribe: not connected');
             throw new Error('WebSocket not connected');
         }
 
@@ -143,19 +142,19 @@ class WebSocketService {
 
         // Unsubscribe if already subscribed
         if (this.subscriptions.has(destination)) {
-            console.log('[WebSocket] Already subscribed to', destination);
+            logger.log('[WebSocket] Already subscribed to', destination);
             return;
         }
 
-        console.log('[WebSocket] Subscribing to', destination);
+        logger.log('[WebSocket] Subscribing to', destination);
 
         const subscription = this.client.subscribe(destination, (message: IMessage) => {
             try {
                 const data: InvoiceStatusMessage = JSON.parse(message.body);
-                console.log('[WebSocket] Received message:', data);
+                logger.log('[WebSocket] Received message:', data);
                 callback(data);
             } catch (error) {
-                console.error('[WebSocket] Error parsing message:', error);
+                logger.error('[WebSocket] Error parsing message:', error);
             }
         });
 
@@ -172,7 +171,7 @@ class WebSocketService {
         callback: (message: InvoiceStatusMessage) => void
     ): void {
         if (!this.client?.connected) {
-            console.error('[WebSocket] Cannot subscribe: not connected');
+            logger.error('[WebSocket] Cannot subscribe: not connected');
             throw new Error('WebSocket not connected');
         }
 
@@ -180,19 +179,19 @@ class WebSocketService {
 
         // Unsubscribe if already subscribed
         if (this.subscriptions.has(destination)) {
-            console.log('[WebSocket] Already subscribed to', destination);
+            logger.log('[WebSocket] Already subscribed to', destination);
             return;
         }
 
-        console.log('[WebSocket] Subscribing to', destination);
+        logger.log('[WebSocket] Subscribing to', destination);
 
         const subscription = this.client.subscribe(destination, (message: IMessage) => {
             try {
                 const data: InvoiceStatusMessage = JSON.parse(message.body);
-                console.log('[WebSocket] Received company message:', data);
+                logger.log('[WebSocket] Received company message:', data);
                 callback(data);
             } catch (error) {
-                console.error('[WebSocket] Error parsing message:', error);
+                logger.error('[WebSocket] Error parsing message:', error);
             }
         });
 
@@ -208,7 +207,7 @@ class WebSocketService {
         const subscription = this.subscriptions.get(destination);
 
         if (subscription) {
-            console.log('[WebSocket] Unsubscribing from', destination);
+            logger.log('[WebSocket] Unsubscribing from', destination);
             subscription.unsubscribe();
             this.subscriptions.delete(destination);
         }
@@ -223,7 +222,7 @@ class WebSocketService {
         const subscription = this.subscriptions.get(destination);
 
         if (subscription) {
-            console.log('[WebSocket] Unsubscribing from', destination);
+            logger.log('[WebSocket] Unsubscribing from', destination);
             subscription.unsubscribe();
             this.subscriptions.delete(destination);
         }
@@ -233,7 +232,7 @@ class WebSocketService {
      * Unsubscribe from all subscriptions
      */
     unsubscribeAll(): void {
-        console.log('[WebSocket] Unsubscribing from all channels');
+        logger.log('[WebSocket] Unsubscribing from all channels');
         this.subscriptions.forEach((subscription) => {
             subscription.unsubscribe();
         });
@@ -245,7 +244,7 @@ class WebSocketService {
      */
     disconnect(): void {
         if (this.client) {
-            console.log('[WebSocket] Disconnecting...');
+            logger.log('[WebSocket] Disconnecting...');
             this.unsubscribeAll();
             this.client.deactivate();
             this.client = null;
@@ -275,3 +274,4 @@ class WebSocketService {
 
 // Export singleton instance
 export const websocketService = new WebSocketService();
+

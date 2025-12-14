@@ -1,16 +1,19 @@
 import React from 'react';
-import { Grid, Card, CardContent, Typography, Box, Skeleton, Alert } from '@mui/material';
+import { Grid, Card, CardContent, Typography, Box, Skeleton } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import TimerIcon from '@mui/icons-material/Timer';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import { useQuery } from '@tanstack/react-query';
+import { invoicesApi, type InvoiceListResponse } from '@/api/invoices.api';
+import { useCompanyContext } from '@/contexts/useCompanyContext';
+import type { Invoice } from '@/types/invoice.types';
 
 interface MetricCardProps {
     title: string;
     value?: string | number;
     icon: React.ReactNode;
-    color: 'success' | 'warning' | 'info' | 'default';
+    color: 'success' | 'warning' | 'info' | 'error' | 'default';
     isLoading?: boolean;
 }
 
@@ -19,6 +22,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, color, isLo
         success: '#2e7d32',
         warning: '#ed6c02',
         info: '#0288d1',
+        error: '#d32f2f',
         default: '#757575'
     };
 
@@ -36,7 +40,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, color, isLo
                 {isLoading ? (
                     <Skeleton variant="text" width="60%" height={40} />
                 ) : (
-                    <Typography variant="h4" component="div" fontWeight="bold" color="text.disabled">
+                    <Typography variant="h4" component="div" fontWeight="bold">
                         {value ?? '--'}
                     </Typography>
                 )}
@@ -46,37 +50,52 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, color, isLo
 };
 
 /**
- * VeriFactu Dashboard - Muestra métricas de verificación
- * NOTA: Las métricas reales requieren implementar endpoint en backend
- * Por ahora muestra placeholders indicando que no hay datos disponibles
+ * VeriFactu Dashboard - Muestra métricas de verificación calculadas de las facturas
  */
 const VerifactuDashboard: React.FC = () => {
-    // TODO: Implementar useQuery para obtener métricas reales del backend
-    // const { data: metrics, isLoading } = useVerifactuMetrics();
-    const isLoading = false; // Sin API todavía
-    const hasData = false;   // Sin datos reales todavía
+    const { currentCompany } = useCompanyContext();
+
+    // Fetch invoices to calculate VeriFactu metrics
+    const { data: invoicesData, isLoading } = useQuery<InvoiceListResponse>({
+        queryKey: ['invoices', currentCompany?.id, 'verifactu-metrics'],
+        queryFn: () => invoicesApi.list(),
+        enabled: !!currentCompany?.id,
+    });
+
+    // Calculate metrics from invoices
+    const metrics = React.useMemo(() => {
+        const invoices = invoicesData?.invoices || [];
+
+        if (invoices.length === 0) {
+            return {
+                verified: 0,
+                pending: 0,
+                rejected: 0,
+                successRate: 0
+            };
+        }
+
+        const verified = invoices.filter((inv: Invoice) => inv.verifactuStatus === 'ACCEPTED').length;
+        const pending = invoices.filter((inv: Invoice) =>
+            inv.verifactuStatus === 'PENDING' || inv.verifactuStatus === 'PROCESSING'
+        ).length;
+        const rejected = invoices.filter((inv: Invoice) => inv.verifactuStatus === 'REJECTED').length;
+        const total = verified + rejected;
+        const successRate = total > 0 ? Math.round((verified / total) * 100) : 0;
+
+        return { verified, pending, rejected, successRate };
+    }, [invoicesData]);
 
     return (
         <Box mb={4}>
-            <Box display="flex" alignItems="center" gap={1} mb={2}>
-                <Typography variant="h6">
-                    Estado VERI*FACTU
-                </Typography>
-                {!hasData && (
-                    <Alert
-                        severity="info"
-                        icon={<InfoOutlinedIcon fontSize="small" />}
-                        sx={{ py: 0, ml: 2 }}
-                    >
-                        Métricas disponibles próximamente
-                    </Alert>
-                )}
-            </Box>
+            <Typography variant="h6" gutterBottom>
+                Estado VERI*FACTU
+            </Typography>
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={6} md={3}>
                     <MetricCard
-                        title="Facturas Verificadas Hoy"
-                        value={hasData ? undefined : '--'}
+                        title="Verificadas"
+                        value={metrics.verified}
                         icon={<CheckCircleIcon fontSize="large" />}
                         color="success"
                         isLoading={isLoading}
@@ -85,7 +104,7 @@ const VerifactuDashboard: React.FC = () => {
                 <Grid item xs={12} sm={6} md={3}>
                     <MetricCard
                         title="Pendientes"
-                        value={hasData ? undefined : '--'}
+                        value={metrics.pending}
                         icon={<ScheduleIcon fontSize="large" />}
                         color="warning"
                         isLoading={isLoading}
@@ -93,19 +112,19 @@ const VerifactuDashboard: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <MetricCard
-                        title="Tasa de Éxito"
-                        value={hasData ? undefined : '--%'}
-                        icon={<TrendingUpIcon fontSize="large" />}
-                        color="info"
+                        title="Rechazadas"
+                        value={metrics.rejected}
+                        icon={<ErrorOutlineIcon fontSize="large" />}
+                        color="error"
                         isLoading={isLoading}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <MetricCard
-                        title="Tiempo Medio"
-                        value={hasData ? undefined : '--s'}
-                        icon={<TimerIcon fontSize="large" />}
-                        color="default"
+                        title="Tasa de Éxito"
+                        value={`${metrics.successRate}%`}
+                        icon={<TrendingUpIcon fontSize="large" />}
+                        color="info"
                         isLoading={isLoading}
                     />
                 </Grid>

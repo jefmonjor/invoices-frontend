@@ -1,71 +1,61 @@
 import { apiClient } from './client';
-import type { Invoice } from '@/types/invoice.types';
-import type { Client } from '@/types/client.types';
-import type { Company } from '@/types/company.types';
 
 /**
- * Response de búsqueda global según contrato del backend
- * GET /api/search?q=ABC&type=all
+ * Search Result from backend
+ * Matches SearchResult.java record
  */
-export interface SearchResponse {
-  invoices: Invoice[];
-  clients: Client[];
-  companies: Company[];
-  totalResults: number;
+export interface SearchResult {
+  id: string;
+  title: string;
+  subtitle: string;
+  type: 'INVOICE' | 'CLIENT' | 'COMPANY';
+  url: string;
 }
 
 /**
- * Parámetros de búsqueda
+ * Search API - matches backend SearchController.java
  */
-export interface SearchParams {
-  q: string; // Query de búsqueda (según contrato)
-  type?: 'all' | 'invoices' | 'clients' | 'companies';
-}
-
 export const searchApi = {
   /**
-   * Búsqueda global en todos los tipos
-   * GET /api/search?q=ABC&type=all
+   * Global search across invoices, clients
+   * GET /api/search?query=ABC&companyId=X
    */
-  global: async (params: SearchParams): Promise<SearchResponse> => {
-    const { data } = await apiClient.get<SearchResponse>('/api/search', {
-      params: {
-        q: params.q,
-        type: params.type || 'all',
-      },
+  searchGlobal: async (query: string, companyId: number): Promise<SearchResult[]> => {
+    const { data } = await apiClient.get<SearchResult[]>('/api/search', {
+      params: { query, companyId },
     });
     return data;
   },
 
   /**
-   * Búsqueda específica en facturas
-   * GET /api/search?q=ABC&type=invoices
+   * Search invoices only
+   * GET /api/search/invoices?query=ABC&companyId=X
    */
-  searchInvoices: async (q: string): Promise<SearchResponse> => {
-    const { data } = await apiClient.get<SearchResponse>('/api/search', {
-      params: { q, type: 'invoices' },
+  searchInvoices: async (query: string, companyId: number): Promise<SearchResult[]> => {
+    const { data } = await apiClient.get<SearchResult[]>('/api/search/invoices', {
+      params: { query, companyId },
     });
     return data;
   },
 
   /**
-   * Búsqueda específica en clientes
-   * GET /api/search?q=ABC&type=clients
+   * Search clients only
+   * GET /api/search/clients?query=ABC&companyId=X
    */
-  searchClients: async (q: string): Promise<SearchResponse> => {
-    const { data } = await apiClient.get<SearchResponse>('/api/search', {
-      params: { q, type: 'clients' },
+  searchClients: async (query: string, companyId: number): Promise<SearchResult[]> => {
+    const { data } = await apiClient.get<SearchResult[]>('/api/search/clients', {
+      params: { query, companyId },
     });
     return data;
   },
 
   /**
-   * Búsqueda específica en empresas
-   * GET /api/search?q=ABC&type=companies
+   * Get search suggestions
+   * GET /api/search/suggestions?query=ABC&companyId=X
    */
-  searchCompanies: async (q: string): Promise<SearchResponse> => {
-    const { data } = await apiClient.get<SearchResponse>('/api/search', {
-      params: { q, type: 'companies' },
+  getSuggestions: async (query: string, companyId: number): Promise<string[]> => {
+    const { data } = await apiClient.get<string[]>('/api/search/suggestions', {
+      params: { query, companyId },
     });
     return data;
   },

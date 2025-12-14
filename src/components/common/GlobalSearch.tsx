@@ -12,14 +12,16 @@ import {
   CircularProgress,
   Chip,
 } from '@mui/material';
-import { Search, Description, Business, People, Person } from '@mui/icons-material';
+import { Search, Description, Business, People } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { debounce } from '@/utils/validators';
+import { searchApi, type SearchResult as ApiSearchResult } from '@/api/search.api';
+import { useCompanyContext } from '@/contexts/useCompanyContext';
 
 interface SearchResult {
-  type: 'invoice' | 'company' | 'client' | 'user';
-  id: number;
+  type: 'INVOICE' | 'CLIENT' | 'COMPANY';
+  id: string;
   title: string;
   subtitle: string;
   url: string;
@@ -32,32 +34,29 @@ interface GlobalSearchProps {
 
 const getIcon = (type: SearchResult['type']) => {
   switch (type) {
-    case 'invoice':
+    case 'INVOICE':
       return <Description />;
-    case 'company':
+    case 'COMPANY':
       return <Business />;
-    case 'client':
+    case 'CLIENT':
       return <People />;
-    case 'user':
-      return <Person />;
   }
 };
 
 const getTypeLabel = (type: SearchResult['type']) => {
   switch (type) {
-    case 'invoice':
+    case 'INVOICE':
       return 'Factura';
-    case 'company':
+    case 'COMPANY':
       return 'Empresa';
-    case 'client':
+    case 'CLIENT':
       return 'Cliente';
-    case 'user':
-      return 'Usuario';
   }
 };
 
 export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => {
   const navigate = useNavigate();
+  const { currentCompany } = useCompanyContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
@@ -71,19 +70,26 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
     debouncedSetSearch(searchTerm);
   }, [searchTerm, debouncedSetSearch]);
 
-  // Search functionality - disabled until API is implemented
+  // Search using real API
   const { data: results, isLoading } = useQuery<SearchResult[]>({
-    queryKey: ['global-search', debouncedSearch],
+    queryKey: ['global-search', debouncedSearch, currentCompany?.id],
     queryFn: async (): Promise<SearchResult[]> => {
-      if (!debouncedSearch || debouncedSearch.length < 2) {
+      if (!debouncedSearch || debouncedSearch.length < 2 || !currentCompany?.id) {
         return [];
       }
 
-      // Search API not implemented yet - return empty results
-      // TODO: Connect to /api/search when backend endpoint is ready
-      return [];
+      const apiResults = await searchApi.searchGlobal(debouncedSearch, currentCompany.id);
+
+      // Map API results to component's expected format
+      return apiResults.map((r: ApiSearchResult) => ({
+        id: r.id,
+        title: r.title,
+        subtitle: r.subtitle,
+        type: r.type,
+        url: r.url,
+      }));
     },
-    enabled: debouncedSearch.length >= 2,
+    enabled: debouncedSearch.length >= 2 && !!currentCompany?.id,
   });
 
   const handleResultClick = (url: string) => {
@@ -103,7 +109,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
         <TextField
           autoFocus
           fullWidth
-          placeholder="Buscar facturas, empresas, clientes..."
+          placeholder="Buscar facturas, clientes..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
@@ -111,6 +117,14 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
           }}
           sx={{ mb: 2 }}
         />
+
+        {!currentCompany && (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography color="text.secondary">
+              Selecciona una empresa para buscar
+            </Typography>
+          </Box>
+        )}
 
         {isLoading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -147,7 +161,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ open, onClose }) => 
           </List>
         )}
 
-        {!isLoading && debouncedSearch.length >= 2 && results?.length === 0 && (
+        {!isLoading && debouncedSearch.length >= 2 && results?.length === 0 && currentCompany && (
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Typography color="text.secondary">
               No se encontraron resultados para "{debouncedSearch}"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -23,60 +23,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '../../hooks/useDebounce';
-import { searchApi, type SearchResponse } from '../../api/search.api';
-import type { Invoice } from '@/types/invoice.types';
-import type { Client } from '@/types/client.types';
-import type { Company } from '@/types/company.types';
-
-interface SearchResultItem {
-    id: string;
-    title: string;
-    subtitle: string;
-    type: 'INVOICE' | 'CLIENT' | 'COMPANY';
-    url: string;
-}
-
-/**
- * Adapter function to convert new SearchResponse to old SearchResult[] format
- */
-function adaptSearchResponse(data: SearchResponse): SearchResultItem[] {
-    const results: SearchResultItem[] = [];
-
-    // Convert invoices
-    data.invoices.forEach((invoice: Invoice) => {
-        results.push({
-            id: `invoice-${invoice.id}`,
-            title: `Factura ${invoice.invoiceNumber}`,
-            subtitle: invoice.client?.businessName || 'Sin cliente',
-            type: 'INVOICE',
-            url: `/invoices/${invoice.id}`,
-        });
-    });
-
-    // Convert clients
-    data.clients.forEach((client: Client) => {
-        results.push({
-            id: `client-${client.id}`,
-            title: client.businessName,
-            subtitle: client.taxId || '',
-            type: 'CLIENT',
-            url: `/clients/${client.id}`,
-        });
-    });
-
-    // Convert companies
-    data.companies.forEach((company: Company) => {
-        results.push({
-            id: `company-${company.id}`,
-            title: company.businessName,
-            subtitle: company.taxId || '',
-            type: 'COMPANY',
-            url: `/companies/${company.id}`,
-        });
-    });
-
-    return results;
-}
+import { searchApi, type SearchResult } from '../../api/search.api';
+import { useCompanyContext } from '@/contexts/useCompanyContext';
 
 export const CommandPalette: React.FC = () => {
     const [open, setOpen] = useState(false);
@@ -85,6 +33,7 @@ export const CommandPalette: React.FC = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+    const { currentCompany } = useCompanyContext();
 
     // Toggle open/close with Cmd+K or Ctrl+K
     useEffect(() => {
@@ -99,31 +48,25 @@ export const CommandPalette: React.FC = () => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Search Query - using new API with 'q' parameter
-    const { data: searchData, isLoading } = useQuery({
-        queryKey: ['search', debouncedQuery],
-        queryFn: () => {
-            if (!debouncedQuery) {
-                return { invoices: [], clients: [], companies: [], totalResults: 0 };
+    // Search Query using real backend API
+    const { data: results = [], isLoading } = useQuery<SearchResult[]>({
+        queryKey: ['search', debouncedQuery, currentCompany?.id],
+        queryFn: async () => {
+            if (!debouncedQuery || !currentCompany?.id) {
+                return [];
             }
-            return searchApi.global({ q: debouncedQuery, type: 'all' });
+            return searchApi.searchGlobal(debouncedQuery, currentCompany.id);
         },
-        enabled: open && debouncedQuery.length > 1,
+        enabled: open && debouncedQuery.length > 1 && !!currentCompany?.id,
         staleTime: 1000 * 60, // 1 minute
     });
-
-    // Convert new API response to old format for backwards compatibility
-    const results = useMemo(() => {
-        if (!searchData) return [];
-        return adaptSearchResponse(searchData);
-    }, [searchData]);
 
     const handleClose = () => {
         setOpen(false);
         setQuery('');
     };
 
-    const handleSelect = (result: SearchResultItem) => {
+    const handleSelect = (result: SearchResult) => {
         navigate(result.url);
         handleClose();
     };
@@ -138,6 +81,19 @@ export const CommandPalette: React.FC = () => {
                 return <CompanyIcon />;
             default:
                 return <SearchIcon />;
+        }
+    };
+
+    const getTypeLabel = (type: string) => {
+        switch (type) {
+            case 'INVOICE':
+                return 'Factura';
+            case 'CLIENT':
+                return 'Cliente';
+            case 'COMPANY':
+                return 'Empresa';
+            default:
+                return '';
         }
     };
 
@@ -178,6 +134,14 @@ export const CommandPalette: React.FC = () => {
                     />
                 </Box>
 
+                {!currentCompany && query.length > 1 && (
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
+                            Selecciona una empresa para buscar.
+                        </Typography>
+                    </Box>
+                )}
+
                 {isLoading && (
                     <Box sx={{ p: 2 }}>
                         <Typography variant="body2" color="text.secondary">
@@ -186,7 +150,7 @@ export const CommandPalette: React.FC = () => {
                     </Box>
                 )}
 
-                {!isLoading && results.length === 0 && query.length > 1 && (
+                {!isLoading && results.length === 0 && query.length > 1 && currentCompany && (
                     <Box sx={{ p: 2 }}>
                         <Typography variant="body2" color="text.secondary">
                             No se encontraron resultados.
@@ -197,14 +161,14 @@ export const CommandPalette: React.FC = () => {
                 <List sx={{ overflow: 'auto', flex: 1, py: 0 }}>
                     {results.map((result) => (
                         <ListItemButton
-                            key={result.id}
+                            key={`${result.type}-${result.id}`}
                             onClick={() => handleSelect(result)}
                             divider
                         >
                             <ListItemIcon>{getIcon(result.type)}</ListItemIcon>
                             <ListItemText
                                 primary={result.title}
-                                secondary={result.subtitle}
+                                secondary={`${getTypeLabel(result.type)} • ${result.subtitle}`}
                                 primaryTypographyProps={{ variant: 'body1', fontWeight: 500 }}
                             />
                             <ArrowIcon fontSize="small" color="action" />
