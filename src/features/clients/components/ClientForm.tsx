@@ -9,17 +9,20 @@ import type { Client, CreateClientRequest } from '@/types/client.types';
 import TaxIdField from '@/components/shared/TaxIdField';
 
 const clientSchema = z.object({
+  // REQUIRED fields (matching backend validation)
   businessName: z.string().min(1, 'La razón social es requerida').max(200, 'Máximo 200 caracteres'),
   taxId: z.string()
     .min(1, 'El CIF/NIF es obligatorio')
     .max(20, 'Máximo 20 caracteres')
     .refine((value) => validateSpanishTaxId(value), 'CIF/NIF inválido'),
   address: z.string().min(1, 'La dirección es requerida').max(500, 'Máximo 500 caracteres'),
-  city: z.string().min(1, 'La ciudad es requerida').max(100, 'Máximo 100 caracteres'),
-  postalCode: z.string().min(1, 'El código postal es requerido').max(10, 'Máximo 10 caracteres'),
-  province: z.string().min(1, 'La provincia es requerida').max(100, 'Máximo 100 caracteres'),
-  phone: z.string().min(1, 'El teléfono es requerido').max(20, 'Máximo 20 caracteres'),
-  email: z.string().min(1, 'El email es requerido').email('Email inválido'),
+
+  // OPTIONAL fields
+  city: z.string().max(100, 'Máximo 100 caracteres').optional().or(z.literal('')),
+  postalCode: z.string().max(10, 'Máximo 10 caracteres').optional().or(z.literal('')),
+  province: z.string().max(100, 'Máximo 100 caracteres').optional().or(z.literal('')),
+  phone: z.string().max(20, 'Máximo 20 caracteres').optional().or(z.literal('')),
+  email: z.string().email('Email inválido').optional().or(z.literal('')),
 });
 
 interface ClientFormProps {
@@ -137,7 +140,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             {...register('city')}
             label="Ciudad"
             fullWidth
-            required
             error={!!errors.city}
             helperText={errors.city?.message}
             disabled={isSubmitting}
@@ -149,7 +151,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             {...register('postalCode')}
             label="Código Postal"
             fullWidth
-            required
             error={!!errors.postalCode}
             helperText={errors.postalCode?.message}
             disabled={isSubmitting}
@@ -161,7 +162,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             {...register('province')}
             label="Provincia"
             fullWidth
-            required
             error={!!errors.province}
             helperText={errors.province?.message}
             disabled={isSubmitting}
@@ -173,7 +173,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             {...register('phone')}
             label="Teléfono"
             fullWidth
-            required
             error={!!errors.phone}
             helperText={errors.phone?.message}
             disabled={isSubmitting}
@@ -186,7 +185,6 @@ export const ClientForm: React.FC<ClientFormProps> = ({
             label="Email"
             type="email"
             fullWidth
-            required
             error={!!errors.email}
             helperText={errors.email?.message}
             disabled={isSubmitting}

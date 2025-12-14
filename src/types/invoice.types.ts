@@ -25,27 +25,27 @@
 
 export interface ClientDTO {
   id: number;
-  businessName: string;
-  taxId: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  province: string;
-  phone: string;
-  email: string;
+  businessName: string; // OBLIGATORIO
+  taxId: string; // OBLIGATORIO
+  address: string; // OBLIGATORIO
+  city?: string; // Opcional
+  postalCode?: string; // Opcional
+  province?: string; // Opcional
+  phone?: string; // Opcional
+  email?: string; // Opcional
 }
 
 export interface CompanyDTO {
   id: number;
-  businessName: string;
-  taxId: string;
-  address: string;
-  city: string;
-  postalCode: string;
-  province: string;
-  phone: string;
-  email: string;
-  iban: string;
+  businessName: string; // OBLIGATORIO
+  taxId: string; // OBLIGATORIO
+  address: string; // OBLIGATORIO
+  city?: string; // Opcional
+  postalCode?: string; // Opcional
+  province?: string; // Opcional
+  phone?: string; // Opcional
+  email?: string; // Opcional
+  iban?: string; // Opcional
 }
 
 // ==================== Invoice Item ====================
