@@ -4,7 +4,6 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar, DRAWER_WIDTH_EXPORT } from './Sidebar';
 import { Header } from './Header';
 import { Breadcrumbs } from '@/components/common/Breadcrumbs';
-import { CommandPalette } from '@/components/common/CommandPalette';
 
 export const MainLayout: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -44,7 +43,6 @@ export const MainLayout: React.FC = () => {
           <Outlet />
         </Container>
       </Box>
-      <CommandPalette />
     </Box>
   );
 };

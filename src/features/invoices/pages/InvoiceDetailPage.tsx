@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -32,8 +32,6 @@ import { useInvoice, useDeleteInvoice } from '../hooks/useInvoices';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import VerifactuBadge from '../components/VerifactuBadge';
-import { useWebSocketInvoiceStatus } from '../hooks/useWebSocketInvoiceStatus';
-import type { InvoiceStatusMessage } from '@/services/websocket.service';
 import VerifactuDashboard from '../../dashboard/components/VerifactuDashboard';
 import { toastService } from '@/services/toast.service';
 import 'react-toastify/dist/ReactToastify.css';
@@ -56,46 +54,33 @@ const InvoiceDetailPage: React.FC = () => {
   const { data: companies } = useCompanies();
   const { data: clients } = useClients();
 
-  // Use local state for verifactu status updates (can be updated via WebSocket)
-  // Initialize with invoice data to avoid setState in useEffect
+  // Polling for VeriFactu status updates (every 30 seconds)
   const [verifactuStatus, setVerifactuStatus] = useState<string | undefined>(() => invoice?.verifactuStatus);
+  const [previousStatus, setPreviousStatus] = useState<string | undefined>();
 
-  // WebSocket handler for status updates
-  const handleStatusUpdate = useCallback((message: InvoiceStatusMessage) => {
-    console.log('[InvoiceDetail] Received status update:', message);
-    if (message.status) {
-      const previousStatus = verifactuStatus;
-      setVerifactuStatus(message.status);
+  // Update status when invoice data changes (from polling)
+  useEffect(() => {
+    if (invoice?.verifactuStatus && invoice.verifactuStatus !== previousStatus) {
+      setVerifactuStatus(invoice.verifactuStatus);
 
-      // Show toast notification for status changes
-      if (previousStatus !== message.status) {
-        const normalizedStatus = message.status.toUpperCase();
-
+      // Show toast for status changes
+      if (previousStatus) {
+        const normalizedStatus = invoice.verifactuStatus.toUpperCase();
         switch (normalizedStatus) {
-          case 'PENDING':
-          case 'PROCESSING':
-            toastService.verifactu.processing();
-            break;
           case 'ACCEPTED':
-            toastService.verifactu.accepted(message.txId);
+            toastService.verifactu.accepted(invoice.verifactuTxId);
             break;
           case 'REJECTED':
-            toastService.verifactu.rejected(message.errorMessage);
+            toastService.verifactu.rejected(invoice.verifactuError);
             break;
           case 'FAILED':
-            toastService.verifactu.failed(message.errorMessage);
+            toastService.verifactu.failed(invoice.verifactuError);
             break;
         }
       }
+      setPreviousStatus(invoice.verifactuStatus);
     }
-  }, [verifactuStatus]);
-
-  // WebSocket connection with JWT and automatic reconnection
-  useWebSocketInvoiceStatus(
-    invoiceId || null,
-    handleStatusUpdate
-  );
-
+  }, [invoice?.verifactuStatus, previousStatus]);
 
   const handleBack = () => {
     navigate('/invoices');
