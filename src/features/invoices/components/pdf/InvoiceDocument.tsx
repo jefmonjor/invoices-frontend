@@ -251,9 +251,10 @@ const formatDate = (dateString: string): string => {
 };
 
 export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, company, client }) => {
-    // Detect invoice type
+    // Detect invoice type - check all transport fields
     const isTransportInvoice = invoice.items.some(
-        item => item.vehiclePlate || item.zone || item.itemDate
+        item => item.vehiclePlate || item.zone || item.orderNumber
+            || item.itemDate || item.gasPercentage
     );
 
     // Calculations
@@ -410,6 +411,18 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                                     <Text style={styles.totalLabel}>IVA ({vatPercentage}%):</Text>
                                     <Text style={styles.totalValue}>{formatCurrency(vatAmount)}</Text>
                                 </View>
+                                {invoice.rePercentage && invoice.rePercentage > 0 && (
+                                    <View style={styles.totalRow}>
+                                        <Text style={styles.totalLabel}>RE ({invoice.rePercentage}%):</Text>
+                                        <Text style={styles.totalValue}>{formatCurrency(invoice.reAmount || 0)}</Text>
+                                    </View>
+                                )}
+                                {invoice.irpfPercentage && invoice.irpfPercentage > 0 && (
+                                    <View style={styles.totalRow}>
+                                        <Text style={styles.totalLabel}>IRPF ({invoice.irpfPercentage}%):</Text>
+                                        <Text style={styles.totalValue}>-{formatCurrency(invoice.irpfAmount || 0)}</Text>
+                                    </View>
+                                )}
                                 <View style={[styles.totalRow, styles.totalDivider]}>
                                     <Text style={styles.grandTotalLabel}>TOTAL:</Text>
                                     <Text style={styles.grandTotalValue}>{formatCurrency(totalAmount)}</Text>
