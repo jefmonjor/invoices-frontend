@@ -153,14 +153,16 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
       </Typography>
 
       {/* Add Item Form */}
-      <Card sx={{ mb: 3 }}>
+      <Card sx={{ mb: 3, p: 1 }}>
         <CardContent>
-          <Typography variant="subtitle1" gutterBottom>
+          <Typography variant="subtitle1" gutterBottom fontWeight="medium">
             {t('invoices:wizard.step4.newItem')}
           </Typography>
-          <Grid container spacing={2}>
-            {/* Descripción - campo principal más grande */}
-            <Grid item xs={12} sm={5}>
+
+          {/* Main Fields Row */}
+          <Grid container spacing={3} sx={{ mb: 2 }}>
+            {/* Descripción - campo grande que ocupa toda la fila en móvil */}
+            <Grid item xs={12}>
               <TextField
                 fullWidth
                 label={t('invoices:wizard.step4.description')}
@@ -175,12 +177,16 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                   }
                 }}
                 error={!!errors.description}
-                helperText={errors.description}
-                size="small"
-                placeholder="Ej: Viaje Barcelona - Madrid"
+                helperText={errors.description || 'Describe el producto o servicio'}
+                placeholder="Ej: Viaje Barcelona - Madrid, transporte de mercancías"
+                multiline
+                minRows={2}
               />
             </Grid>
-            <Grid item xs={6} sm={1.25}>
+          </Grid>
+          {/* Numeric Fields Row - con más espacio */}
+          <Grid container spacing={3} sx={{ mb: 3 }}>
+            <Grid item xs={6} sm={3} md={2}>
               <TextField
                 fullWidth
                 type="number"
@@ -191,12 +197,11 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                   if (errors.units) setErrors({ ...errors, units: '' });
                 }}
                 error={!!errors.units}
-                helperText={errors.units}
-                size="small"
+                helperText={errors.units || 'Unidades'}
                 inputProps={{ min: 1, step: 1 }}
               />
             </Grid>
-            <Grid item xs={6} sm={1.25}>
+            <Grid item xs={6} sm={3} md={2}>
               <TextField
                 fullWidth
                 type="number"
@@ -207,12 +212,11 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                   if (errors.price) setErrors({ ...errors, price: '' });
                 }}
                 error={!!errors.price}
-                helperText={errors.price}
-                size="small"
+                helperText={errors.price || 'Precio/ud'}
                 inputProps={{ min: 0, step: 0.01 }}
               />
             </Grid>
-            <Grid item xs={6} sm={1.25}>
+            <Grid item xs={6} sm={3} md={2}>
               <TextField
                 fullWidth
                 type="number"
@@ -223,12 +227,11 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                   if (errors.vatPercentage) setErrors({ ...errors, vatPercentage: '' });
                 }}
                 error={!!errors.vatPercentage}
-                helperText={errors.vatPercentage}
-                size="small"
+                helperText={errors.vatPercentage || 'IVA %'}
                 inputProps={{ min: 0, max: 100, step: 0.01 }}
               />
             </Grid>
-            <Grid item xs={6} sm={1.25}>
+            <Grid item xs={6} sm={3} md={2}>
               <TextField
                 fullWidth
                 type="number"
@@ -239,82 +242,89 @@ export const Step4AddItems: React.FC<Step4AddItemsProps> = ({
                   if (errors.discountPercentage) setErrors({ ...errors, discountPercentage: '' });
                 }}
                 error={!!errors.discountPercentage}
-                helperText={errors.discountPercentage}
-                size="small"
+                helperText={errors.discountPercentage || 'Descuento %'}
                 inputProps={{ min: 0, max: 100, step: 0.01 }}
               />
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={12} sm={12} md={4}>
               <Button
                 fullWidth
                 variant="contained"
+                size="large"
                 startIcon={<AddIcon />}
                 onClick={handleAddItem}
-                sx={{ height: 40 }}
+                sx={{ height: 56, fontSize: '1rem' }}
               >
                 {t('invoices:wizard.step4.add')}
               </Button>
             </Grid>
-
-            {/* Campos opcionales para facturas de transporte */}
-            <Grid item xs={12}>
-              <Typography variant="caption" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                {t('invoices:wizard.step4.optionalFields')}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                type="date"
-                label={t('invoices:wizard.step4.date')}
-                value={newItem.itemDate}
-                onChange={(e) => setNewItem({ ...newItem, itemDate: e.target.value })}
-                size="small"
-                InputLabelProps={{ shrink: true }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label={t('invoices:wizard.step4.plate')}
-                value={newItem.vehiclePlate}
-                onChange={(e) => setNewItem({ ...newItem, vehiclePlate: e.target.value })}
-                size="small"
-                placeholder="4592JBZ"
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label={t('invoices:wizard.step4.order')}
-                value={newItem.orderNumber}
-                onChange={(e) => setNewItem({ ...newItem, orderNumber: e.target.value })}
-                size="small"
-                placeholder="PED-001"
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                label={t('invoices:wizard.step4.zone')}
-                value={newItem.zone}
-                onChange={(e) => setNewItem({ ...newItem, zone: e.target.value })}
-                size="small"
-                placeholder="CDF 11"
-              />
-            </Grid>
-            <Grid item xs={12} sm={2}>
-              <TextField
-                fullWidth
-                type="number"
-                label={t('invoices:wizard.step4.gas')}
-                value={newItem.gasPercentage}
-                onChange={(e) => setNewItem({ ...newItem, gasPercentage: parseFloat(e.target.value) })}
-                size="small"
-                inputProps={{ min: 0, max: 100, step: 0.01 }}
-              />
-            </Grid>
           </Grid>
+
+          {/* Campos opcionales para facturas de transporte */}
+          <Box sx={{
+            mt: 2,
+            pt: 2,
+            borderTop: '1px dashed',
+            borderColor: 'divider'
+          }}>
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 2, fontStyle: 'italic' }}>
+              📦 {t('invoices:wizard.step4.optionalFields')} (solo para transporte)
+            </Typography>
+            <Grid container spacing={3}>
+              <Grid item xs={6} sm={4} md={2}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  label={t('invoices:wizard.step4.date')}
+                  value={newItem.itemDate}
+                  onChange={(e) => setNewItem({ ...newItem, itemDate: e.target.value })}
+                  InputLabelProps={{ shrink: true }}
+                  helperText="Fecha servicio"
+                />
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <TextField
+                  fullWidth
+                  label={t('invoices:wizard.step4.plate')}
+                  value={newItem.vehiclePlate}
+                  onChange={(e) => setNewItem({ ...newItem, vehiclePlate: e.target.value })}
+                  placeholder="4592JBZ"
+                  helperText="Matrícula"
+                />
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <TextField
+                  fullWidth
+                  label={t('invoices:wizard.step4.order')}
+                  value={newItem.orderNumber}
+                  onChange={(e) => setNewItem({ ...newItem, orderNumber: e.target.value })}
+                  placeholder="PED-001"
+                  helperText="Nº Pedido"
+                />
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <TextField
+                  fullWidth
+                  label={t('invoices:wizard.step4.zone')}
+                  value={newItem.zone}
+                  onChange={(e) => setNewItem({ ...newItem, zone: e.target.value })}
+                  placeholder="CDF 11"
+                  helperText="Zona"
+                />
+              </Grid>
+              <Grid item xs={6} sm={4} md={2}>
+                <TextField
+                  fullWidth
+                  type="number"
+                  label={t('invoices:wizard.step4.gas')}
+                  value={newItem.gasPercentage}
+                  onChange={(e) => setNewItem({ ...newItem, gasPercentage: parseFloat(e.target.value) })}
+                  inputProps={{ min: 0, max: 100, step: 0.01 }}
+                  helperText="% Gasoil"
+                />
+              </Grid>
+            </Grid>
+          </Box>
         </CardContent>
       </Card>
 
