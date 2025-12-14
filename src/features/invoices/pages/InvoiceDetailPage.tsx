@@ -27,6 +27,7 @@ import {
   ErrorOutline as ErrorIcon,
   HourglassEmpty as PendingIcon,
   Visibility as PreviewIcon,
+  Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { useInvoice, useDeleteInvoice } from '../hooks/useInvoices';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -47,7 +48,8 @@ const InvoiceDetailPage: React.FC = () => {
 
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
-  const { data: invoice, isLoading, error } = useInvoice(invoiceId);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const { data: invoice, isLoading, error, refetch } = useInvoice(invoiceId);
   const deleteMutation = useDeleteInvoice();
 
   // Data for React-PDF generation
@@ -145,6 +147,26 @@ const InvoiceDetailPage: React.FC = () => {
     navigate('/invoices');
   };
 
+  // Handle manual VeriFactu retry
+  const handleRetryVerifactu = async () => {
+    try {
+      setIsRetrying(true);
+      await invoicesApi.retryVerifactu(invoiceId);
+      toastService.success('Factura añadida a la cola de verificación');
+      refetch(); // Refresh invoice data
+    } catch (error) {
+      console.error('Error retrying VeriFactu:', error);
+      toastService.error('Error al reintentar verificación');
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
+  // Navigate to create rectificativa invoice
+  const handleCreateRectificativa = () => {
+    navigate(`/invoices/new?rectificaId=${invoiceId}`);
+  };
+
   const canEdit = !!invoice;
   const canDelete = !!invoice;
 
@@ -181,8 +203,33 @@ const InvoiceDetailPage: React.FC = () => {
       )}
 
       {(verifactuStatus?.toUpperCase() === 'REJECTED' || verifactuStatus?.toUpperCase() === 'FAILED') && (
-        <Alert severity="error" sx={{ mb: 3 }} icon={<ErrorIcon />}>
-          <strong>Error de Verificación:</strong> La factura ha sido rechazada o ha ocurrido un error. Por favor, revisa los detalles o contacta con soporte.
+        <Alert severity="error" sx={{ mb: 3 }} icon={<ErrorIcon />}
+          action={
+            <Stack direction="row" spacing={1}>
+              <Button
+                color="inherit"
+                size="small"
+                startIcon={isRetrying ? <CircularProgress size={16} /> : <RefreshIcon />}
+                onClick={handleRetryVerifactu}
+                disabled={isRetrying}
+              >
+                Reintentar
+              </Button>
+              {(invoice?.verifactuRetryCount ?? 0) >= 5 && (
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={handleCreateRectificativa}
+                >
+                  Emitir Rectificativa
+                </Button>
+              )}
+            </Stack>
+          }
+        >
+          <strong>Error de Verificación:</strong> La factura ha sido rechazada o ha ocurrido un error.
+          {(invoice?.verifactuRetryCount ?? 0) >= 5 &&
+            " Ha superado el máximo de reintentos automáticos. Puede reintentar manualmente o emitir una factura rectificativa."}
         </Alert>
       )}
 

@@ -104,4 +104,13 @@ export const invoicesApi = {
     const response = await apiClient.get<VerificationStatusResponse>(`/api/invoices/${id}/verification-status`);
     return response.data;
   },
+
+  // Reintentar verificación VeriFactu manualmente
+  // POST /api/invoices/{id}/retry-verifactu
+  retryVerifactu: async (id: number): Promise<{ message: string; invoiceId: number; verifactuStatus: string }> => {
+    const response = await apiClient.post<{ message: string; invoiceId: number; verifactuStatus: string }>(
+      `/api/invoices/${id}/retry-verifactu`
+    );
+    return response.data;
+  },
 };
