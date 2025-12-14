@@ -70,9 +70,15 @@ export const Step2ClientSelect: React.FC<Step2ClientSelectProps> = ({
                   <strong>{client.businessName}</strong>
                 </Typography>
                 <Typography variant="body2">CIF/NIF: {client.taxId}</Typography>
-                <Typography variant="body2">{t('invoices:wizard.step2.address')} {client.address}, {client.city} ({client.postalCode})</Typography>
-                <Typography variant="body2">{t('invoices:wizard.step2.email')} {client.email}</Typography>
-                <Typography variant="body2">{t('invoices:wizard.step2.phone')} {client.phone}</Typography>
+                {client.address && (
+                  <Typography variant="body2">
+                    {t('invoices:wizard.step2.address')} {client.address}
+                    {client.city && `, ${client.city}`}
+                    {client.postalCode && ` (${client.postalCode})`}
+                  </Typography>
+                )}
+                {client.email && <Typography variant="body2">{t('invoices:wizard.step2.email')} {client.email}</Typography>}
+                {client.phone && <Typography variant="body2">{t('invoices:wizard.step2.phone')} {client.phone}</Typography>}
               </>
             ) : null;
           })()}

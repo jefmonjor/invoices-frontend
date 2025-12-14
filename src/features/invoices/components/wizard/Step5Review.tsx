@@ -148,8 +148,14 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                     {company.businessName}
                   </Typography>
                   <Typography variant="body2">CIF: {company.taxId}</Typography>
-                  <Typography variant="body2">{company.address}</Typography>
-                  <Typography variant="body2">{company.email}</Typography>
+                  {company.address && (
+                    <Typography variant="body2">
+                      {company.address}
+                      {company.city && `, ${company.city}`}
+                      {company.postalCode && ` (${company.postalCode})`}
+                    </Typography>
+                  )}
+                  {company.email && <Typography variant="body2">{company.email}</Typography>}
                 </>
               ) : (
                 <Typography variant="body2" color="text.secondary">
@@ -174,8 +180,14 @@ export const Step5Review: React.FC<Step5ReviewProps> = ({
                     {client.businessName}
                   </Typography>
                   <Typography variant="body2">CIF: {client.taxId}</Typography>
-                  <Typography variant="body2">{client.address}</Typography>
-                  <Typography variant="body2">{client.email}</Typography>
+                  {client.address && (
+                    <Typography variant="body2">
+                      {client.address}
+                      {client.city && `, ${client.city}`}
+                      {client.postalCode && ` (${client.postalCode})`}
+                    </Typography>
+                  )}
+                  {client.email && <Typography variant="body2">{client.email}</Typography>}
                 </>
               ) : (
                 <Typography variant="body2" color="text.secondary">
