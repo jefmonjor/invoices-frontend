@@ -24,11 +24,11 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Download as DownloadIcon,
-  PictureAsPdf as PdfIcon,
   ErrorOutline as ErrorIcon,
   HourglassEmpty as PendingIcon,
+  Visibility as PreviewIcon,
 } from '@mui/icons-material';
-import { useInvoice, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
+import { useInvoice, useDeleteInvoice } from '../hooks/useInvoices';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { formatCurrency, formatDate } from '@/utils/formatters';
 import VerifactuBadge from '../components/VerifactuBadge';
@@ -38,8 +38,9 @@ import VerifactuDashboard from '../../dashboard/components/VerifactuDashboard';
 import { toastService } from '@/services/toast.service';
 import 'react-toastify/dist/ReactToastify.css';
 import { invoicesApi } from '@/api/invoices.api';
-
-// ... existing imports
+import { generateInvoicePdfBlob } from '../utils/pdfGenerator';
+import { useCompanies } from '@/features/companies/hooks/useCompanies';
+import { useClients } from '@/features/clients/hooks/useClients';
 
 const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,9 +48,13 @@ const InvoiceDetailPage: React.FC = () => {
   const invoiceId = parseInt(id || '0', 10);
 
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const { data: invoice, isLoading, error } = useInvoice(invoiceId);
   const deleteMutation = useDeleteInvoice();
-  const generatePDFMutation = useGeneratePDF();
+
+  // Data for React-PDF generation
+  const { data: companies } = useCompanies();
+  const { data: clients } = useClients();
 
   // Use local state for verifactu status updates (can be updated via WebSocket)
   // Initialize with invoice data to avoid setState in useEffect
@@ -100,19 +105,37 @@ const InvoiceDetailPage: React.FC = () => {
     navigate(`/invoices/${invoiceId}/edit`);
   };
 
-  const handleGeneratePDF = async () => {
+  // Generate PDF preview using React-PDF and open in new tab
+  const handlePreviewPDF = async () => {
     if (!invoice) return;
 
     try {
-      await generatePDFMutation.mutateAsync({
-        id: invoice.id,
-        invoiceNumber: invoice.invoiceNumber
-      });
-      // Optimistic update
-      setVerifactuStatus('processing');
+      setIsGeneratingPreview(true);
+
+      // Find company and client from cached data
+      const company = companies?.find(c => c.id === invoice.companyId);
+      const client = clients?.find(c => c.id === invoice.clientId);
+
+      if (!company || !client) {
+        toastService.error('No se encontraron datos de empresa o cliente');
+        return;
+      }
+
+      // Generate PDF blob using React-PDF
+      const blob = await generateInvoicePdfBlob(invoice, company, client);
+
+      // Open in new tab for preview
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+
+      // Clean up blob URL after a delay
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error al generar el PDF');
+      console.error('Error generating PDF preview:', error);
+      toastService.error('Error al generar vista previa del PDF');
+    } finally {
+      setIsGeneratingPreview(false);
     }
   };
 
@@ -193,16 +216,15 @@ const InvoiceDetailPage: React.FC = () => {
         </Box>
 
         <Stack direction="row" spacing={1}>
+          {/* PDF Preview Button - Uses React-PDF */}
           <Button
             variant="contained"
             color="primary"
-            startIcon={<PdfIcon />}
-            onClick={handleGeneratePDF}
-            disabled={generatePDFMutation.isPending || verifactuStatus === 'processing'}
+            startIcon={<PreviewIcon />}
+            onClick={handlePreviewPDF}
+            disabled={isGeneratingPreview}
           >
-            {generatePDFMutation.isPending || verifactuStatus?.toUpperCase() === 'PROCESSING' || verifactuStatus?.toUpperCase() === 'PENDING'
-              ? 'Generando...'
-              : 'Generar PDF'}
+            {isGeneratingPreview ? 'Generando...' : 'Ver PDF'}
           </Button>
 
           {/* PDF Download Logic */}
