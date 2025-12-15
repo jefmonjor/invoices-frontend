@@ -344,10 +344,11 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                         {company?.taxId && <Text style={styles.companyNif}>{company.taxId}</Text>}
                         {company?.address && (
                             <Text style={styles.companyAddress}>
-                                {company.address}, {company.postalCode} {company.city} ({company.province})
+                                {company.address}{company.postalCode ? `, ${company.postalCode}` : ''}{company.city ? ` ${company.city}` : ''}{company.province ? ` (${company.province})` : ''}
                             </Text>
                         )}
                         {company?.phone && <Text style={styles.companyAddress}>{company.phone}</Text>}
+                        {company?.email && <Text style={styles.companyAddress}>{company.email}</Text>}
                     </View>
                     <View style={styles.qrSpace}>
                         {/* Future: <Image src={qrCodeUrl} /> */}
