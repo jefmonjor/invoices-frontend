@@ -246,6 +246,118 @@ export const ProfilePage: React.FC = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Logo de Empresa - Solo para ADMIN */}
+          {currentCompany && currentCompany.role === 'ADMIN' && (
+            <Card sx={{ mt: 3 }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Logo de Empresa
+                </Typography>
+                <Divider sx={{ mb: 2 }} />
+
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 2, sm: 3 }
+                }}>
+                  {/* Preview */}
+                  <Box
+                    sx={{
+                      width: { xs: '100%', sm: 180 },
+                      height: 60,
+                      border: '2px dashed',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden',
+                      bgcolor: 'background.paper'
+                    }}
+                  >
+                    {currentCompany.logoUrl ? (
+                      <img
+                        src={currentCompany.logoUrl}
+                        alt="Logo"
+                        style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                      />
+                    ) : (
+                      <Typography variant="caption" color="text.secondary">
+                        Sin logo
+                      </Typography>
+                    )}
+                  </Box>
+
+                  {/* Upload controls */}
+                  <Box sx={{ flex: 1 }}>
+                    <input
+                      accept="image/png"
+                      style={{ display: 'none' }}
+                      id="logo-upload-input"
+                      type="file"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+
+                        // Validate
+                        if (file.type !== 'image/png') {
+                          alert('Solo se permiten archivos PNG');
+                          return;
+                        }
+                        if (file.size > 500 * 1024) {
+                          alert('El archivo debe ser menor de 500KB');
+                          return;
+                        }
+
+                        try {
+                          const { companyService } = await import('@/api/companyService');
+                          await companyService.uploadLogo(currentCompany.id, file);
+                          // Refresh page to show new logo
+                          window.location.reload();
+                        } catch (err) {
+                          alert('Error al subir logo');
+                          console.error(err);
+                        }
+                      }}
+                    />
+                    <label htmlFor="logo-upload-input">
+                      <Button variant="outlined" component="span" size="small">
+                        {currentCompany.logoUrl ? 'Cambiar Logo' : 'Subir Logo'}
+                      </Button>
+                    </label>
+
+                    {currentCompany.logoUrl && (
+                      <Button
+                        variant="text"
+                        color="error"
+                        size="small"
+                        sx={{ ml: 1 }}
+                        onClick={async () => {
+                          if (!confirm('¿Eliminar el logo?')) return;
+                          try {
+                            const { companyService } = await import('@/api/companyService');
+                            await companyService.deleteLogo(currentCompany.id);
+                            window.location.reload();
+                          } catch (err) {
+                            alert('Error al eliminar logo');
+                            console.error(err);
+                          }
+                        }}
+                      >
+                        Eliminar
+                      </Button>
+                    )}
+
+                    <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 1 }}>
+                      PNG, máx 500KB. Tamaño ideal: 180×60 px
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
 
         <InviteUserModal

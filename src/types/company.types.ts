@@ -13,6 +13,7 @@ export interface Company {
   phone?: string; // Opcional
   email?: string; // Opcional
   iban?: string; // Cuenta bancaria - Opcional
+  logoUrl?: string; // URL del logo - Opcional
   createdAt?: string; // ISO-8601
   updatedAt?: string; // ISO-8601
   // User specific fields (from CompanyDto)

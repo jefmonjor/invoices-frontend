@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page, Text, View, Document, StyleSheet, Font } from '@react-pdf/renderer';
+import { Page, Text, View, Document, StyleSheet, Font, Image } from '@react-pdf/renderer';
 import type { Invoice, CompanyDTO, ClientDTO } from '@/types/invoice.types';
 
 // Register fonts
@@ -337,7 +337,12 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                 {/* Header - Fixed on all pages */}
                 <View style={styles.headerSection} fixed>
                     <View style={styles.logoSpace}>
-                        {/* Future: <Image src={company?.logoUrl} /> */}
+                        {company?.logoUrl && (
+                            <Image
+                                src={company.logoUrl}
+                                style={{ maxWidth: '100%', maxHeight: 45, objectFit: 'contain' }}
+                            />
+                        )}
                     </View>
                     <View style={styles.companyInfo}>
                         <Text style={styles.companyName}>{company?.businessName || 'EMPRESA'}</Text>

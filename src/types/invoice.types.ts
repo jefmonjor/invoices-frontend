@@ -46,6 +46,7 @@ export interface CompanyDTO {
   phone?: string; // Opcional
   email?: string; // Opcional
   iban?: string; // Opcional
+  logoUrl?: string; // Opcional - URL del logo
 }
 
 // ==================== Invoice Item ====================

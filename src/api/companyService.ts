@@ -38,7 +38,29 @@ export const companyService = {
     deleteCompany: async (companyId: number) => {
         await apiClient.delete(`/api/companies/${companyId}`);
     },
+
+    /**
+     * Upload company logo (ADMIN only)
+     * Accepts PNG only, max 500KB
+     */
+    uploadLogo: async (companyId: number, file: File) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await apiClient.post(`/api/companies/${companyId}/logo`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
+    /**
+     * Delete company logo (ADMIN only)
+     */
+    deleteLogo: async (companyId: number) => {
+        const response = await apiClient.delete(`/api/companies/${companyId}/logo`);
+        return response.data;
+    },
 };
 
 export default companyService;
-
