@@ -271,7 +271,7 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
     }, 0);
 
     const totalAmount = invoice.totalAmount ?? (baseAmount + vatAmount);
-    const vatPercentage = invoice.items[0]?.vatPercentage || 21;
+    const vatPercentage = invoice.items?.[0]?.vatPercentage || 21;
 
     // Render table header
     const renderTableHeader = () => (
