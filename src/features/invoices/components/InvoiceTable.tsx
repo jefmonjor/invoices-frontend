@@ -131,15 +131,15 @@ export const InvoiceTable: React.FC<InvoiceTableProps> = ({
                     {t('invoices:fields.baseAmount')}
                   </Typography>
                   <Typography variant="body2">
-                    {formatCurrency(invoice.baseAmount)}
+                    {formatCurrency(invoice.baseAmount ?? 0)}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant="body2" color="text.secondary">
-                    {t('invoices:fields.vat')} ({invoice.items?.[0]?.vatPercentage || 21}%)
+                    {t('invoices:fields.vat')} ({invoice.items?.[0]?.vatPercentage ?? 21}%)
                   </Typography>
                   <Typography variant="body2">
-                    {formatCurrency(invoice.totalAmount - invoice.baseAmount + invoice.irpfAmount - invoice.reAmount)}
+                    {formatCurrency((invoice.totalAmount ?? 0) - (invoice.baseAmount ?? 0) + (invoice.irpfAmount ?? 0) - (invoice.reAmount ?? 0))}
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
