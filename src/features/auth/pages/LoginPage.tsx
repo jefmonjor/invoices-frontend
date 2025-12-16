@@ -104,8 +104,14 @@ export const LoginPage = () => {
               disabled={loading}
               sx={{ mt: 2 }}
             >
-              {loading ? 'Cargando...' : 'Iniciar Sesión'}
+              {loading ? 'Conectando... (puede tardar unos segundos)' : 'Iniciar Sesión'}
             </Button>
+
+            {loading && (
+              <Typography variant="caption" color="text.secondary" align="center" sx={{ display: 'block', mt: 1 }}>
+                Primera conexión puede tardar hasta 15 segundos
+              </Typography>
+            )}
 
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography variant="body2" color="text.secondary">
