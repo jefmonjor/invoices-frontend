@@ -47,7 +47,7 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
                   <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#8884d8'} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => `${value} facturas`} />
+              <Tooltip formatter={(value) => `${value} facturas`} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
