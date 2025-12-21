@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vite.dev/config/
-// Build: 2025-12-18 - Optimized with manual chunks + lazy loading
+// Build: 2025-12-21 - Fixed recharts loading order (removed separate chunk)
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -43,13 +43,7 @@ export default defineConfig({
             return 'vendor-mui';
           }
 
-          // Charts - only loaded when dashboard is accessed (lazy)
-          if (id.includes('recharts')) {
-            return 'vendor-charts';
-          }
-
           // PDF Generation - loaded ONLY via dynamic import
-          // NOT bundled eagerly, loaded when user generates PDF
           if (id.includes('@react-pdf') || id.includes('react-pdf')) {
             return 'vendor-pdf';
           }
@@ -65,10 +59,13 @@ export default defineConfig({
             id.includes('i18next')) {
             return 'vendor-utils';
           }
+
+          // recharts, d3, and other libs - let Vite handle them
+          // (no manual chunk = included in main bundle or auto-chunked)
         },
       },
     },
-    chunkSizeWarningLimit: 600, // Warning at 600KB for individual chunks
+    chunkSizeWarningLimit: 800,
   },
 })
 
