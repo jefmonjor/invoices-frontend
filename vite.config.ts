@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vite.dev/config/
-// Build: 2025-12-18 - Optimized with manual chunks + lazy loading
+// Build: 2025-12-21 - Fixed chunk loading order for recharts
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -24,10 +24,13 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Core React - rarely changes, highly cacheable
+          // Core React + recharts together (recharts needs React.forwardRef)
           if (id.includes('node_modules/react') ||
             id.includes('node_modules/react-dom') ||
-            id.includes('node_modules/react-router')) {
+            id.includes('node_modules/react-router') ||
+            id.includes('recharts') ||
+            id.includes('d3-') ||
+            id.includes('victory-vendor')) {
             return 'vendor-react';
           }
 
@@ -43,13 +46,7 @@ export default defineConfig({
             return 'vendor-mui';
           }
 
-          // Charts - only loaded when dashboard is accessed (lazy)
-          if (id.includes('recharts')) {
-            return 'vendor-charts';
-          }
-
           // PDF Generation - loaded ONLY via dynamic import
-          // NOT bundled eagerly, loaded when user generates PDF
           if (id.includes('@react-pdf') || id.includes('react-pdf')) {
             return 'vendor-pdf';
           }
@@ -68,7 +65,7 @@ export default defineConfig({
         },
       },
     },
-    chunkSizeWarningLimit: 600, // Warning at 600KB for individual chunks
+    chunkSizeWarningLimit: 700, // React+recharts will be larger
   },
 })
 
