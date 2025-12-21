@@ -23,9 +23,24 @@
     "cancelled": "Cancelada"
   },
   "actions": {
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "view": "Ver",
     "generatePDF": "Generar PDF",
     "downloadPDF": "Descargar PDF",
-    "sendEmail": "Enviar por Email"
+    "sendEmail": "Enviar por Email",
+    "downloadQuarter": "Descargar T{{quarter}}",
+    "downloadAll": "Descargar Todas",
+    "exportExcel": "Exportar Excel"
+  },
+  "quarters": {
+    "total": "Total",
+    "invoices": "facturas",
+    "selectedQuarter": "Trimestre seleccionado",
+    "q1": "T1 (Ene-Mar)",
+    "q2": "T2 (Abr-Jun)",
+    "q3": "T3 (Jul-Sep)",
+    "q4": "T4 (Oct-Dic)"
   },
   "messages": {
     "pdfGenerating": "Generando PDF...",
@@ -41,7 +56,11 @@
     "emptyTitle": "No hay facturas",
     "emptyMessage": "No se encontraron facturas con los filtros seleccionados",
     "emptyMessageInit": "Aún no has creado ninguna factura. Comienza creando tu primera factura.",
-    "createFirst": "Crear primera factura"
+    "createFirst": "Crear primera factura",
+    "downloadSuccess": "Archivo descargado correctamente",
+    "downloadError": "Error al descargar el archivo",
+    "exportSuccess": "Excel exportado correctamente",
+    "exportError": "Error al exportar a Excel"
   },
   "wizard": {
     "subtitle": "Modifica los datos de la factura utilizando el asistente",

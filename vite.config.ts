@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vite.dev/config/
-// Build: 2025-12-09 - Optimized with manual chunks
+// Build: 2025-12-18 - Optimized with manual chunks + lazy loading
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -23,28 +23,52 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Core React - rarely changes
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+        manualChunks: (id) => {
+          // Core React - rarely changes, highly cacheable
+          if (id.includes('node_modules/react') ||
+            id.includes('node_modules/react-dom') ||
+            id.includes('node_modules/react-router')) {
+            return 'vendor-react';
+          }
+
           // State management
-          'vendor-state': ['@tanstack/react-query', 'zustand'],
+          if (id.includes('@tanstack/react-query') ||
+            id.includes('zustand')) {
+            return 'vendor-state';
+          }
+
           // UI Framework - large but cacheable
-          'vendor-mui': [
-            '@mui/material',
-            '@mui/icons-material',
-            '@emotion/react',
-            '@emotion/styled',
-          ],
-          // Charts - only needed on dashboard
-          'vendor-charts': ['recharts'],
-          // PDF Generation - loaded dynamically only when generating PDFs
-          'vendor-pdf': ['@react-pdf/renderer'],
+          if (id.includes('@mui') ||
+            id.includes('@emotion')) {
+            return 'vendor-mui';
+          }
+
+          // Charts - only loaded when dashboard is accessed (lazy)
+          if (id.includes('recharts')) {
+            return 'vendor-charts';
+          }
+
+          // PDF Generation - loaded ONLY via dynamic import
+          // NOT bundled eagerly, loaded when user generates PDF
+          if (id.includes('@react-pdf') || id.includes('react-pdf')) {
+            return 'vendor-pdf';
+          }
+
+          // Form validation
+          if (id.includes('yup') || id.includes('react-hook-form')) {
+            return 'vendor-forms';
+          }
+
           // Utilities
-          'vendor-utils': ['axios', 'date-fns', 'i18next', 'react-i18next'],
+          if (id.includes('axios') ||
+            id.includes('date-fns') ||
+            id.includes('i18next')) {
+            return 'vendor-utils';
+          }
         },
       },
     },
-    chunkSizeWarningLimit: 600, // Raise limit slightly for MUI
+    chunkSizeWarningLimit: 600, // Warning at 600KB for individual chunks
   },
 })
 

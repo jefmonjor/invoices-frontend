@@ -1,9 +1,25 @@
-import { Box, Typography, Skeleton, Alert } from '@mui/material';
+import { lazy, Suspense } from 'react';
+import { Box, Typography, Skeleton, Alert, CircularProgress } from '@mui/material';
 import { useAuthStore } from '@/store/authStore';
 import { useDashboard } from '../hooks/useDashboard';
-import { PlatformAdminDashboard } from '../components/PlatformAdminDashboard';
-import { CompanyAdminDashboard } from '../components/CompanyAdminDashboard';
-import { CompanyUserDashboard } from '../components/CompanyUserDashboard';
+
+// Lazy load dashboard components to reduce initial bundle
+// Charts (recharts) are only loaded when dashboard is visited
+const PlatformAdminDashboard = lazy(() =>
+  import('../components/PlatformAdminDashboard').then(m => ({ default: m.PlatformAdminDashboard }))
+);
+const CompanyAdminDashboard = lazy(() =>
+  import('../components/CompanyAdminDashboard').then(m => ({ default: m.CompanyAdminDashboard }))
+);
+const CompanyUserDashboard = lazy(() =>
+  import('../components/CompanyUserDashboard').then(m => ({ default: m.CompanyUserDashboard }))
+);
+
+const DashboardLoader = () => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+    <CircularProgress />
+  </Box>
+);
 
 export const DashboardPage = () => {
   const { user } = useAuthStore();
@@ -41,12 +57,15 @@ export const DashboardPage = () => {
         </Typography>
       </Box>
 
-      {/* Role-based Dashboard */}
-      {data.role === 'PLATFORM_ADMIN' && <PlatformAdminDashboard data={data} />}
-      {data.role === 'COMPANY_ADMIN' && <CompanyAdminDashboard data={data} />}
-      {data.role === 'COMPANY_USER' && <CompanyUserDashboard data={data} />}
+      {/* Role-based Dashboard with Suspense */}
+      <Suspense fallback={<DashboardLoader />}>
+        {data.role === 'PLATFORM_ADMIN' && <PlatformAdminDashboard data={data} />}
+        {data.role === 'COMPANY_ADMIN' && <CompanyAdminDashboard data={data} />}
+        {data.role === 'COMPANY_USER' && <CompanyUserDashboard data={data} />}
+      </Suspense>
     </Box>
   );
 };
 
 export default DashboardPage;
+

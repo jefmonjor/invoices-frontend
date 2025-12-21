@@ -13,17 +13,21 @@ import {
   InputAdornment,
   Select,
   FormControl,
-  InputLabel
+  InputLabel,
+  Snackbar,
+  Alert
 } from '@mui/material';
 import { Add as AddIcon, Search as SearchIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useInvoices, useDeleteInvoice, useGeneratePDF } from '../hooks/useInvoices';
 import { InvoiceTable } from '../components/InvoiceTable';
+import { QuarterSelector } from '../components/QuarterSelector';
 import { TableSkeleton } from '@/components/common/Skeletons';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { EmptyState } from '@/components/common/EmptyState';
 import VerifactuDashboard from '../../dashboard/components/VerifactuDashboard';
+import { invoicesApi } from '@/api/invoices.api';
 import type { Invoice } from '@/types/invoice.types';
 
 export const InvoicesListPage: React.FC = () => {
@@ -38,6 +42,20 @@ export const InvoicesListPage: React.FC = () => {
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; invoice: Invoice | null }>({
     open: false,
     invoice: null
+  });
+
+  // State - Quarter selection
+  const currentYear = new Date().getFullYear();
+  const currentQuarter = Math.ceil((new Date().getMonth() + 1) / 3);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedQuarter, setSelectedQuarter] = useState(currentQuarter);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // State - Snackbar notifications
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
+    open: false,
+    message: '',
+    severity: 'success'
   });
 
   // Debounce search term to avoid too many API calls
@@ -105,6 +123,74 @@ export const InvoicesListPage: React.FC = () => {
     setPage(0);
   };
 
+  // Quarter download handlers
+  const handleDownloadQuarter = async (year: number, quarter: number) => {
+    setIsDownloading(true);
+    try {
+      await invoicesApi.downloadQuarter(year, quarter);
+      setSnackbar({
+        open: true,
+        message: t('invoices:messages.downloadSuccess', `ZIP del T${quarter} ${year} descargado correctamente`),
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error downloading quarter:', error);
+      setSnackbar({
+        open: true,
+        message: t('invoices:messages.downloadError', 'Error al descargar el archivo'),
+        severity: 'error'
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleDownloadAll = async (year: number) => {
+    setIsDownloading(true);
+    try {
+      await invoicesApi.downloadAll(year);
+      setSnackbar({
+        open: true,
+        message: t('invoices:messages.downloadSuccess', `ZIP de ${year} descargado correctamente`),
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error downloading all:', error);
+      setSnackbar({
+        open: true,
+        message: t('invoices:messages.downloadError', 'Error al descargar el archivo'),
+        severity: 'error'
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleExportExcel = async (year: number, quarter?: number) => {
+    setIsDownloading(true);
+    try {
+      await invoicesApi.exportToExcel(year, quarter);
+      setSnackbar({
+        open: true,
+        message: t('invoices:messages.exportSuccess', 'Excel exportado correctamente'),
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      setSnackbar({
+        open: true,
+        message: t('invoices:messages.exportError', 'Error al exportar a Excel'),
+        severity: 'error'
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
   // Check if there are any filters active
   const hasFilters = searchTerm !== '' || statusFilter !== 'all';
   const isEmpty = !isLoading && totalCount === 0;
@@ -129,6 +215,20 @@ export const InvoicesListPage: React.FC = () => {
           {t('invoices:list.create', 'Nueva Factura')}
         </Button>
       </Stack>
+
+      {/* Quarter Selector - Show only when we have data or finished loading */}
+      {!isLoading && !isEmpty && (
+        <QuarterSelector
+          selectedYear={selectedYear}
+          selectedQuarter={selectedQuarter}
+          onYearChange={setSelectedYear}
+          onQuarterChange={setSelectedQuarter}
+          onDownloadQuarter={handleDownloadQuarter}
+          onDownloadAll={handleDownloadAll}
+          onExportExcel={handleExportExcel}
+          isDownloading={isDownloading}
+        />
+      )}
 
       {/* Filters - Only show if there are invoices or filters are active */}
       {(!isEmpty || hasFilters) && (
@@ -221,6 +321,18 @@ export const InvoicesListPage: React.FC = () => {
         onCancel={handleDeleteCancel}
         severity="error"
       />
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

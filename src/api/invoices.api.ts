@@ -113,4 +113,85 @@ export const invoicesApi = {
     );
     return response.data;
   },
+
+  // ==================== Export Methods ====================
+
+  // Obtener resumen de facturas por trimestre
+  // GET /api/invoices/quarters?year=2025
+  getQuarterSummary: async (year: number): Promise<QuarterSummaryResponse> => {
+    const response = await apiClient.get<QuarterSummaryResponse>('/api/invoices/quarters', {
+      params: { year },
+    });
+    return response.data;
+  },
+
+  // Descargar ZIP de facturas de un trimestre
+  // GET /api/invoices/download-quarter?year=2025&quarter=4
+  downloadQuarter: async (year: number, quarter: number): Promise<void> => {
+    const response = await apiClient.get('/api/invoices/download-quarter', {
+      params: { year, quarter },
+      responseType: 'blob',
+    });
+    const blob = response.data;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Facturas_Q${quarter}_${year}.zip`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  // Descargar ZIP de todas las facturas del año
+  // GET /api/invoices/download-all?year=2025
+  downloadAll: async (year: number): Promise<void> => {
+    const response = await apiClient.get('/api/invoices/download-all', {
+      params: { year },
+      responseType: 'blob',
+    });
+    const blob = response.data;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Facturas_${year}.zip`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  // Exportar facturas a Excel
+  // GET /api/invoices/export?format=xlsx&year=2025&quarter=4
+  exportToExcel: async (year: number, quarter?: number): Promise<void> => {
+    const response = await apiClient.get('/api/invoices/export', {
+      params: { format: 'xlsx', year, quarter },
+      responseType: 'blob',
+    });
+    const blob = response.data;
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const filename = quarter
+      ? `Facturas_Q${quarter}_${year}.xlsx`
+      : `Facturas_${year}.xlsx`;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
+
+// Interfaz para el resumen de trimestres
+export interface QuarterSummaryResponse {
+  year: number;
+  currentQuarter: number;
+  quarters: {
+    Q1: number;
+    Q2: number;
+    Q3: number;
+    Q4: number;
+  };
+  totalCount: number;
+}
