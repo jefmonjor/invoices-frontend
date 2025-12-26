@@ -22,7 +22,7 @@
 
 - [ ] Backend: Endpoint `/api/invoices/export?format=xlsx` usando Apache POI
 - [ ] Frontend: Botón "Exportar Excel"
-- [ ] Columnas: Nº Factura, Fecha, Cliente, Base, IVA, IRPF, Total, Estado
+- [ ] Columnas: Nº Factura, Fecha, Cliente, Base, IVA, IRPF, Total, Estado, todas dependiendo el tipo de factura 
 
 ---
 
