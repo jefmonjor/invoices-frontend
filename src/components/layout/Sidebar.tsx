@@ -75,12 +75,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onDrawerToggle }) 
       path: '/users',
       roles: ['ROLE_PLATFORM_ADMIN', 'ROLE_ADMIN'], // Platform and company admins
     },
-    {
-      title: 'Certificado VeriFactu',
-      icon: <SecurityIcon />,
-      path: '/settings/certificate',
-      roles: ['ROLE_ADMIN'], // Only company admins
-    },
+    // VERIFACTU DISABLED TEMPORARILY
+    // {
+    //   title: 'Certificado VeriFactu',
+    //   icon: <SecurityIcon />,
+    //   path: '/settings/certificate',
+    //   roles: ['ROLE_ADMIN'], // Only company admins
+    // },
   ];
 
   const handleNavigation = (path: string) => {
