@@ -20,7 +20,7 @@ import {
   People as UsersIcon,
   Business as CompanyIcon,
   PersonOutline as ClientIcon,
-  Security as SecurityIcon,
+  // Security as SecurityIcon, // VERIFACTU DISABLED
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
