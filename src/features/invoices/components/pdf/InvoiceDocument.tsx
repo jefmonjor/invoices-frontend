@@ -438,12 +438,13 @@ export const InvoiceDocument: React.FC<InvoiceDocumentProps> = ({ invoice, compa
                     ) : null
                 )} fixed />
 
-                {/* VeriFactu - Fixed at bottom of ALL pages */}
+                {/* VERIFACTU DISABLED TEMPORARILY
                 <View style={styles.verifactuFooter} fixed>
                     <Text style={styles.verifactuText}>
                         Factura verificable en la sede electrónica de la AEAT - VERI*FACTU
                     </Text>
                 </View>
+                */}
 
                 <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) =>
                     `Página ${pageNumber} / ${totalPages}`
